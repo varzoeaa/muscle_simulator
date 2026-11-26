@@ -64,6 +64,7 @@ function AnatomyViewerImpl(props: AnatomyViewerProps) {
   const drag = useRef<{ x: number; y: number; px: number; py: number; moved: boolean } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
+  const sceneOffset = geometry.sceneOffsetYKey ? (pose[geometry.sceneOffsetYKey] ?? 0) : 0;
   const transforms = useMemo(() => computeFrameTransforms(geometry.frames, pose), [geometry.frames, pose]);
   const mirrorTransforms = useMemo(
     () => computeFrameTransforms(geometry.frames, mirrorPose ?? pose),
@@ -154,12 +155,24 @@ function AnatomyViewerImpl(props: AnatomyViewerProps) {
           </pattern>
         </defs>
         <g transform={viewTransform}>
+          <g transform={sceneOffset ? `translate(0 ${sceneOffset})` : undefined}>
           {geometry.mirrorContext && (
             <g transform={`translate(${mirrorAxis * 2} 0) scale(-1 1)`} aria-hidden="true" opacity={0.9} style={{ pointerEvents: 'none' }}>
               <Layers {...props} transforms={mirrorTransforms} layers={{ ...layers, labels: false, attachments: false, joints: false }} interactive={false} hover={null} setHover={() => undefined} />
             </g>
           )}
           <Layers {...props} transforms={transforms} layers={layers} interactive hover={hover} setHover={setHover} dragRef={drag} />
+          </g>
+          {geometry.fixtures?.map((f, i) => (
+            <g key={`fx-${i}`} aria-hidden="true">
+              <path d={f.d} className="an-fixture" />
+              {f.label && (
+                <text x={f.label.x} y={f.label.y} textAnchor="middle" className="an-label">
+                  {f.label.text}
+                </text>
+              )}
+            </g>
+          ))}
         </g>
       </svg>
 
@@ -259,8 +272,9 @@ function Layers(p: LayersProps) {
     return `${base}${matchesStructure(id, selectedId) && !selectedIsMuscle ? ' is-selected' : ''}${marked}${canSelect(id) ? ' an-clickable' : ''}`;
   };
 
-  const renderBones = () =>
+  const renderBones = (front: boolean) =>
     geometry.bones.map((b, i) => {
+      if (!!b.front !== front) return null;
       const t = transforms[b.frame];
       if (!t) return null;
       const cls = b.stroke ? (b.variant === 'cartilage' ? 'an-cartilage-line' : 'an-bone-line') : 'an-bone';
@@ -382,12 +396,16 @@ function Layers(p: LayersProps) {
       );
     });
 
-  const deep = muscles.filter((m) => m.layer === 'deep-muscles');
-  const superficial = muscles.filter((m) => m.layer === 'superficial-muscles');
+  // Negatív z: az előtérbe hozott (front) csontok mögött – pl. oldalnézetben a felkar takarja a mellkasfali izmokat.
+  const behind = muscles.filter((m) => m.z < 0);
+  const deep = muscles.filter((m) => m.z >= 0 && m.layer === 'deep-muscles');
+  const superficial = muscles.filter((m) => m.z >= 0 && m.layer === 'superficial-muscles');
 
   return (
     <>
-      {layers.bones && <g data-layer="bones">{renderBones()}</g>}
+      {layers.bones && <g data-layer="bones">{renderBones(false)}</g>}
+      <g data-layer="behind-limb">{behind.map(renderMuscle)}</g>
+      {layers.bones && <g data-layer="bones-front">{renderBones(true)}</g>}
       <g data-layer="deep-muscles">{deep.map(renderMuscle)}</g>
       <g data-layer="superficial-muscles">{superficial.map(renderMuscle)}</g>
       {layers.joints && <g data-layer="joints">{renderJoints()}</g>}

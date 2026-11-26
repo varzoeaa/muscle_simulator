@@ -13,18 +13,21 @@ Ami az ábrákon tankönyvi leírásokon alapul:
 Ami **nem** mért vagy validált:
 - a kontúrok pontos alakja és arányai (nem szkennelt, nem 3D-modellből vetített geometria);
 - a rostirány-vonalak sematikusak (eredés–tapadás közötti egyenesek);
-- a felülnézet és a fekvenyomás oldalnézete sematikusabb, mint az elülső nézet.
+- a felülnézet, az oldalnézet és a fekvenyomás oldalnézete sematikusabb, mint az elülső nézet. Az oldalnézetben a mellizomrészek egyszerű legyezőként (eredési vonal → tapadási vonal) jelennek meg, a mellkasfali izmok erősen sematikusak.
 
 ## Ábrázolásból kimaradt elemek
 
 - **Idegek:** a külső és belső mellizomideg lefutásához nem áll rendelkezésre ellenőrzött geometria, ezért az ábrákon nem szerepelnek; a beidegzés szövegesen jelenik meg.
 - A hasi rész felülnézetben nem látható, ezért ott nem szerepel.
 - Az ín kétlemezes, U alakú csavarodása csak szövegesen jelenik meg.
-- Nincs hátulsó és oldalsó anatómiai nézet (a fekvenyomás oldalnézete gyakorlat-szemléltetés).
+- Nincs hátulsó anatómiai nézet. Az oldalnézetből a külső ferde hasizom a jobb áttekinthetőség érdekében kimaradt.
 
 ## Mozgásanimációk egyszerűsítései
 
-- Egy szabadsági fok mozog (a vállízület forgása az adott síkban). **A lapocka, a kulcscsont és a könyök együttmozgása nincs ábrázolva** (scapulohumerális ritmus, protrakció stb.).
+- Egy szabadsági fok mozog (a vállízület forgása az adott síkban). **A lapocka és a kulcscsont együttmozgása nincs ábrázolva** (scapulohumerális ritmus, protrakció stb.); ezért a hajlítás animációja 80°-nál megáll.
+- **Befelé forgatás:** felülnézetben, a törzs mellett lógó karral; a felkarcsontfej körként, a forgatás az előre mutató alkarral látszik. A tartomány végét a valóságban a törzs korlátozza, az animáció rövidebb tartományt mutat.
+- **Zárt lánc (húzódzkodás):** a kéz rögzített, a törzs függőlegesen emelkedik; a felkar és az alkar szögét kétszegmenses inverz kinematika számolja a rögzített fogásból. Csak a felső szakasz látszik: síkbeli vetületben a szegycsonti-bordai rész eredés–tapadás távolsága kb. 110° távolításnál a legnagyobb, ezért a teljesen nyújtott karú alsó helyzetet a 2D modell nem tudja hitelesen szemléltetni.
+- **Járulékos belégzés:** a bordák, a bordaporcok és a szegycsont egyszerű függőleges eltolással emelkednek (a valódi bordamozgás forgással és oldalirányú tágulással jár). Csak koncentrikus működés jelenik meg.
 - Az izomkontúrok a csontokhoz kötött pontok között interpolálódnak; a „rövidülés” a geometriából adódó vizuális szemléltetés, **nem numerikus izomhossz-számítás**.
 - Nincs erő, forgatónyomaték, erőkar, gravitáció vagy izomaktivációs érték. Az „aktív” jelzés minőségi.
 - A koncentrikus/excentrikus/izometriás működéshez szemléltetett külső ellenállást (csigakábel) feltételezünk, ezt az alkalmazás szövegesen jelzi.

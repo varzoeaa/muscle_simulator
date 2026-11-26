@@ -268,6 +268,29 @@ export const pectoralisMajor: Muscle = {
       note: 'A szegycsonti-bordai rész csak hajlított karhelyzetből, az anatómiai helyzetig feszít.',
       evidence: 'anatomical-fact',
       sourceIds: KIN
+    },
+    {
+      movementId: 'shoulder-extension',
+      role: 'antagonist',
+      structureIds: ['muscle-deltoid-anterior', 'muscle-pectoralis-major-clavicular', 'muscle-coracobrachialis'],
+      evidence: 'anatomical-fact',
+      sourceIds: KIN
+    },
+    {
+      movementId: 'accessory-inspiration',
+      role: 'agonist',
+      structureIds: ['muscle-pectoralis-major'],
+      note: 'Járulékos belégzőizomként csak rögzített felső végtag és vállöv mellett emelheti a bordákat.',
+      evidence: 'anatomical-fact',
+      sourceIds: ['grays-anatomy']
+    },
+    {
+      movementId: 'accessory-inspiration',
+      role: 'synergist',
+      structureIds: ['muscle-pectoralis-minor'],
+      note: 'Rögzített lapockánál a kis mellizom is a bordák emelését segítheti.',
+      evidence: 'anatomical-fact',
+      sourceIds: ['moore-coa']
     }
   ],
   stabilization: [
@@ -300,6 +323,6 @@ export const pectoralisMajor: Muscle = {
     }
   ],
   sourceIds: ['fipat-ta2', 'moore-coa', 'grays-anatomy', 'openstax-ap2e', 'statpearls-pectoral', 'neumann-kinesiology', 'rodriguez-ridao-2020', 'lauver-2016'],
-  motionIds: ['pm-adduction', 'pm-horizontal-adduction'],
+  motionIds: ['pm-adduction', 'pm-horizontal-adduction', 'pm-internal-rotation', 'pm-flexion', 'pm-extension', 'pm-closed-chain', 'pm-accessory-inspiration'],
   exerciseIds: ['barbell-bench-press']
 };

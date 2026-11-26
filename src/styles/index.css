@@ -159,6 +159,7 @@ body {
   pointer-events: none;
 }
 .an-bone { fill: var(--an-bone); stroke: var(--an-bone-stroke); stroke-width: 1; }
+.an-fixture { fill: none; stroke: var(--an-bone-stroke); stroke-width: 7; stroke-linecap: round; }
 .an-bone-line { fill: none; stroke: var(--an-bone); stroke-linecap: round; }
 .an-cartilage-line { fill: none; stroke: var(--an-cartilage); stroke-linecap: round; }
 .an-bone.is-selected, .an-bone-line.is-selected { stroke: var(--ml-accent-2); }

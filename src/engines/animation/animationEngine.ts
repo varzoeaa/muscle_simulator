@@ -76,7 +76,8 @@ export const reset = (s: AnimationState): AnimationState => ({ ...s, playing: fa
 export function motionPose(motion: MotionDefinition, t: number, type: ContractionType): Pose {
   const e = easeInOut(clamp(t, 0, 1));
   const shortening = type === 'concentric' ? e : type === 'eccentric' ? 1 - e : 0.5;
-  return lerpPose(motion.startPose, motion.endPose, shortening);
+  const pose = lerpPose(motion.startPose, motion.endPose, shortening);
+  return motion.solvePose ? motion.solvePose(pose) : pose;
 }
 
 /** Minőségi (nem numerikus) izomhossz-változás iránya a vizsgált izomra. */

@@ -44,7 +44,8 @@ export function computeFrameTransforms(frames: FrameDefinition[], pose: Pose): R
     if (!f || depth > 20) return IDENTITY;
     const parent = resolve(f.parent, depth + 1);
     const angle = (f.baseAngle ?? 0) + (f.angleKey ? (pose[f.angleKey] ?? 0) * (f.angleScale ?? 1) : 0);
-    let m = multiply(parent, multiply(translate(f.pivot.x, f.pivot.y), rotate(angle)));
+    const ty = f.translateYKey ? (pose[f.translateYKey] ?? 0) : 0;
+    let m = multiply(parent, multiply(translate(f.pivot.x, f.pivot.y + ty), rotate(angle)));
     if (f.scaleYKey) m = multiply(m, scaleY(pose[f.scaleYKey] ?? 1));
     out[id] = m;
     return m;

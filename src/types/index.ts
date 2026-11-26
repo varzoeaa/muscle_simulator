@@ -94,7 +94,8 @@ export type JointMovementId =
   | 'scapular-downward-rotation'
   | 'scapular-anterior-tilt'
   | 'scapular-posterior-tilt'
-  | 'clavicular-depression';
+  | 'clavicular-depression'
+  | 'accessory-inspiration';
 
 export interface JointMovement {
   id: JointMovementId;
@@ -177,12 +178,21 @@ export interface Muscle extends AnatomicalStructure {
 
 /* ---------- Geometria ---------- */
 
-export type AnatomicalViewId = 'anterior' | 'superior' | 'lateral-bench';
+export type AnatomicalViewId =
+  | 'anterior'
+  | 'superior'
+  | 'lateral'
+  | 'superior-arm-at-side'
+  | 'anterior-closed-chain'
+  | 'anterior-respiration'
+  | 'lateral-bench';
 
 export interface AnatomicalView {
   id: AnatomicalViewId;
   name: Term;
   description: string;
+  /** Megjelenik-e az Anatomy Lab nézetválasztójában (a mozgásspecifikus nézetek nem). */
+  atlas?: boolean;
 }
 
 /** Egy pont egy adott csont koordináta-rendszerében (frame). A "world" a nézet rögzített rendszere. */
@@ -223,6 +233,8 @@ export interface BoneShapeGeometry {
   variant?: 'bone' | 'cartilage';
   /** Ha meg van adva, a csontot vastag vonalként (pl. borda) rajzoljuk. */
   stroke?: number;
+  /** Előtérbe hozott csont: a negatív z értékű izmok fölé rajzoljuk (pl. felkar oldalnézetben). */
+  front?: boolean;
 }
 
 export interface JointMarkerGeometry {
@@ -244,6 +256,8 @@ export interface FrameDefinition {
   angleScale?: number;
   /** A frame helyi y tengelyének nyújtása (vetületi rövidülés szemléltetése). */
   scaleYKey?: string;
+  /** A frame eltolása a szülő y tengelye mentén (pl. a mellkas emelkedése). */
+  translateYKey?: string;
 }
 
 export interface ViewGeometry {
@@ -259,6 +273,13 @@ export interface ViewGeometry {
   /** Struktúrák, amelyek csak kontextusként, tükrözve jelennek meg (nem interaktív). */
   mirrorContext?: boolean;
   orientation: { top: string; bottom: string; left: string; right: string };
+  /**
+   * Zárt kinetikai lánc: a teljes test (a tükrözött oldallal együtt) ennyivel tolódik
+   * függőlegesen, a `fixtures` elemei viszont helyben maradnak (pl. húzódzkodórúd).
+   */
+  sceneOffsetYKey?: string;
+  /** Rögzített környezeti elemek (nem anatómiai struktúrák), a nézet rendszerében. */
+  fixtures?: { d: string; label?: { x: number; y: number; text: string } }[];
 }
 
 /** Pózok: szögek (fok) a frame-ek angleKey kulcsai szerint. */
@@ -288,6 +309,10 @@ export interface MotionDefinition {
   /** Az izomrészek eltérő szerepe ebben a mozgásban. */
   regionNotes: { regionId: string; text: string }[];
   claims: Claim[];
+  /** A mozgásnál értelmezhető működési típusok (alapértelmezés: mindhárom). */
+  contractionTypes?: ContractionType[];
+  /** Az interpolált pózból származtatott teljes póz (pl. zárt láncú inverz kinematika). */
+  solvePose?: (pose: Pose) => Pose;
 }
 
 export type AnimationSpeed = 0.25 | 0.5 | 1 | 1.5 | 2;

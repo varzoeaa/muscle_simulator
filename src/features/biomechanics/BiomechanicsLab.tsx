@@ -62,7 +62,10 @@ export function BiomechanicsLab() {
     constant: { icon: <Equal size={15} />, text: player.state.playing ? 'Közel változatlan' : 'Nincs mozgás' }
   }[change];
 
+  const allowedTypes: ContractionType[] = motion.contractionTypes ?? ['concentric', 'eccentric', 'isometric'];
   const changeMotion = (id: string) => {
+    const next = motionById(id);
+    if (next?.contractionTypes && !next.contractionTypes.includes(type)) setType(next.contractionTypes[0]!);
     setMotionId(id);
     player.reset();
   };
@@ -72,7 +75,7 @@ export function BiomechanicsLab() {
   };
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
       <div className="flex min-w-0 flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
@@ -125,7 +128,7 @@ export function BiomechanicsLab() {
                 label="Izomműködési típus"
                 value={type}
                 onChange={changeType}
-                options={(['concentric', 'eccentric', 'isometric'] as ContractionType[]).map((t) => ({ value: t, label: contractionLabels[t].hu }))}
+                options={allowedTypes.map((t) => ({ value: t, label: contractionLabels[t].hu }))}
               />
             </div>
             <AnimationControls
@@ -148,55 +151,57 @@ export function BiomechanicsLab() {
             <Toggle label="Feliratok" checked={showLabels} onChange={setShowLabels} />
           </div>
         </Panel>
+        <div className="grid gap-3 lg:grid-cols-2">
+          <Panel className="lg:col-span-2">
+            <TermBlock term={motion.name} size="lg" />
+            <p className="mt-3 text-sm leading-relaxed text-ink-2">{motion.description}</p>
+          </Panel>
+          <Panel title={`${contractionLabels[type].hu} működés`}>
+            <p className="text-sm font-medium text-ink">{motion.contraction[type].summary}</p>
+            <p className="mt-2 text-sm leading-relaxed text-ink-2">{motion.contraction[type].detail}</p>
+            <p className="mt-3 rounded-xl bg-bg-2/60 p-2.5 text-xs leading-relaxed text-ink-2">{motion.resistance}</p>
+          </Panel>
+          <Panel title="A három működési típus röviden">
+            <ul className="flex flex-col gap-2 text-sm">
+              <li>
+                <b>Koncentrikus:</b> az aktív izom rövidül.
+              </li>
+              <li>
+                <b>Excentrikus:</b> az aktív izom terhelés alatt hosszabbodik.
+              </li>
+              <li>
+                <b>Izometriás:</b> az izom aktívan feszül, miközben az izom-ín egység hossza és az ízületi helyzet megközelítőleg változatlan.
+              </li>
+            </ul>
+            <p className="mt-2 text-xs text-ink-2">Az aktivitás nem azonos a rövidüléssel: mindhárom esetben aktív az izom.</p>
+          </Panel>
+          <Panel title="Izomrészek szerepe ebben a mozgásban">
+            <ul className="flex flex-col gap-2 text-sm">
+              {motion.regionNotes.map((n) => (
+                <li key={n.regionId}>
+                  <button type="button" className="text-left font-medium text-highlight underline decoration-dotted underline-offset-2" onClick={() => setSelected(n.regionId)}>
+                    {structureName(n.regionId).hu}
+                  </button>
+                  <span className="text-ink-2"> – {n.text}</span>
+                </li>
+              ))}
+            </ul>
+          </Panel>
+          <Panel className="lg:col-span-2" title="Szerepek">
+            <RoleTable roles={motion.roles} highlight={muscle.id} />
+          </Panel>
+        </div>
         <Disclaimer>
           Előre definiált, egyszerűsített 2D mozgás. Nem fizikai szimuláció: nem számol erőt, forgatónyomatékot vagy izomhosszt, és nem mutat izomaktivációs százalékot. Az
           „aktív” jelzés csak azt szemlélteti, hogy az izom a mozgás során működik. A lapocka és a kulcscsont együttmozgása nem szerepel az animációban.
         </Disclaimer>
       </div>
 
-      <div className="flex flex-col gap-3">
-        <Panel>
-          <TermBlock term={motion.name} size="lg" />
-          <p className="mt-3 text-sm leading-relaxed text-ink-2">{motion.description}</p>
-        </Panel>
-        <Panel title={`${contractionLabels[type].hu} működés`}>
-          <p className="text-sm font-medium text-ink">{motion.contraction[type].summary}</p>
-          <p className="mt-2 text-sm leading-relaxed text-ink-2">{motion.contraction[type].detail}</p>
-          <p className="mt-3 rounded-xl bg-bg-2/60 p-2.5 text-xs leading-relaxed text-ink-2">{motion.resistance}</p>
-        </Panel>
-        <Panel title="A három működési típus röviden">
-          <ul className="flex flex-col gap-2 text-sm">
-            <li>
-              <b>Koncentrikus:</b> az aktív izom rövidül.
-            </li>
-            <li>
-              <b>Excentrikus:</b> az aktív izom terhelés alatt hosszabbodik.
-            </li>
-            <li>
-              <b>Izometriás:</b> az izom aktívan feszül, miközben az izom-ín egység hossza és az ízületi helyzet megközelítőleg változatlan.
-            </li>
-          </ul>
-          <p className="mt-2 text-xs text-ink-2">Az aktivitás nem azonos a rövidüléssel: mindhárom esetben aktív az izom.</p>
-        </Panel>
-        <Panel title="Izomrészek szerepe ebben a mozgásban">
-          <ul className="flex flex-col gap-2 text-sm">
-            {motion.regionNotes.map((n) => (
-              <li key={n.regionId}>
-                <button type="button" className="text-left font-medium text-highlight underline decoration-dotted underline-offset-2" onClick={() => setSelected(n.regionId)}>
-                  {structureName(n.regionId).hu}
-                </button>
-                <span className="text-ink-2"> – {n.text}</span>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-        <Panel title="Szerepek">
-          <RoleTable roles={motion.roles} highlight={muscle.id} />
-        </Panel>
+      <aside className="flex flex-col gap-3 xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)] xl:self-start xl:overflow-y-auto">
         <Panel title="Állítások és források">
           <ClaimList claims={motion.claims} />
         </Panel>
-      </div>
+      </aside>
     </div>
   );
 }

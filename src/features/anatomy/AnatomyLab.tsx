@@ -31,7 +31,7 @@ export function AnatomyLab() {
   const setLayer = (k: LayerId, v: boolean) => setLayers((l) => ({ ...l, [k]: v }));
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
       <div className="flex min-w-0 flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
@@ -42,7 +42,7 @@ export function AnatomyLab() {
             label="Anatómiai nézet"
             value={viewId}
             onChange={setViewId}
-            options={views.filter((v) => viewGeometries[v.id]).map((v) => ({ value: v.id, label: v.name.hu, title: v.description }))}
+            options={views.filter((v) => v.atlas && viewGeometries[v.id]).map((v) => ({ value: v.id, label: v.name.hu, title: v.description }))}
           />
         </div>
 
@@ -97,6 +97,97 @@ export function AnatomyLab() {
             <Toggle label="Izolált megjelenítés" hint="csak a kiválasztott izom" checked={isolate} onChange={setIsolate} />
           </Panel>
         </div>
+        <div className="grid gap-3 lg:grid-cols-2">
+          {selectedIsOther ? (
+            <Panel title="Kiválasztott struktúra">
+              <TermBlock term={structureName(selected)} />
+              <p className="mt-3 text-sm text-ink-2">
+                Kapcsolódó struktúra – az első verzióban nem rendelkezik önálló oktatási modullal. A mozgásokban betöltött szerepe a Biomechanics Labban látható.
+              </p>
+              <button type="button" className="mt-3 text-sm text-accent-2 underline" onClick={() => setSelected(muscle.id)}>
+                Vissza: {muscle.name.hu}
+              </button>
+            </Panel>
+          ) : (
+            <>
+              <Panel className="lg:col-span-2">
+                <TermBlock term={region ? region.name : muscle.name} size="lg" />
+                {region && <p className="mt-1 text-xs text-ink-2">A(z) {muscle.name.hu} része</p>}
+                {!region && <p className="mt-3 text-sm leading-relaxed text-ink-2">{muscle.summary}</p>}
+              </Panel>
+
+              <Panel title="Eredés és tapadás">
+                <dl className="flex flex-col gap-3 text-sm">
+                  {(region ? [region.origin] : muscle.origin).map((o, i) => (
+                    <AttachmentRow key={`o${i}`} kind="origin" text={o.description} extent={o.extent} sourceIds={o.sourceIds} />
+                  ))}
+                  {(region ? [region.insertion] : muscle.insertion).map((o, i) => (
+                    <AttachmentRow key={`i${i}`} kind="insertion" text={o.description} extent={o.extent} sourceIds={o.sourceIds} />
+                  ))}
+                </dl>
+              </Panel>
+
+              <Panel title={<TermInline term={{ hu: 'Beidegzés', en: 'Innervation', la: 'Innervatio' }} />}>
+                <ClaimList claims={region ? [region.innervation] : muscle.innervation} />
+                {!region && (
+                  <ul className="mt-2 flex flex-col gap-1 text-xs text-ink-2">
+                    {muscle.nerveIds.map((id) => {
+                      const n = nerveById(id);
+                      return n ? (
+                        <li key={id}>
+                          <TermInline term={n.name} /> – {n.roots}. {n.origin}
+                        </li>
+                      ) : null;
+                    })}
+                  </ul>
+                )}
+              </Panel>
+
+              <Panel title="Funkciók">
+                <ClaimList claims={region ? region.functions : muscle.functions} />
+              </Panel>
+
+              {!region && (
+                <>
+                  <Panel title="Érintett ízületek">
+                    <ul className="text-sm">
+                      {muscle.jointIds.map((id) => {
+                        const j = jointById(id);
+                        return j ? <li key={id}><TermInline term={j.name} /></li> : null;
+                      })}
+                    </ul>
+                  </Panel>
+
+                  <Panel className="lg:col-span-2" title="Szerepek mozgásonként" subtitle="Az agonista, antagonista és szinergista szerep mindig egy konkrét mozgáshoz tartozik.">
+                    <label className="mb-2 flex flex-col gap-1 text-xs text-ink-2">
+                      Mozgás
+                      <select value={roleMovement} onChange={(e) => setRoleMovement(e.target.value as JointMovementId)} className="rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink">
+                        {roleMovements.map((id) => (
+                          <option key={id} value={id}>
+                            {movementById(id)?.name.hu}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <RoleTable roles={rolesForMovement} highlight={muscle.id} />
+                    <div className="mt-2">
+                      <RoleLegend compact />
+                    </div>
+                  </Panel>
+
+                  <Panel title="Stabilizáló funkció">
+                    <ClaimList claims={muscle.stabilization} />
+                  </Panel>
+
+                  <Panel title="Összefüggések a gyakorlatban">
+                    <ClaimList claims={muscle.notes} />
+                  </Panel>
+
+                </>
+              )}
+            </>
+          )}
+        </div>
         <Disclaimer>
           Az ábra saját szerkesztésű, egyszerűsített 2D oktatási modell: a csontos tájékozódási pontok és az izmok egymáshoz viszonyított helyzete tankönyvi leírásokon alapul, de nem
           mért vagy szkennelt geometria. A beidegző idegek ellenőrzött geometria hiányában nem szerepelnek az ábrán. Nagyítás: + / − gombok vagy Ctrl + görgő; pásztázás húzással vagy a
@@ -104,100 +195,11 @@ export function AnatomyLab() {
         </Disclaimer>
       </div>
 
-      <div className="flex flex-col gap-3">
-        {selectedIsOther ? (
-          <Panel title="Kiválasztott struktúra">
-            <TermBlock term={structureName(selected)} />
-            <p className="mt-3 text-sm text-ink-2">
-              Kapcsolódó struktúra – az első verzióban nem rendelkezik önálló oktatási modullal. A mozgásokban betöltött szerepe a Biomechanics Labban látható.
-            </p>
-            <button type="button" className="mt-3 text-sm text-accent-2 underline" onClick={() => setSelected(muscle.id)}>
-              Vissza: {muscle.name.hu}
-            </button>
-          </Panel>
-        ) : (
-          <>
-            <Panel>
-              <TermBlock term={region ? region.name : muscle.name} size="lg" />
-              {region && <p className="mt-1 text-xs text-ink-2">A(z) {muscle.name.hu} része</p>}
-              {!region && <p className="mt-3 text-sm leading-relaxed text-ink-2">{muscle.summary}</p>}
-            </Panel>
-
-            <Panel title="Eredés és tapadás">
-              <dl className="flex flex-col gap-3 text-sm">
-                {(region ? [region.origin] : muscle.origin).map((o, i) => (
-                  <AttachmentRow key={`o${i}`} kind="origin" text={o.description} extent={o.extent} sourceIds={o.sourceIds} />
-                ))}
-                {(region ? [region.insertion] : muscle.insertion).map((o, i) => (
-                  <AttachmentRow key={`i${i}`} kind="insertion" text={o.description} extent={o.extent} sourceIds={o.sourceIds} />
-                ))}
-              </dl>
-            </Panel>
-
-            <Panel title={<TermInline term={{ hu: 'Beidegzés', en: 'Innervation', la: 'Innervatio' }} />}>
-              <ClaimList claims={region ? [region.innervation] : muscle.innervation} />
-              {!region && (
-                <ul className="mt-2 flex flex-col gap-1 text-xs text-ink-2">
-                  {muscle.nerveIds.map((id) => {
-                    const n = nerveById(id);
-                    return n ? (
-                      <li key={id}>
-                        <TermInline term={n.name} /> – {n.roots}. {n.origin}
-                      </li>
-                    ) : null;
-                  })}
-                </ul>
-              )}
-            </Panel>
-
-            <Panel title="Funkciók">
-              <ClaimList claims={region ? region.functions : muscle.functions} />
-            </Panel>
-
-            {!region && (
-              <>
-                <Panel title="Érintett ízületek">
-                  <ul className="text-sm">
-                    {muscle.jointIds.map((id) => {
-                      const j = jointById(id);
-                      return j ? <li key={id}><TermInline term={j.name} /></li> : null;
-                    })}
-                  </ul>
-                </Panel>
-
-                <Panel title="Szerepek mozgásonként" subtitle="Az agonista, antagonista és szinergista szerep mindig egy konkrét mozgáshoz tartozik.">
-                  <label className="mb-2 flex flex-col gap-1 text-xs text-ink-2">
-                    Mozgás
-                    <select value={roleMovement} onChange={(e) => setRoleMovement(e.target.value as JointMovementId)} className="rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink">
-                      {roleMovements.map((id) => (
-                        <option key={id} value={id}>
-                          {movementById(id)?.name.hu}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <RoleTable roles={rolesForMovement} highlight={muscle.id} />
-                  <div className="mt-2">
-                    <RoleLegend compact />
-                  </div>
-                </Panel>
-
-                <Panel title="Stabilizáló funkció">
-                  <ClaimList claims={muscle.stabilization} />
-                </Panel>
-
-                <Panel title="Összefüggések a gyakorlatban">
-                  <ClaimList claims={muscle.notes} />
-                </Panel>
-
-                <Panel title="Forrásjegyzék">
-                  <SourceList ids={muscle.sourceIds} />
-                </Panel>
-              </>
-            )}
-          </>
-        )}
-      </div>
+      <aside className="flex flex-col gap-3 xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)] xl:self-start xl:overflow-y-auto">
+        <Panel title="Forrásjegyzék">
+          <SourceList ids={muscle.sourceIds} />
+        </Panel>
+      </aside>
     </div>
   );
 }
