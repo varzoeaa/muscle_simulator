@@ -4,7 +4,7 @@ import { pectoralisMajor } from '../data/muscles/pectoralisMajor';
 import { sources, sourceById } from '../data/sources/sources';
 import { viewGeometries } from '../data/geometry';
 import { motions } from '../data/motions/pectoralisMajorMotions';
-import { exercises } from '../data/exercises/benchPress';
+import { exercises } from '../data/exercises';
 import { flashcards, questions } from '../data/questions';
 
 const allSourceIdsIn = (obj: unknown): string[] => {
@@ -96,5 +96,27 @@ describe('Anatómiai adatmodellek validálása', () => {
       expect(e.phases[e.phases.length - 1]!.to).toBe(1);
       e.phases.slice(1).forEach((p, i) => expect(p.from).toBeCloseTo(e.phases[i]!.to));
     });
+  });
+});
+
+describe('Fekvenyomás: izomszerepek szakaszonként', () => {
+  it('excentrikus és koncentrikus szakaszra is van agonista, antagonista, szinergista és stabilizáló, ismert izmokkal és forrással', async () => {
+    const { benchPress } = await import('../data/exercises/benchPress');
+    const { structureById } = await import('../data/muscles');
+    const { sourceById } = await import('../data/sources/sources');
+    (['eccentric', 'concentric'] as const).forEach((type) => {
+      const roles = benchPress.phaseRoles?.[type] ?? [];
+      (['agonist', 'synergist', 'antagonist', 'stabilizer'] as const).forEach((r) => expect(roles.some((x) => x.role === r), `${type} ${r}`).toBe(true));
+      roles.forEach((r) => {
+        r.structureIds.forEach((id) => expect(structureById(id), id).toBeDefined());
+        expect(r.sourceIds.length).toBeGreaterThan(0);
+        r.sourceIds.forEach((id) => expect(sourceById(id), id).toBeDefined());
+      });
+    });
+    // Az agonisták nem cserélődnek: excentrikusan hosszabbodnak, koncentrikusan rövidülnek.
+    const ag = (t: 'eccentric' | 'concentric') => benchPress.phaseRoles![t]!.filter((r) => r.role === 'agonist');
+    expect(ag('eccentric').flatMap((r) => r.structureIds)).toEqual(ag('concentric').flatMap((r) => r.structureIds));
+    expect(ag('eccentric').every((r) => r.lengthChange === 'lengthening')).toBe(true);
+    expect(ag('concentric').every((r) => r.lengthChange === 'shortening')).toBe(true);
   });
 });

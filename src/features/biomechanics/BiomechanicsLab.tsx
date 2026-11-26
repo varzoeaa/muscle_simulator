@@ -126,13 +126,17 @@ export function BiomechanicsLab() {
         ) : (
           <div className="flex flex-col gap-2">
             {statusBadges}
-            <div className={`grid gap-2 md:grid-cols-2 ${extraViews.length >= 2 ? '2xl:grid-cols-3' : ''}`}>
-              <ViewTile title={viewById(motion.viewId)?.name.hu ?? ''} note="Fő nézet – a mozgás síkja torzítás nélkül">
+            <div className="grid gap-2 md:grid-cols-2">
+              <ViewTile
+                className={extraViews.length >= 2 ? 'md:col-span-2' : ''}
+                title={viewById(motion.viewId)?.name.hu ?? ''}
+                note="Fő nézet – a mozgás síkja torzítás nélkül"
+              >
                 <AnatomyViewer {...viewerProps} geometry={geometry} pose={pose} ariaLabel={mainAria} />
               </ViewTile>
               {extraViews.map((v) => (
-                <ViewTile key={v.viewId} title={viewById(v.viewId)?.name.hu ?? ''} note={v.note}>
-                  <AnatomyViewer {...viewerProps} geometry={viewGeometries[v.viewId]!} pose={v.mapPose(pose)} ariaLabel={`${mainAria} – ${viewById(v.viewId)?.name.hu}`} />
+                <ViewTile key={v.viewId} title={viewById(v.viewId)?.name.hu ?? ''} note={[v.note, roleMode === 'selected' ? 'Izomnév: vidd fölé az egeret, vagy válts szerepkör-megjelenítésre.' : undefined].filter(Boolean).join(' ')}>
+                  <AnatomyViewer {...viewerProps} layers={{ ...viewerProps.layers, labels: false }} geometry={viewGeometries[v.viewId]!} pose={v.mapPose(pose)} viewBoxOverride={v.viewBox} ariaLabel={`${mainAria} – ${viewById(v.viewId)?.name.hu}`} />
                 </ViewTile>
               ))}
             </div>
@@ -259,9 +263,9 @@ function RoleVisibility({ roles, mode, drawn }: { roles: MuscleRole[]; mode: Rol
   );
 }
 
-function ViewTile({ title, note, children }: { title: string; note?: string; children: ReactNode }) {
+function ViewTile({ title, note, className = '', children }: { title: string; note?: string; className?: string; children: ReactNode }) {
   return (
-    <figure className="flex flex-col gap-1">
+    <figure className={`flex flex-col gap-1 ${className}`}>
       <div className="h-[44vh] min-h-[280px]">{children}</div>
       <figcaption className="px-1 text-xs text-ink-2">
         <b className="text-ink">{title}</b>

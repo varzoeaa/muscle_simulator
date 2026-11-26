@@ -88,8 +88,8 @@ export const anteriorView: ViewGeometry = {
       frame: 'humerus',
       d: 'M-2,-21 C20,-25 30,-6 26,10 C22,22 14,28 12,40 L10,190 C12,200 22,205 22,216 L-22,216 C-24,206 -14,198 -12,188 L-14,40 C-21,27 -27,12 -25,-2 C-23,-14 -14,-21 -2,-21 Z'
     },
-    { structureId: 'bone-radius', frame: 'forearm', d: 'M-20,4 L-14,196 L-4,198 L-6,8 Z' },
-    { structureId: 'bone-ulna', frame: 'forearm', d: 'M2,8 L1,198 L12,198 L19,2 Z' }
+    { structureId: 'bone-radius', frame: 'forearm', overlay: true, d: 'M-20,4 L-14,196 L-4,198 L-6,8 Z' },
+    { structureId: 'bone-ulna', frame: 'forearm', overlay: true, d: 'M2,8 L1,198 L12,198 L19,2 Z' }
   ],
   muscles: [
     {

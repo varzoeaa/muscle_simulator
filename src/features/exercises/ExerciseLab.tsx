@@ -1,48 +1,99 @@
-import { useEffect, useState } from 'react';
-import { useOutletContext } from 'react-router-dom';
-import { ArrowDownRight, ArrowUpRight, Equal, Clock } from 'lucide-react';
-import type { ContractionType, Muscle } from '../../types';
-import { exerciseById } from '../../data/exercises/benchPress';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useOutletContext, useSearchParams } from 'react-router-dom';
+import { ArrowDownRight, ArrowUpRight, Equal } from 'lucide-react';
+import type { DisplayRoleType, Exercise, ExercisePhaseRole, ExercisePhaseType, LengthChange, Muscle } from '../../types';
+import { exerciseById } from '../../data/exercises';
 import { structureName } from '../../data/muscles';
+import { superiorView } from '../../data/geometry/superiorView';
 import { BenchPressScene } from '../../components/anatomy/BenchPressScene';
+import { SagittalExerciseScene } from '../../components/anatomy/SagittalExerciseScene';
+import { TransverseExerciseScene } from '../../components/anatomy/TransverseExerciseScene';
+import type { SceneMuscleLabel } from '../../components/anatomy/sagittalFigure';
+import { isStructureDrawn } from '../../components/anatomy/AnatomyViewer';
 import { AnimationControls } from '../../components/animation/AnimationControls';
-import { ClaimList, Disclaimer, Panel, Segmented, Slider, SourceList, TermBlock, Toggle } from '../../components/ui';
+import { ClaimList, Disclaimer, EvidenceBadge, Panel, Segmented, Slider, SourceList, SourceRefs, TermBlock, Toggle } from '../../components/ui';
+import { RoleLegend, roleLabels, roleLetters } from '../../components/anatomy/RoleLegend';
 import { applyRangeOfMotion, cycleDepth, phaseAt } from '../../engines/animation/animationEngine';
 import { platesPerSide } from '../../engines/animation/benchKinematics';
 import { useAnimationPlayer, useReducedMotion } from '../../hooks/useAnimationPlayer';
 import { useSettingsStore } from '../../stores/settingsStore';
-import { contractionLabels } from '../biomechanics/BiomechanicsLab';
 
-/** A specifikációban szereplő, még el nem készült gyakorlatok (nem kattinthatók). */
-const plannedExercises = [
-  'Kézisúlyzós fekvenyomás – Dumbbell bench press',
-  'Kézisúlyzós tárogatás – Dumbbell fly',
-  'Gépes mellnyomás – Machine chest press',
-  'Pec deck',
-  'Csigás kereszthúzás – Cable crossover',
-  'Fekvőtámasz – Push-up',
-  'Tolódzkodás – Dips',
-  'Mellizomnyújtás – Pectoral stretch'
-];
+type PhaseFilter = 'all' | ExercisePhaseType;
 
-type PhaseFilter = 'all' | ContractionType;
+export const phaseTypeLabels: Record<ExercisePhaseType, string> = {
+  eccentric: 'Excentrikus',
+  isometric: 'Izometriás',
+  concentric: 'Koncentrikus',
+  'passive-stretch': 'Nyújtás felvétele',
+  'static-stretch': 'Statikus tartás',
+  release: 'Visszatérés'
+};
 
 export function ExerciseLab() {
   const { muscle } = useOutletContext<{ muscle: Muscle }>();
-  const exercise = exerciseById(muscle.exerciseIds[0]);
+  const [params, setParams] = useSearchParams();
+  const ids = muscle.exerciseIds;
+  const exercise = exerciseById(ids.includes(params.get('gyakorlat') ?? '') ? params.get('gyakorlat')! : ids[0]);
+  const select = (id: string) =>
+    setParams(
+      (p) => {
+        p.set('gyakorlat', id);
+        return p;
+      },
+      { replace: true }
+    );
+
+  if (!exercise) return <p className="text-sm text-ink-2">Ehhez az izomhoz még nincs gyakorlat.</p>;
+
+  return (
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+      {/* A kulcs miatt gyakorlatváltáskor a lejátszás és a paraméterek alaphelyzetbe kerülnek. */}
+      <ExerciseView key={exercise.id} exercise={exercise} />
+
+      <aside className="flex flex-col gap-3 xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)] xl:self-start xl:overflow-y-auto">
+        <Panel title="Gyakorlatok" subtitle={`${muscle.name.hu} – gyakorlatkönyvtár`}>
+          <ul className="flex flex-col gap-1.5 text-sm">
+            {ids.map((id) => {
+              const e = exerciseById(id);
+              if (!e) return null;
+              const current = e.id === exercise.id;
+              return (
+                <li key={id}>
+                  <button
+                    type="button"
+                    aria-current={current ? 'true' : undefined}
+                    onClick={() => select(id)}
+                    className={`w-full rounded-xl border px-3 py-2 text-left transition-colors ${current ? 'border-accent-2 bg-accent/20 text-ink' : 'border-line text-ink-2 hover:border-accent-2 hover:text-ink'}`}
+                  >
+                    {e.name.hu}
+                    <span className="block text-[11px] text-ink-2">{e.name.en}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </Panel>
+        <Panel title="Források">
+          <SourceList ids={exercise.sourceIds} />
+        </Panel>
+      </aside>
+    </div>
+  );
+}
+
+function ExerciseView({ exercise }: { exercise: Exercise }) {
   const reduced = useReducedMotion();
-  const player = useAnimationPlayer(exercise?.cycleDurationMs ?? 4000, { loop: true });
-  const p = exercise?.parameters;
-  const [rom, setRom] = useState(p?.rangeOfMotion?.default ?? 1);
-  const [angle, setAngle] = useState(p?.benchAngle?.default ?? 0);
-  const [load, setLoad] = useState(p?.load?.default ?? 60);
+  const player = useAnimationPlayer(exercise.cycleDurationMs, { loop: true });
+  const p = exercise.parameters;
+  const [rom, setRom] = useState(p.rangeOfMotion?.default ?? 1);
+  const [angle, setAngle] = useState(p.benchAngle?.default ?? 0);
+  const [load, setLoad] = useState(p.load?.default ?? 0);
   const [phaseFilter, setPhaseFilter] = useState<PhaseFilter>('all');
   const showLabels = useSettingsStore((s) => s.showLabels);
   const setShowLabels = useSettingsStore((s) => s.setShowLabels);
   const { setRange, seek } = player;
 
   useEffect(() => {
-    if (!exercise) return;
     if (phaseFilter === 'all') setRange([0, 1]);
     else {
       const ph = exercise.phases.find((x) => x.type === phaseFilter);
@@ -53,113 +104,161 @@ export function ExerciseLab() {
     }
   }, [phaseFilter, exercise, setRange, seek]);
 
-  if (!exercise) return <p className="text-sm text-ink-2">Ehhez az izomhoz még nincs gyakorlat.</p>;
-
   const t = player.state.progress;
-  const phase = phaseAt(exercise.phases, t)!;
+  // Ha a felhasználó kiválasztott egy szakaszt, az a kiemelt szakasz; egyébként a lejátszás aktuális szakasza.
+  const phase = (phaseFilter !== 'all' ? exercise.phases.find((x) => x.type === phaseFilter) : undefined) ?? phaseAt(exercise.phases, t)!;
   const depth = applyRangeOfMotion(cycleDepth(exercise.phases, t), rom);
-  const plates = platesPerSide(load, p!.load!.implementKg);
-  const angleName = angle < 0 ? 'negatív pad (decline)' : angle === 0 ? 'vízszintes pad (flat)' : 'ferde pad (incline)';
-  const change = phase.type === 'eccentric' ? { i: <ArrowUpRight size={15} />, t: 'hosszabbodik' } : phase.type === 'concentric' ? { i: <ArrowDownRight size={15} />, t: 'rövidül' } : { i: <Equal size={15} />, t: 'közel változatlan' };
+  const roles = rolesFor(exercise, phase.type);
+  const anim = exercise.animation;
+  const drawn = (id: string) => (anim.kind === 'transverse' ? isStructureDrawn(superiorView, id) : sagittalMuscles.includes(id));
+  const sceneLabels = sceneMuscleLabels(roles);
+  const roleMap = useMemo(() => transverseRoleMap(roles), [roles]);
+  const pecRole = roles.find((r) => r.structureIds.includes('muscle-pectoralis-major'));
+  const agonists = [...new Set(roles.filter((r) => r.role === 'agonist').flatMap((r) => r.structureIds))];
+  const presentRoles = displayRolesIn(exercise);
+  const hidden = hiddenRoles(roles, drawn);
+  const phaseText = `${phase.name}${pecRole ? `, nagy mellizom: ${lengthText[pecRole.lengthChange].text}` : ''}`;
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
-      <div className="flex min-w-0 flex-col gap-3">
-        <div>
-          <h1 className="font-serif text-2xl text-ink">Exercise Lab</h1>
-          <p className="text-xs text-ink-2">Edzőtermi gyakorlatok – interaktív végrehajtási animáció</p>
-        </div>
+    <div className="flex min-w-0 flex-col gap-3">
+      <div>
+        <h1 className="font-serif text-2xl text-ink">Exercise Lab</h1>
+        <p className="text-xs text-ink-2">Edzőtermi gyakorlatok – interaktív végrehajtási animáció</p>
+      </div>
 
-        <div className="relative h-[52vh] min-h-[320px] overflow-hidden rounded-2xl bg-canvas md:h-[60vh]">
-          <BenchPressScene incline={angle} depth={depth} loadKg={load} barKg={p!.load!.implementKg} phase={phase.type} active={player.state.playing} showLabels={showLabels} />
-          <div className="pointer-events-none absolute left-2 top-2 flex flex-col gap-1.5 text-xs" aria-live="polite">
-            <span className="rounded-lg bg-surface/90 px-2 py-1 font-medium text-ink ring-1 ring-line">{phase.name}</span>
+      <div className="relative h-[52vh] min-h-[320px] overflow-hidden rounded-2xl bg-canvas md:h-[60vh]">
+        {anim.kind === 'bench' && (
+          <BenchPressScene
+            incline={angle}
+            depth={depth}
+            loadKg={load}
+            barKg={p.load?.implementKg ?? 0}
+            implement={anim.implement}
+            phaseText={phaseText}
+            active={player.state.playing}
+            showLabels={showLabels}
+            muscleLabels={sceneLabels}
+          />
+        )}
+        {anim.kind === 'sagittal' && (
+          <SagittalExerciseScene preset={anim.preset} depth={depth} loadKg={load} phaseText={phaseText} active={player.state.playing} showLabels={showLabels} muscleLabels={sceneLabels} />
+        )}
+        {anim.kind === 'transverse' && (
+          <TransverseExerciseScene
+            animation={anim}
+            depth={depth}
+            roleMap={roleMap}
+            activeIds={player.state.playing && pecRole?.role !== 'stretched' ? agonists : []}
+            showLabels={showLabels}
+            ariaLabel={`${exercise.name.hu} felülnézetben – ${phaseText}`}
+          />
+        )}
+        <div className="pointer-events-none absolute left-2 top-2 flex max-w-[46%] flex-col gap-1.5 text-xs" aria-live="polite">
+          <span className="rounded-lg bg-surface/90 px-2 py-1 font-medium text-ink ring-1 ring-line">{phase.name}</span>
+          {pecRole && (
             <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface/90 px-2 py-1 text-ink ring-1 ring-line">
-              {change.i} Nagy mellizom: aktív, {change.t}
+              {lengthText[pecRole.lengthChange].icon} Nagy mellizom: {pecRole.role === 'stretched' ? 'passzív, ' : 'aktív, '}
+              {lengthText[pecRole.lengthChange].text}
             </span>
-          </div>
-          <div className="pointer-events-none absolute bottom-2 left-2 flex flex-wrap gap-x-3 gap-y-1 rounded-lg bg-surface/85 px-2 py-1 text-[11px] text-ink-2">
-            <span><span className="mr-1 inline-block h-2 w-3 rounded-sm" style={{ background: 'var(--an-muscle-selected)' }} />Nagy mellizom (AG)</span>
-            <span><span className="mr-1 inline-block h-2 w-3 rounded-sm" style={{ background: 'var(--an-synergist)' }} />Deltaizom elülső rész (társmozgató)</span>
-            <span><span className="mr-1 inline-block h-2 w-3 rounded-sm" style={{ background: 'var(--an-muscle-dim)' }} />Háromfejű karizom</span>
-            <span>– – rúdpálya</span>
-          </div>
+          )}
+          {showLabels && loadText(exercise, load) && <span className="rounded-lg bg-surface/90 px-2 py-1 text-ink ring-1 ring-line">{loadText(exercise, load)}</span>}
+          {agonists.length > 0 && (
+            <span className="rounded-lg bg-surface/90 px-2 py-1 text-ink ring-1 ring-line">
+              <b style={{ color: 'var(--an-agonist)' }}>AG</b> {phase.type === 'eccentric' ? '(fékez): ' : phase.type === 'isometric' ? '(tart): ' : '(mozgat): '}
+              {agonists.map((id) => structureName(id).hu).join(', ')}
+            </span>
+          )}
         </div>
+        <div className="pointer-events-none absolute bottom-2 left-2 right-2 flex flex-col gap-1 rounded-lg bg-surface/85 px-2 py-1 text-[11px] text-ink-2">
+          <RoleLegend compact roles={presentRoles} />
+          <span>
+            {hidden && <>Ebből a nézetből nem látható: {hidden}</>}
+            {hidden && pathText(exercise) && ' · '}
+            {pathText(exercise)}
+          </span>
+        </div>
+      </div>
 
-        <Panel>
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-ink-2">Izomműködési szakasz</span>
-              <Segmented<PhaseFilter>
-                size="sm"
-                label="Izomműködési szakasz"
-                value={phaseFilter}
-                onChange={setPhaseFilter}
-                options={[{ value: 'all', label: 'Teljes ismétlés' }, ...exercise.phases.map((ph) => ({ value: ph.type as PhaseFilter, label: contractionLabels[ph.type].hu }))]}
-              />
-            </div>
-            <AnimationControls
-              state={player.state}
-              onPlay={player.play}
-              onPause={player.pause}
-              onRewind={player.rewind}
-              onReset={player.reset}
-              onSeek={player.seek}
-              onSpeed={player.setSpeed}
-              timelineLabel="Ismétlés idővonala"
+      <Panel>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs text-ink-2">Szakasz</span>
+            <Segmented<PhaseFilter>
+              size="sm"
+              label="Szakasz"
+              value={phaseFilter}
+              onChange={setPhaseFilter}
+              options={[{ value: 'all', label: 'Teljes ismétlés' }, ...exercise.phases.map((ph) => ({ value: ph.type as PhaseFilter, label: phaseTypeLabels[ph.type] }))]}
             />
-            {reduced && <p className="text-xs text-ink-2">Csökkentett mozgás beállítás észlelve: az animáció csak kézi indításra fut, a pulzáló kiemelés ki van kapcsolva.</p>}
           </div>
-        </Panel>
+          <AnimationControls
+            state={player.state}
+            onPlay={player.play}
+            onPause={player.pause}
+            onRewind={player.rewind}
+            onReset={player.reset}
+            onSeek={player.seek}
+            onSpeed={player.setSpeed}
+            timelineLabel="Ismétlés idővonala"
+          />
+          {reduced && <p className="text-xs text-ink-2">Csökkentett mozgás beállítás észlelve: az animáció csak kézi indításra fut, a pulzáló kiemelés ki van kapcsolva.</p>}
+          {anim.kind === 'transverse' && <p className="text-xs text-ink-2">{anim.viewNote}</p>}
+        </div>
+      </Panel>
 
-        <Panel title="Paraméterek" subtitle="Szemléltető paraméterek – a súly nem befolyásol izomaktivációt vagy erőt a modellben">
-          <div className="grid gap-4 md:grid-cols-3">
+      <Panel title="Paraméterek" subtitle="Szemléltető paraméterek – a súly nem befolyásol izomaktivációt vagy erőt a modellben">
+        <div className="grid gap-4 md:grid-cols-3">
+          {p.rangeOfMotion && (
             <Slider
               id="rom"
               label="Mozgástartomány"
               value={rom}
-              min={p!.rangeOfMotion!.min}
-              max={p!.rangeOfMotion!.max}
+              min={p.rangeOfMotion.min}
+              max={p.rangeOfMotion.max}
               step={0.05}
               onChange={setRom}
               format={(v) => `${Math.round(v * 100)}%${v >= 1 ? ' (teljes)' : ''}`}
             />
-            <Slider id="angle" label="Pad dőlésszöge" value={angle} min={p!.benchAngle!.min} max={p!.benchAngle!.max} step={p!.benchAngle!.step} onChange={setAngle} format={(v) => `${v}° – ${v < 0 ? 'negatív' : v === 0 ? 'vízszintes' : 'ferde'}`} />
-            <Slider id="load" label="Súlyterhelés" value={load} min={p!.load!.min} max={p!.load!.max} step={p!.load!.step} onChange={setLoad} format={(v) => `${v.toLocaleString('hu-HU')} kg`} />
+          )}
+          {p.benchAngle && (
+            <Slider id="angle" label="Pad dőlésszöge" value={angle} min={p.benchAngle.min} max={p.benchAngle.max} step={p.benchAngle.step} onChange={setAngle} format={(v) => `${v}° – ${v < 0 ? 'negatív' : v === 0 ? 'vízszintes' : 'ferde'}`} />
+          )}
+          {p.load && (
+            <Slider
+              id="load"
+              label={p.load.mode === 'per-hand' ? `Súlyterhelés (${p.load.implementName === 'kábelenként' ? 'kábelenként' : 'kezenként'})` : 'Súlyterhelés'}
+              value={load}
+              min={p.load.min}
+              max={p.load.max}
+              step={p.load.step}
+              onChange={setLoad}
+              format={(v) => `${v.toLocaleString('hu-HU')} kg`}
+            />
+          )}
+        </div>
+        <dl className="mt-3 grid gap-1 text-xs text-ink-2 sm:grid-cols-3">
+          <div>
+            <dt className="inline">Mozgástartomány: </dt>
+            <dd className="inline text-ink">{exercise.romText.replace('{rom}', String(Math.round(rom * 100)))}</dd>
           </div>
-          <dl className="mt-3 grid gap-1 text-xs text-ink-2 sm:grid-cols-3">
-            <div><dt className="inline">Mozgástartomány: </dt><dd className="inline text-ink">a rúd az út {Math.round(rom * 100)}%-áig ereszkedik</dd></div>
-            <div><dt className="inline">Pad: </dt><dd className="inline text-ink">{angleName}</dd></div>
+          {p.benchAngle && (
             <div>
-              <dt className="inline">Terhelés: </dt>
-              <dd className="inline text-ink">
-                {p!.load!.implementName} {p!.load!.implementKg} kg{plates.length ? ` + oldalanként ${plates.map((x) => x.toLocaleString('hu-HU')).join(' + ')} kg` : ''}
-              </dd>
+              <dt className="inline">Pad: </dt>
+              <dd className="inline text-ink">{angle < 0 ? 'negatív pad (decline)' : angle === 0 ? 'vízszintes pad (flat)' : 'ferde pad (incline)'}</dd>
             </div>
-          </dl>
-          <div className="mt-3">
-            <Toggle label="Feliratok" checked={showLabels} onChange={setShowLabels} />
+          )}
+          <div>
+            <dt className="inline">Terhelés: </dt>
+            <dd className="inline text-ink">{loadText(exercise, load) ?? (exercise.animation.kind === 'sagittal' ? 'saját testsúly' : 'nincs külső terhelés')}</dd>
           </div>
-        </Panel>
-        <Disclaimer>
-          Egyszerűsített 2D szagittális vetület: a rúd függőleges pályán mozog, az alkar függőleges, a felkar rövidülése a vállízületi távolítás vetületi következménye. A testarányok
-          és a fogásszélesség rögzítettek. Nem erő- vagy EMG-szimuláció.
-        </Disclaimer>
-      </div>
+        </dl>
+        <div className="mt-3">
+          <Toggle label="Feliratok" checked={showLabels} onChange={setShowLabels} />
+        </div>
+      </Panel>
 
-      <div className="flex flex-col gap-3">
-        <Panel title="Gyakorlatok" subtitle={`${muscle.name.hu} – gyakorlatkönyvtár`}>
-          <ul className="flex flex-col gap-1.5 text-sm">
-            <li className="rounded-xl border border-accent-2 bg-accent/20 px-3 py-2 text-ink">{exercise.name.hu}</li>
-            {plannedExercises.map((n) => (
-              <li key={n} className="flex items-center justify-between gap-2 rounded-xl border border-line px-3 py-2 text-ink-2" aria-disabled="true">
-                {n}
-                <span className="inline-flex shrink-0 items-center gap-1 text-[10px] uppercase"><Clock size={11} /> tervezett</span>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-        <Panel>
+      <div className="grid gap-3 lg:grid-cols-2">
+        <Panel className="lg:col-span-2">
           <TermBlock term={exercise.name} size="lg" />
         </Panel>
         <Panel title="Kiinduló testhelyzet">
@@ -169,11 +268,12 @@ export function ExerciseLab() {
           <BulletList items={exercise.execution} />
         </Panel>
         <Panel title="Izmok">
+          <MuscleGroup title="Nyújtott izmok" ids={[...new Set(Object.values(exercise.phaseRoles ?? {}).flat().filter((r) => r.role === 'stretched').flatMap((r) => r.structureIds))]} />
           <MuscleGroup title="Elsődleges mozgatóizmok" ids={exercise.primaryMovers} />
           <MuscleGroup title="Másodlagos mozgatóizmok" ids={exercise.secondaryMovers} />
           <MuscleGroup title="Stabilizáló izmok" ids={exercise.stabilizers} />
         </Panel>
-        <Panel title="Szakaszok és izomműködés">
+        <Panel className="lg:col-span-2" title="Szakaszok és izomműködés">
           <ul className="flex flex-col gap-2 text-sm">
             {exercise.phases.map((ph) => (
               <li key={ph.type} className={`rounded-xl p-2.5 ${ph === phase ? 'bg-accent/20 ring-1 ring-accent-2' : 'bg-bg-2/50'}`}>
@@ -183,6 +283,15 @@ export function ExerciseLab() {
             ))}
           </ul>
         </Panel>
+        {exercise.phaseRoles && (
+          <Panel
+            className="lg:col-span-2"
+            title="Izomszerepek szakaszonként"
+            subtitle={presentRoles.includes('stretched') ? 'Nyújtott és stabilizáló izmok a nyújtás szakaszaiban' : 'Agonista, szinergista, antagonista és stabilizáló izmok az excentrikus és a koncentrikus szakaszban'}
+          >
+            <PhaseRoles exercise={exercise} current={phase.type} />
+          </Panel>
+        )}
         <Panel title="Gyakori kivitelezési hibák">
           <BulletList items={exercise.commonMistakes} />
         </Panel>
@@ -192,12 +301,103 @@ export function ExerciseLab() {
         <Panel title="Gyakorlati edzői magyarázat">
           <ClaimList claims={exercise.coachingNotes} />
         </Panel>
-        <Panel title="Források">
-          <SourceList ids={exercise.sourceIds} />
-        </Panel>
       </div>
+      <Disclaimer>{disclaimerText(exercise)}</Disclaimer>
     </div>
   );
+}
+
+/* ---------------------------------------------------------------- */
+
+/** Az oldalnézeti ábrákon kirajzolt izmok. */
+const sagittalMuscles = ['muscle-pectoralis-major', 'muscle-deltoid-anterior', 'muscle-triceps-brachii', 'muscle-biceps-brachii'];
+const rolePriority: DisplayRoleType[] = ['stretched', 'agonist', 'antagonist', 'synergist', 'stabilizer'];
+const roleOrder: DisplayRoleType[] = ['stretched', 'agonist', 'synergist', 'antagonist', 'stabilizer'];
+const jointShort = (joint: string) => (joint.startsWith('Könyök') ? 'könyök' : joint.startsWith('Váll') ? 'váll' : '');
+const arrow: Record<LengthChange, string> = { shortening: '↘ rövidül', lengthening: '↗ hosszabbodik', constant: '= változatlan' };
+const lengthText: Record<LengthChange, { icon: ReactNode; text: string }> = {
+  shortening: { icon: <ArrowDownRight size={13} />, text: 'rövidül' },
+  lengthening: { icon: <ArrowUpRight size={13} />, text: 'hosszabbodik' },
+  constant: { icon: <Equal size={13} />, text: 'közel változatlan hossz' }
+};
+
+/**
+ * Az adott szakasz szerepei. Izometriás megtartáskor (ha nincs külön adat) a koncentrikus
+ * szakasz szerepei érvényesek, közel változatlan izomhosszal.
+ */
+export function rolesFor(exercise: Exercise, type: ExercisePhaseType): ExercisePhaseRole[] {
+  const own = exercise.phaseRoles?.[type];
+  if (own) return own;
+  if (type === 'isometric') return (exercise.phaseRoles?.concentric ?? []).map((r) => ({ ...r, lengthChange: 'constant' as const }));
+  return [];
+}
+
+/** Az oldalnézeti ábra feliratai; ha egy izom több szerepet tölt be, ízületenként. */
+function sceneMuscleLabels(roles: ExercisePhaseRole[]): SceneMuscleLabel[] {
+  return sagittalMuscles.flatMap((id) => {
+    const rs = roles.filter((r) => r.structureIds.includes(id));
+    if (!rs.length) return [];
+    const role = rolePriority.find((p) => rs.some((r) => r.role === p))!;
+    const detail =
+      rs.length === 1
+        ? `${roleLetters[rs[0]!.role]} · ${arrow[rs[0]!.lengthChange]}`
+        : rs.map((r) => `${roleLetters[r.role]} (${jointShort(r.joint)}) ${arrow[r.lengthChange]}`).join(' · ');
+    return [{ structureId: id, name: structureName(id).hu, role, detail }];
+  });
+}
+
+/** Szerepkör-térkép a felülnézeti anatómiai ábrához (egy izom a legfontosabb szerepét kapja). */
+function transverseRoleMap(roles: ExercisePhaseRole[]): Record<string, DisplayRoleType> {
+  const map: Record<string, DisplayRoleType> = {};
+  [...roles]
+    .sort((a, b) => rolePriority.indexOf(b.role) - rolePriority.indexOf(a.role))
+    .forEach((r) => r.structureIds.forEach((id) => (map[id] = r.role)));
+  return map;
+}
+
+function displayRolesIn(exercise: Exercise): DisplayRoleType[] {
+  const all = new Set(Object.values(exercise.phaseRoles ?? {}).flat().map((r) => r.role));
+  return roleOrder.filter((r) => all.has(r));
+}
+
+/** Az aktuális szakasz azon izmai, amelyek az ábrán nem szerepelnek. */
+function hiddenRoles(roles: ExercisePhaseRole[], drawn: (id: string) => boolean) {
+  const seen = new Set<string>();
+  return roles
+    .flatMap((r) => r.structureIds.map((id) => ({ id, role: r.role })))
+    .filter(({ id }) => !drawn(id) && !seen.has(id) && !!seen.add(id))
+    .map(({ id, role }) => `${roleLetters[role]} ${structureName(id).hu.toLowerCase()}`)
+    .join(', ');
+}
+
+function loadText(exercise: Exercise, load: number): string | undefined {
+  const l = exercise.parameters.load;
+  if (!l) return undefined;
+  const kg = (v: number) => v.toLocaleString('hu-HU');
+  if (l.mode === 'per-hand') return l.implementName === 'kábelenként' ? `${kg(load)} kg kábelenként` : `${kg(load)} kg kezenként (${l.implementName})`;
+  if (l.mode === 'stack') return `${kg(load)} kg a súlyoszlopon`;
+  const plates = platesPerSide(load, l.implementKg);
+  return `${kg(load)} kg – ${plates.length ? `tárcsák oldalanként: ${plates.map(kg).join(' + ')} kg` : 'üres rúd'}`;
+}
+
+function pathText(exercise: Exercise): string {
+  const a = exercise.animation;
+  if (a.kind === 'bench') return a.implement === 'barbell' ? '– – rúdpálya' : '– – súlyzópálya';
+  if (a.kind === 'sagittal') return a.preset === 'machine-press' ? '– – a fogantyú pályája' : '– – a vállízület pályája';
+  return '';
+}
+
+function disclaimerText(exercise: Exercise): string {
+  const a = exercise.animation;
+  if (a.kind === 'bench')
+    return 'Egyszerűsített 2D szagittális vetület: a terhelés függőleges pályán mozog, az alkar függőleges, a felkar rövidülése a vállízületi távolítás vetületi következménye. A testarányok és a fogásszélesség rögzítettek. Nem erő- vagy EMG-szimuláció.';
+  if (a.kind === 'sagittal')
+    return a.preset === 'dips'
+      ? 'Egyszerűsített 2D oldalnézet: a kéz a korláton rögzített, az alkar függőleges, a felkar a könyök körül fordul, a törzs a mélységgel előredől. A lapocka mozgása nincs ábrázolva. Nem erő- vagy EMG-szimuláció.'
+      : 'Egyszerűsített 2D oldalnézet a fekvenyomás-modell alapján: az alkar merőleges a törzsre, a kéz egyenes pályán mozog; a felkar rövidülése vetületi következmény. ' +
+          (a.preset === 'push-up' ? 'Zárt lánc: a kéz és a lábujj a talajon rögzített, a test e két pont között billen. ' : 'Ülő helyzet, rögzített háttámla. ') +
+          'Nem erő- vagy EMG-szimuláció.';
+  return 'Egyszerűsített 2D felülnézet: a vállízület horizontális távolítása és közelítése nyújtott karral (a valóságban enyhén hajlított könyökkel). A lapocka mozgása és a test helyzete a térben nincs ábrázolva. Nem erő- vagy EMG-szimuláció.';
 }
 
 function BulletList({ items }: { items: string[] }) {
@@ -211,6 +411,7 @@ function BulletList({ items }: { items: string[] }) {
 }
 
 function MuscleGroup({ title, ids }: { title: string; ids: string[] }) {
+  if (!ids.length) return null;
   return (
     <div className="mb-2">
       <div className="mb-1 text-xs text-ink-2">{title}</div>
@@ -221,6 +422,73 @@ function MuscleGroup({ title, ids }: { title: string; ids: string[] }) {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+/** Az izomszerepek bontása szakaszonként; a lejátszás (vagy a kiválasztott) szakasz kiemelve. */
+function PhaseRoles({ exercise, current }: { exercise: Exercise; current: ExercisePhaseType }) {
+  const types = exercise.phases.map((ph) => ph.type).filter((type) => !!exercise.phaseRoles?.[type]);
+  const hasOwn = !!exercise.phaseRoles?.[current];
+  return (
+    <div className="flex flex-col gap-3">
+      <div className={`grid gap-3 ${types.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
+        {types.map((type) => {
+          const roles = exercise.phaseRoles![type]!;
+          const ph = exercise.phases.find((x) => x.type === type);
+          const isCurrent = current === type;
+          return (
+            <section key={type} aria-current={isCurrent ? 'step' : undefined} className={`flex flex-col gap-2 rounded-xl p-2.5 ${isCurrent ? 'bg-accent/15 ring-1 ring-accent-2' : 'bg-bg-2/40'}`}>
+              <header>
+                <h3 className="text-sm font-semibold text-ink">{phaseTypeLabels[type]}</h3>
+                {ph && <p className="text-xs text-ink-2">{ph.name}</p>}
+              </header>
+              {roleOrder.map((role) => {
+                const items = roles.filter((r) => r.role === role);
+                if (!items.length) return null;
+                return (
+                  <div key={role} className="rounded-lg bg-surface/60 p-2">
+                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold" style={{ color: `var(--an-${role})` }}>
+                      <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: `var(--an-${role})` }} aria-hidden="true" />
+                      {roleLetters[role]} · {roleLabels[role]}
+                    </div>
+                    <ul className="flex flex-col gap-2">
+                      {items.map((r, i) => (
+                        <li key={i} className="flex flex-col gap-1">
+                          <div className="flex flex-wrap items-center justify-between gap-x-2 text-[11px] text-ink-2">
+                            <span>{r.joint}</span>
+                            <span className="inline-flex items-center gap-1 text-ink">
+                              {lengthText[r.lengthChange].icon} {lengthText[r.lengthChange].text}
+                            </span>
+                          </div>
+                          <ul className="flex flex-wrap gap-1">
+                            {r.structureIds.map((id) => (
+                              <li key={id} className={`rounded-full border px-2 py-0.5 text-xs ${exercise.muscleIds.includes(id) ? 'border-accent-2 text-highlight' : 'border-line text-ink'}`}>
+                                {structureName(id).hu}
+                              </li>
+                            ))}
+                          </ul>
+                          {r.note && <p className="text-xs leading-relaxed text-ink-2">{r.note}</p>}
+                          <div className="flex flex-wrap items-center gap-2">
+                            <EvidenceBadge level={r.evidence} />
+                            <SourceRefs ids={r.sourceIds} />
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </section>
+          );
+        })}
+      </div>
+      {current === 'isometric' && !hasOwn && <p className="text-xs text-ink-2">Megtartáskor (izometriás szakasz) ugyanezek az izmok aktívak, a hosszuk közel változatlan.</p>}
+      <RoleLegend compact roles={displayRolesIn(exercise)} />
+      <p className="text-xs text-ink-2">
+        A szerepek ízületenként értendők: egy izom az egyik ízületen segíthet, a másikon antagonista lehet (pl. a kétfejű karizom). A hosszváltozás minőségi jelzés, nem mért érték; az
+        aktivitás mértékét a modell nem jeleníti meg.
+      </p>
     </div>
   );
 }

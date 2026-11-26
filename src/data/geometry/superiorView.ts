@@ -27,7 +27,8 @@ export const superiorView: ViewGeometry = {
   mirrorContext: true,
   orientation: { top: 'Hátulsó (dorzális)', bottom: 'Elülső (ventrális)', left: 'A test jobb oldala (laterális)', right: 'Középvonal / bal oldal' },
   frames: [
-    { id: 'humerus', parent: 'world', pivot: { x: 112, y: 252 }, angleKey: 'shoulderHorizontalAbduction' },
+    // humerusScale: egyoldali gyakorlatnál a másik, lógó kar felülről rövidülve látszik.
+    { id: 'humerus', parent: 'world', pivot: { x: 112, y: 252 }, angleKey: 'shoulderHorizontalAbduction', scaleYKey: 'humerusScale' },
     { id: 'forearm', parent: 'humerus', pivot: { x: 0, y: 216 } }
   ],
   bones: [

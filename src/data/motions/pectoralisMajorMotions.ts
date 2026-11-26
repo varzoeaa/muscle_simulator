@@ -13,6 +13,15 @@ const sagittalToFrontal = (p: Pose): Pose => ({ shoulderAbduction: 0, humerusSca
 /** Forgatás lógó karral elölről/hátulról: az előre mutató alkar vízszintes vetülete sin(forgatás). */
 const rotationToFrontal = (p: Pose): Pose => ({ shoulderAbduction: 0, elbowAngle: -90, forearmScale: signedAtLeast(Math.sin(rad(p.shoulderInternalRotation ?? 0)), 0.06) });
 
+type Box = [number, number, number, number];
+/** Elölnézeti kivágás tükrözése a hátulnézetre (ott a vizsgált jobb oldal az x = 300 tengely túloldalán van). */
+const back = (b: Box): Box => [600 - b[0] - b[2], b[1], b[2], b[3]];
+/** Kivágások a vizsgált (jobb) oldalra, elölnézeti koordinátákban. */
+const BOX_ADDUCTION: Box = [-290, 30, 620, 540];
+const BOX_HORIZONTAL: Box = [-290, 30, 620, 400];
+const BOX_ROTATION: Box = [-90, 40, 440, 430];
+const BOX_SAGITTAL: Box = [-10, -30, 360, 600];
+
 const rolesFor = (movementId: MotionDefinition['movementId']) => pectoralisMajor.roles.filter((r) => r.movementId === movementId);
 
 export const pmAdduction: MotionDefinition = {
@@ -21,7 +30,7 @@ export const pmAdduction: MotionDefinition = {
   movementId: 'shoulder-adduction',
   name: { hu: 'Vállízületi közelítés', en: 'Shoulder adduction', la: 'Adductio' },
   viewId: 'anterior',
-  extraViews: [{ viewId: 'posterior', mapPose: (p) => ({ shoulderAbduction: p.shoulderAbduction ?? 0 }) }],
+  extraViews: [{ viewId: 'posterior', mapPose: (p) => ({ shoulderAbduction: p.shoulderAbduction ?? 0 }), viewBox: back(BOX_ADDUCTION) }],
   startPose: { shoulderAbduction: 95 },
   endPose: { shoulderAbduction: 8 },
   durationMs: 3200,
@@ -75,8 +84,8 @@ export const pmHorizontalAdduction: MotionDefinition = {
   name: { hu: 'Horizontális közelítés', en: 'Horizontal adduction' },
   viewId: 'superior',
   extraViews: [
-    { viewId: 'anterior', mapPose: horizontalToFrontal, note: PROJECTION_NOTE },
-    { viewId: 'posterior', mapPose: horizontalToFrontal, note: PROJECTION_NOTE }
+    { viewId: 'anterior', mapPose: horizontalToFrontal, note: PROJECTION_NOTE, viewBox: BOX_HORIZONTAL },
+    { viewId: 'posterior', mapPose: horizontalToFrontal, note: PROJECTION_NOTE, viewBox: back(BOX_HORIZONTAL) }
   ],
   startPose: { shoulderHorizontalAbduction: 108 },
   endPose: { shoulderHorizontalAbduction: 4 },
@@ -119,8 +128,8 @@ export const pmInternalRotation: MotionDefinition = {
   name: { hu: 'Befelé forgatás', en: 'Internal (medial) rotation', la: 'Rotatio medialis' },
   viewId: 'superior-arm-at-side',
   extraViews: [
-    { viewId: 'anterior', mapPose: rotationToFrontal, note: 'Vetület: az előre mutató alkar rövidülve látszik.' },
-    { viewId: 'posterior', mapPose: rotationToFrontal, note: 'Vetület: az alkar a test előtt van, hátulról a felkar mögött mozog.' }
+    { viewId: 'anterior', mapPose: rotationToFrontal, note: 'Vetület: az előre mutató alkar rövidülve látszik.', viewBox: BOX_ROTATION },
+    { viewId: 'posterior', mapPose: rotationToFrontal, note: 'Vetület: az alkar a test előtt van, hátulról a felkar mögött mozog.', viewBox: back(BOX_ROTATION) }
   ],
   startPose: { shoulderInternalRotation: -45 },
   endPose: { shoulderInternalRotation: 35 },
@@ -170,8 +179,8 @@ export const pmFlexion: MotionDefinition = {
   name: { hu: 'Vállízületi hajlítás', en: 'Shoulder flexion', la: 'Flexio' },
   viewId: 'lateral',
   extraViews: [
-    { viewId: 'anterior', mapPose: sagittalToFrontal, note: PROJECTION_NOTE },
-    { viewId: 'posterior', mapPose: sagittalToFrontal, note: PROJECTION_NOTE }
+    { viewId: 'anterior', mapPose: sagittalToFrontal, note: PROJECTION_NOTE, viewBox: BOX_SAGITTAL },
+    { viewId: 'posterior', mapPose: sagittalToFrontal, note: PROJECTION_NOTE, viewBox: back(BOX_SAGITTAL) }
   ],
   startPose: { shoulderFlexion: -15 },
   endPose: { shoulderFlexion: 80 },
@@ -217,8 +226,8 @@ export const pmExtension: MotionDefinition = {
   name: { hu: 'Feszítés hajlított helyzetből', en: 'Extension from a flexed position', la: 'Extensio' },
   viewId: 'lateral',
   extraViews: [
-    { viewId: 'anterior', mapPose: sagittalToFrontal, note: PROJECTION_NOTE },
-    { viewId: 'posterior', mapPose: sagittalToFrontal, note: PROJECTION_NOTE }
+    { viewId: 'anterior', mapPose: sagittalToFrontal, note: PROJECTION_NOTE, viewBox: BOX_SAGITTAL },
+    { viewId: 'posterior', mapPose: sagittalToFrontal, note: PROJECTION_NOTE, viewBox: back(BOX_SAGITTAL) }
   ],
   startPose: { shoulderFlexion: 110 },
   endPose: { shoulderFlexion: 0 },

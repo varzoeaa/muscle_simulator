@@ -232,11 +232,16 @@ export interface BoneShapeGeometry {
   frame: string;
   /** SVG path a csont saját koordináta-rendszerében. */
   d: string;
-  variant?: 'bone' | 'cartilage';
+  /** implement: edzőeszköz (súlyzó, gépkar) – nem anatómiai struktúra. */
+  variant?: 'bone' | 'cartilage' | 'implement';
+  /** Megjelenített név (eszközöknél; csontoknál a névjegyzék adja). */
+  title?: string;
   /** Ha meg van adva, a csontot vastag vonalként (pl. borda) rajzoljuk. */
   stroke?: number;
   /** Előtérbe hozott csont: a negatív z értékű izmok fölé rajzoljuk (pl. felkar oldalnézetben). */
   front?: boolean;
+  /** Az izmok fölé rajzolt csont (pl. elölnézetben a test előtt mozgó alkar). */
+  overlay?: boolean;
 }
 
 export interface JointMarkerGeometry {
@@ -319,7 +324,13 @@ export interface MotionDefinition {
    * Kiegészítő nézetek ugyanarról a mozgásról (egymás mellett jelennek meg). A `mapPose`
    * a fő nézet pózából számolja a kiegészítő nézet pózát (pl. vetületi rövidüléssel).
    */
-  extraViews?: { viewId: AnatomicalViewId; mapPose: (pose: Pose) => Pose; note?: string }[];
+  extraViews?: {
+    viewId: AnatomicalViewId;
+    mapPose: (pose: Pose) => Pose;
+    note?: string;
+    /** A mozgáshoz illesztett kivágás (a vizsgált oldal), hogy a kis nézetben is nagy legyen az ábra. */
+    viewBox?: [number, number, number, number];
+  }[];
 }
 
 export type AnimationSpeed = 0.25 | 0.5 | 1 | 1.5 | 2;
@@ -339,8 +350,17 @@ export type RoleDisplayMode = 'selected' | 'agonist' | 'antagonist' | 'synergist
 
 /* ---------- Gyakorlatok ---------- */
 
+/**
+ * A gyakorlat szakaszainak típusa: izomműködés (koncentrikus, excentrikus, izometriás), vagy
+ * nyújtásnál passzív szakasz (az izom nem aktívan dolgozik, külső erő vagy testhelyzet nyújtja).
+ */
+export type ExercisePhaseType = ContractionType | 'passive-stretch' | 'static-stretch' | 'release';
+
+/** Megjelenített szerep a gyakorlatban: a szokásos szerepek, nyújtásnál a nyújtott izom. */
+export type DisplayRoleType = MuscleRoleType | 'stretched';
+
 export interface ExercisePhase {
-  type: ContractionType;
+  type: ExercisePhaseType;
   name: string;
   /** A ciklus normalizált idővonalán (0..1). */
   from: number;
@@ -348,18 +368,64 @@ export interface ExercisePhase {
   description: string;
 }
 
+/** Az izom hosszváltozása az adott szakaszban (minőségi, nem mért érték). */
+export type LengthChange = 'shortening' | 'lengthening' | 'constant';
+
+/** Egy izomcsoport szerepe a gyakorlat egy szakaszában, egy adott ízületre vonatkoztatva. */
+export interface ExercisePhaseRole {
+  role: DisplayRoleType;
+  /** Az ízület és a mozgás, amelyre a szerep vonatkozik. */
+  joint: string;
+  structureIds: string[];
+  lengthChange: LengthChange;
+  note?: string;
+  evidence: EvidenceLevel;
+  sourceIds: string[];
+}
+
 export interface ExerciseParameterConfig {
   rangeOfMotion?: { min: number; max: number; default: number };
   benchAngle?: { min: number; max: number; default: number; step: number };
-  load?: { min: number; max: number; default: number; step: number; implementKg: number; implementName: string };
+  load?: {
+    min: number;
+    max: number;
+    default: number;
+    step: number;
+    /** barbell: rúd + tárcsák; per-hand: kezenként; stack: gépi súlyoszlop. */
+    mode?: 'barbell' | 'per-hand' | 'stack';
+    implementKg: number;
+    implementName: string;
+  };
 }
+
+/**
+ * A gyakorlat animációjának leírása.
+ *  - bench: fekvenyomás oldalnézetben (rúd vagy kézisúlyzó),
+ *  - sagittal: oldalnézeti figura (gépes nyomás, fekvőtámasz, tolódzkodás),
+ *  - transverse: felülnézet (a horizontális közelítés síkja) az anatómiai ábrával.
+ */
+export type ExerciseAnimation =
+  | { kind: 'bench'; implement: 'barbell' | 'dumbbell' }
+  | { kind: 'sagittal'; preset: 'machine-press' | 'push-up' | 'dips' }
+  | {
+      kind: 'transverse';
+      implement: 'dumbbell' | 'pec-deck' | 'cable' | 'stretch';
+      /** A vállízület horizontális távolításának szöge (felülnézeti póz) a mozgás két végpontján: [0. mélység, 1. mélység]. */
+      range: [number, number];
+      /** Egyoldali gyakorlat: a másik kar nyugalomban marad. */
+      unilateral?: boolean;
+      /** Rövid leírás a nézetről (pl. a test helyzete a valóságban). */
+      viewNote: string;
+    };
 
 export interface Exercise {
   id: string;
   name: Term;
   muscleIds: string[];
   status: MuscleStatus;
-  animationId?: 'barbell-bench-press';
+  animation: ExerciseAnimation;
+  /** A „Mozgástartomány” csúszka magyarázata (pl. „a rúd az út …%-áig ereszkedik”). */
+  romText: string;
   startPosition: string[];
   execution: string[];
   primaryMovers: string[];
@@ -367,6 +433,8 @@ export interface Exercise {
   stabilizers: string[];
   commonMistakes: string[];
   phases: ExercisePhase[];
+  /** Agonista, szinergista, antagonista és stabilizáló izmok szakaszonként. */
+  phaseRoles?: Partial<Record<ExercisePhaseType, ExercisePhaseRole[]>>;
   anatomyExplanation: Claim[];
   coachingNotes: Claim[];
   parameters: ExerciseParameterConfig;

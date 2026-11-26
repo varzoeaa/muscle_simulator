@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
 import { Maximize2, Minus, Plus } from 'lucide-react';
-import type { LayerId, MuscleRoleType, Pose, ViewGeometry } from '../../types';
+import type { DisplayRoleType, LayerId, Pose, ViewGeometry } from '../../types';
 import { computeFrameTransforms, matrixToSvg, smoothClosedPath, toWorld, type Matrix } from '../../utils/geometry';
 import { structureGroups, structureName } from '../../data/muscles';
 
@@ -24,7 +24,7 @@ export interface AnatomyViewerProps {
   /** Csak a kiválasztott izom (és a csontok) látszik. */
   isolate?: boolean;
   /** Szerepkör szerinti színezés (Biomechanics Lab). */
-  roleMap?: Record<string, MuscleRoleType>;
+  roleMap?: Record<string, DisplayRoleType>;
   /** Aktív izmok (pulzáló kiemelés). */
   activeIds?: string[];
   /** Ha meg van adva, csak ezek a struktúrák kattinthatók (pl. tesztfeladatban). */
@@ -40,13 +40,19 @@ export interface AnatomyViewerProps {
   minimal?: boolean;
   /** Statikus nézetben a szűkebb kivágás használata. */
   focus?: boolean;
+  /** Egyedi kivágás (pl. kiegészítő nézetben csak a vizsgált oldal). */
+  viewBoxOverride?: [number, number, number, number];
+  /** A jelenet koordinátáiban rajzolt kiegészítő elemek (pl. kábel a kéztől a csigáig). */
+  sceneExtras?: ReactNode;
+  /** Minden felirat elrejtése (szerepkör-feliratoké is). */
+  hideLabels?: boolean;
 }
 
 /** Igaz, ha a struktúra azonos a megadott azonosítóval vagy annak része (pl. izomrész). */
 export const matchesStructure = (structureId: string, key: string | null | undefined) =>
   !!key && (structureId === key || structureId.startsWith(`${key}-`));
 
-export const roleForStructure = (structureId: string, roleMap?: Record<string, MuscleRoleType>): MuscleRoleType | undefined => {
+export const roleForStructure = (structureId: string, roleMap?: Record<string, DisplayRoleType>): DisplayRoleType | undefined => {
   if (!roleMap) return undefined;
   if (roleMap[structureId]) return roleMap[structureId];
   const key = Object.keys(roleMap).find((k) => matchesStructure(structureId, k) || !!structureGroups[k]?.includes(structureId));
@@ -62,11 +68,11 @@ export const isStructureDrawn = (geometry: ViewGeometry, structureId: string): b
 /** Rövid felirat: a zárójeles kiegészítések nélküli magyar név. */
 const shortName = (id: string) => structureName(id).hu.replace(/\s*\([^)]*\)/g, '');
 
-const roleLetter: Record<MuscleRoleType, string> = { agonist: 'AG', synergist: 'SZ', antagonist: 'AN', stabilizer: 'ST' };
+const roleLetter: Record<DisplayRoleType, string> = { agonist: 'AG', synergist: 'SZ', antagonist: 'AN', stabilizer: 'ST', stretched: 'NY' };
 
 function AnatomyViewerImpl(props: AnatomyViewerProps) {
-  const { geometry, pose, mirrorPose, layers = ALL_LAYERS, ariaLabel, overlay, className, minimal, focus } = props;
-  const [vx, vy, vw, vh] = (focus && geometry.focusViewBox) || geometry.viewBox;
+  const { geometry, pose, mirrorPose, layers = ALL_LAYERS, ariaLabel, overlay, className, minimal, focus, sceneExtras } = props;
+  const [vx, vy, vw, vh] = props.viewBoxOverride ?? ((focus && geometry.focusViewBox) || geometry.viewBox);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [hover, setHover] = useState<string | null>(null);
@@ -183,6 +189,7 @@ function AnatomyViewerImpl(props: AnatomyViewerProps) {
               <Layers {...props} transforms={mirrorTransforms} layers={{ ...layers, labels: false, attachments: false, joints: false }} interactive={false} hover={null} setHover={() => undefined} />
             </g>
           )}
+          {sceneExtras && <g aria-hidden="true">{sceneExtras}</g>}
           <Layers {...props} transforms={transforms} layers={layers} interactive hover={hover} setHover={setHover} dragRef={drag} labelScale={labelScale} />
           </g>
           {geometry.fixtures?.map((f, i) => (
@@ -287,7 +294,10 @@ function Layers(p: LayersProps) {
         }
       : {};
 
-  const selectedIsMuscle = !!selectedId && selectedId.startsWith('muscle-');
+  // Ha a kiválasztott izom ebben a nézetben nem szerepel (pl. a nagy mellizom hátulnézetben), a többi izmot nem halványítjuk.
+  const selectedIsMuscle = !!selectedId && selectedId.startsWith('muscle-') && isStructureDrawn(geometry, selectedId);
+  // Kontextus-nézet: a kiválasztott izom itt nem látszik – az izmokat áttetszően, jól elkülöníthető kontúrral rajzoljuk.
+  const contextOnly = !!selectedId && selectedId.startsWith('muscle-') && !selectedIsMuscle && !roleMap;
   const muscles = [...geometry.muscles].sort((a, b) => a.z - b.z);
 
   const boneClass = (id: string, base: string) => {
@@ -295,16 +305,16 @@ function Layers(p: LayersProps) {
     return `${base}${matchesStructure(id, selectedId) && !selectedIsMuscle ? ' is-selected' : ''}${marked}${canSelect(id) ? ' an-clickable' : ''}`;
   };
 
-  const renderBones = (front: boolean) =>
+  const renderBones = (front: boolean, overlay = false) =>
     geometry.bones.map((b, i) => {
-      if (!!b.front !== front) return null;
+      if (!!b.overlay !== overlay || (!overlay && !!b.front !== front)) return null;
       const t = transforms[b.frame];
       if (!t) return null;
-      const cls = b.stroke ? (b.variant === 'cartilage' ? 'an-cartilage-line' : 'an-bone-line') : 'an-bone';
+      const cls = b.variant === 'implement' ? 'an-implement' : b.stroke ? (b.variant === 'cartilage' ? 'an-cartilage-line' : 'an-bone-line') : 'an-bone';
       return (
         <g key={`${b.structureId}-${i}`} transform={matrixToSvg(t)} id={interactive && i === geometry.bones.findIndex((x) => x.structureId === b.structureId) ? b.structureId : undefined}>
           <path d={b.d} className={boneClass(b.structureId, cls)} strokeWidth={b.stroke} {...a11y(b.structureId)}>
-            <title>{structureName(b.structureId).hu}</title>
+            <title>{b.title ?? structureName(b.structureId).hu}</title>
           </path>
         </g>
       );
@@ -325,6 +335,7 @@ function Layers(p: LayersProps) {
     const cls = [
       'an-muscle',
       dim && 'is-dim',
+      contextOnly && 'is-context',
       selected && !roleMap && 'is-selected',
       role && `role-${role}`,
       selected && roleMap && 'is-selected',
@@ -466,9 +477,10 @@ function Layers(p: LayersProps) {
       <g data-layer="deep-muscles">{deep.map(renderMuscle)}</g>
       <g data-layer="superficial-muscles">{superficial.map(renderMuscle)}</g>
       <g data-layer="role-muscles">{roleMuscles.map(renderMuscle)}</g>
+      {layers.bones && <g data-layer="bones-overlay">{renderBones(false, true)}</g>}
       {layers.joints && <g data-layer="joints">{renderJoints()}</g>}
       {layers.attachments && attachmentsFor && <g data-layer="attachments">{renderAttachments()}</g>}
-      {interactive && (layers.labels || !!roleMap) && <g data-layer="labels">{renderLabels()}</g>}
+      {interactive && !p.hideLabels && (layers.labels || !!roleMap) && <g data-layer="labels">{renderLabels()}</g>}
     </>
   );
 }

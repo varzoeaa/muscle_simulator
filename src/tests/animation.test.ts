@@ -141,3 +141,12 @@ describe('Mozgástartomány és fekvenyomás-kinematika', () => {
     expect(platesPerSide(102.5, 20)).toEqual([25, 15, 1.25]);
   });
 });
+
+describe('Szakaszhatárok', () => {
+  it('egy szakasz elején már az a szakasz aktív, nem az előző', async () => {
+    const engine = await import('../engines/animation/animationEngine');
+    const { benchPress } = await import('../data/exercises/benchPress');
+    benchPress.phases.forEach((ph) => expect(engine.phaseAt(benchPress.phases, ph.from)!.type).toBe(ph.type));
+    expect(engine.phaseAt(benchPress.phases, 1)!.type).toBe('concentric');
+  });
+});

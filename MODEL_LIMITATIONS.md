@@ -21,7 +21,7 @@ Ami **nem** mért vagy validált:
 - A hasi rész felülnézetben nem látható, ezért ott nem szerepel.
 - Az ín kétlemezes, U alakú csavarodása csak szövegesen jelenik meg.
 - A hátulnézet (Biomechanics Lab kiegészítő nézete) saját szerkesztésű, sematikus; a nagy mellizom hátulról nem látható. Az oldalnézetből a külső ferde hasizom a jobb áttekinthetőség érdekében kimaradt.
-- **Kiegészítő nézetek:** ahol a mozgás nem a nézet síkjában zajlik (pl. horizontális közelítés elölről/hátulról, hajlítás elölről), a kar egyszerű vetületi rövidüléssel (cos/sin szorzó a csont hossztengelye mentén) jelenik meg; a mélységi sorrendet (mi van elöl/hátul) ez nem kezeli.
+- **Kiegészítő nézetek:** ahol a mozgás nem a nézet síkjában zajlik (pl. horizontális közelítés elölről/hátulról, hajlítás elölről), a kar egyszerű vetületi rövidüléssel (cos/sin szorzó a csont hossztengelye mentén) jelenik meg; a mélységi sorrendet (mi van elöl/hátul) ez csak egyszerűsítve kezeli: elölnézetben az alkar az izmok fölé kerül. A kiegészítő nézetek a vizsgált (jobb) oldalra vannak kivágva.
 
 ## Mozgásanimációk egyszerűsítései
 
@@ -39,6 +39,15 @@ Ami **nem** mért vagy validált:
 - Az alkar mindvégig függőleges; a felkar szagittális vetületének rövidülése a vállízületi távolítás vetületi következménye.
 - A testarányok, a fogásszélesség és a mozgás sebessége rögzített. A súly csak szemléltető paraméter (tárcsák megjelenítése), nem befolyásolja a modellt.
 - Az EMG-vizsgálatok eredményeit szövegesen, forrással idézzük; nem jelenítünk meg aktivációs százalékot.
+
+## További gyakorlatok modelljei (Exercise Lab)
+
+- **Kézisúlyzós fekvenyomás:** a rúddal végzett fekvenyomás modellje; a súlyzó a nézővel szemben (pronált fogás), a mélyebb mozgástartomány nincs külön modellezve.
+- **Gépes mellnyomás, fekvőtámasz:** a fekvenyomás-modell a törzshöz rögzítve (az alkar merőleges a törzsre). A gépes nyomásnál a törzs függőleges; a fekvőtámasznál a kéz és a lábujj a talajon rögzített, a test e két pont között billen (a valódi mozgásban a lapocka is mozog).
+- **Tolódzkodás:** a kéz a korláton, az alkar függőleges, a felkar a könyök körül fordul előre; a törzs előredőlése a mélységgel lineárisan nő (10° → 30°) – oktatási közelítés, nem mért adat.
+- **Tárogatás, pec deck, kereszthúzás, nyújtás:** a vállöv felülnézeti anatómiai ábráján a kar nyújtott könyökkel mozog (a valóságban enyhén hajlított). A kereszthúzás függőleges összetevője (felülről lefelé húzás) és a lapocka mozgása nem látszik. A nyújtásnál a törzs elfordulása helyett a törzshöz viszonyított karhelyzet változik; a másik kar lógó helyzetét a felülnézetben erős rövidülés jelzi.
+- **Izomszerepek:** az ízületi működések tankönyvi tények (Neumann 2017); a szinergisták, stabilizálók és a gyakorlatspecifikus szerepek oktatási modell szintűek (NSCA). A tolódzkodásban a szegycsonti-bordai rész pontos szerepe és a széles hátizom kettős (antagonista / stabilizáló) szerepe egyszerűsítve jelenik meg. A gyakorlattechnikai elvek NSCA-hivatkozását a nyomtatott kiadás alapján gyakorlatonként érdemes ellenőrizni.
+- Egyik gyakorlatnál sem jelenik meg EMG-, aktivációs vagy erőérték.
 
 ## Ellenőrzésre váró / pontosítandó információk
 
