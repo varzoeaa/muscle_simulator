@@ -195,3 +195,4 @@ input[type='range'] {
 :root[data-theme='light'] .evidence-documented-observation { color: #255f9e; }
 :root[data-theme='light'] .evidence-educational-model { color: #8a5a12; }
 :root[data-theme='light'] .evidence-pending-verification { color: #a32b2b; }
+.an-label-agonist, .an-label-synergist, .an-label-antagonist, .an-label-stabilizer { font-weight: 700; }

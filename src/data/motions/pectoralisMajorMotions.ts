@@ -1,6 +1,17 @@
-import type { MotionDefinition } from '../../types';
+import type { MotionDefinition, Pose } from '../../types';
+import { signedAtLeast } from '../../utils/geometry';
 import { pectoralisMajor } from '../muscles/pectoralisMajor';
 import { solveClosedChain } from '../geometry/anteriorVariants';
+
+const rad = (deg: number) => (deg * Math.PI) / 180;
+const PROJECTION_NOTE = 'Vetület: a kar a nézet síkjából kilép, ezért rövidülve látszik.';
+
+/** Horizontális síkú karmozgás elölről/hátulról: 90°-os távolítás, a felkar vetülete rövidül. */
+const horizontalToFrontal = (p: Pose): Pose => ({ shoulderAbduction: 90, humerusScale: signedAtLeast(Math.sin(rad(p.shoulderHorizontalAbduction ?? 90)), 0.06) });
+/** Szagittális síkú karmozgás elölről/hátulról: a felkar függőleges vetülete cos(hajlítás). */
+const sagittalToFrontal = (p: Pose): Pose => ({ shoulderAbduction: 0, humerusScale: signedAtLeast(Math.cos(rad(p.shoulderFlexion ?? 0)), 0.06) });
+/** Forgatás lógó karral elölről/hátulról: az előre mutató alkar vízszintes vetülete sin(forgatás). */
+const rotationToFrontal = (p: Pose): Pose => ({ shoulderAbduction: 0, elbowAngle: -90, forearmScale: signedAtLeast(Math.sin(rad(p.shoulderInternalRotation ?? 0)), 0.06) });
 
 const rolesFor = (movementId: MotionDefinition['movementId']) => pectoralisMajor.roles.filter((r) => r.movementId === movementId);
 
@@ -10,6 +21,7 @@ export const pmAdduction: MotionDefinition = {
   movementId: 'shoulder-adduction',
   name: { hu: 'Vállízületi közelítés', en: 'Shoulder adduction', la: 'Adductio' },
   viewId: 'anterior',
+  extraViews: [{ viewId: 'posterior', mapPose: (p) => ({ shoulderAbduction: p.shoulderAbduction ?? 0 }) }],
   startPose: { shoulderAbduction: 95 },
   endPose: { shoulderAbduction: 8 },
   durationMs: 3200,
@@ -62,6 +74,10 @@ export const pmHorizontalAdduction: MotionDefinition = {
   movementId: 'shoulder-horizontal-adduction',
   name: { hu: 'Horizontális közelítés', en: 'Horizontal adduction' },
   viewId: 'superior',
+  extraViews: [
+    { viewId: 'anterior', mapPose: horizontalToFrontal, note: PROJECTION_NOTE },
+    { viewId: 'posterior', mapPose: horizontalToFrontal, note: PROJECTION_NOTE }
+  ],
   startPose: { shoulderHorizontalAbduction: 108 },
   endPose: { shoulderHorizontalAbduction: 4 },
   durationMs: 3200,
@@ -102,6 +118,10 @@ export const pmInternalRotation: MotionDefinition = {
   movementId: 'shoulder-internal-rotation',
   name: { hu: 'Befelé forgatás', en: 'Internal (medial) rotation', la: 'Rotatio medialis' },
   viewId: 'superior-arm-at-side',
+  extraViews: [
+    { viewId: 'anterior', mapPose: rotationToFrontal, note: 'Vetület: az előre mutató alkar rövidülve látszik.' },
+    { viewId: 'posterior', mapPose: rotationToFrontal, note: 'Vetület: az alkar a test előtt van, hátulról a felkar mögött mozog.' }
+  ],
   startPose: { shoulderInternalRotation: -45 },
   endPose: { shoulderInternalRotation: 35 },
   durationMs: 3200,
@@ -149,6 +169,10 @@ export const pmFlexion: MotionDefinition = {
   movementId: 'shoulder-flexion',
   name: { hu: 'Vállízületi hajlítás', en: 'Shoulder flexion', la: 'Flexio' },
   viewId: 'lateral',
+  extraViews: [
+    { viewId: 'anterior', mapPose: sagittalToFrontal, note: PROJECTION_NOTE },
+    { viewId: 'posterior', mapPose: sagittalToFrontal, note: PROJECTION_NOTE }
+  ],
   startPose: { shoulderFlexion: -15 },
   endPose: { shoulderFlexion: 80 },
   durationMs: 3200,
@@ -192,6 +216,10 @@ export const pmExtension: MotionDefinition = {
   movementId: 'shoulder-extension',
   name: { hu: 'Feszítés hajlított helyzetből', en: 'Extension from a flexed position', la: 'Extensio' },
   viewId: 'lateral',
+  extraViews: [
+    { viewId: 'anterior', mapPose: sagittalToFrontal, note: PROJECTION_NOTE },
+    { viewId: 'posterior', mapPose: sagittalToFrontal, note: PROJECTION_NOTE }
+  ],
   startPose: { shoulderFlexion: 110 },
   endPose: { shoulderFlexion: 0 },
   durationMs: 3200,
@@ -240,6 +268,7 @@ export const pmClosedChain: MotionDefinition = {
   movementId: 'shoulder-adduction',
   name: { hu: 'Rögzített kar: a törzs a kar felé (húzódzkodás)', en: 'Fixed arm: trunk drawn towards the arm (pull-up)' },
   viewId: 'anterior-closed-chain',
+  extraViews: [{ viewId: 'posterior-closed-chain', mapPose: (p) => p }],
   startPose: { lift: 0.4 },
   endPose: { lift: 1 },
   solvePose: solveClosedChain,

@@ -130,3 +130,27 @@ export function fan(origin: FramedPoint[], insertion: FramedPoint[], n: number):
   const i = samplePolyline(insertion, n);
   return o.map((p, k) => [p, i[k]!] as [FramedPoint, FramedPoint]);
 }
+
+/**
+ * Egy abszolút parancsokból (M, L, C, Q, Z) álló SVG path tükrözése a függőleges
+ * x = cx tengelyre. Hátulnézet rajzolásához: a test jobb oldala a néző jobb oldalára kerül.
+ */
+export function mirrorPathX(d: string, cx: number): string {
+  const tokens = d.match(/[MLCQZ]|-?\d*\.?\d+/gi) ?? [];
+  let n = 0;
+  return tokens
+    .map((t) => {
+      if (/^[MLCQZ]$/i.test(t)) {
+        n = 0;
+        return t;
+      }
+      const v = Number(t);
+      const out = n % 2 === 0 ? 2 * cx - v : v;
+      n++;
+      return String(+out.toFixed(2));
+    })
+    .join(' ');
+}
+
+/** Előjeles minimum-abszolútérték (pl. vetületi rövidülésnél ne essen pontosan nullára a skála). */
+export const signedAtLeast = (v: number, min: number) => (Math.abs(v) < min ? (v < 0 ? -min : min) : v);

@@ -20,7 +20,8 @@ Ami **nem** mért vagy validált:
 - **Idegek:** a külső és belső mellizomideg lefutásához nem áll rendelkezésre ellenőrzött geometria, ezért az ábrákon nem szerepelnek; a beidegzés szövegesen jelenik meg.
 - A hasi rész felülnézetben nem látható, ezért ott nem szerepel.
 - Az ín kétlemezes, U alakú csavarodása csak szövegesen jelenik meg.
-- Nincs hátulsó anatómiai nézet. Az oldalnézetből a külső ferde hasizom a jobb áttekinthetőség érdekében kimaradt.
+- A hátulnézet (Biomechanics Lab kiegészítő nézete) saját szerkesztésű, sematikus; a nagy mellizom hátulról nem látható. Az oldalnézetből a külső ferde hasizom a jobb áttekinthetőség érdekében kimaradt.
+- **Kiegészítő nézetek:** ahol a mozgás nem a nézet síkjában zajlik (pl. horizontális közelítés elölről/hátulról, hajlítás elölről), a kar egyszerű vetületi rövidüléssel (cos/sin szorzó a csont hossztengelye mentén) jelenik meg; a mélységi sorrendet (mi van elöl/hátul) ez nem kezeli.
 
 ## Mozgásanimációk egyszerűsítései
 

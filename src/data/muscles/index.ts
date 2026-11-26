@@ -64,3 +64,11 @@ const registry: AnatomicalStructure[] = [
 export const structureById = (id: string): AnatomicalStructure | undefined => registry.find((s) => s.id === id);
 export const structureName = (id: string): Term => structureById(id)?.name ?? { hu: id, en: id };
 export const allStructures = registry;
+
+/**
+ * Gyűjtő-azonosítók: a szerepkör-táblázatokban csoportként szereplő izmok, amelyek
+ * az ábrán külön kontúrként jelennek meg (pl. a rotátorköpeny négy izma).
+ */
+export const structureGroups: Record<string, string[]> = {
+  'muscle-rotator-cuff': ['muscle-supraspinatus', 'muscle-infraspinatus', 'muscle-teres-minor', 'muscle-subscapularis']
+};

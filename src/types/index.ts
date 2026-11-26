@@ -185,6 +185,8 @@ export type AnatomicalViewId =
   | 'superior-arm-at-side'
   | 'anterior-closed-chain'
   | 'anterior-respiration'
+  | 'posterior'
+  | 'posterior-closed-chain'
   | 'lateral-bench';
 
 export interface AnatomicalView {
@@ -313,6 +315,11 @@ export interface MotionDefinition {
   contractionTypes?: ContractionType[];
   /** Az interpolált pózból származtatott teljes póz (pl. zárt láncú inverz kinematika). */
   solvePose?: (pose: Pose) => Pose;
+  /**
+   * Kiegészítő nézetek ugyanarról a mozgásról (egymás mellett jelennek meg). A `mapPose`
+   * a fő nézet pózából számolja a kiegészítő nézet pózát (pl. vetületi rövidüléssel).
+   */
+  extraViews?: { viewId: AnatomicalViewId; mapPose: (pose: Pose) => Pose; note?: string }[];
 }
 
 export type AnimationSpeed = 0.25 | 0.5 | 1 | 1.5 | 2;

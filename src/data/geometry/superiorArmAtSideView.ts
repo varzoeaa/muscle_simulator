@@ -69,6 +69,33 @@ export const superiorArmAtSideView: ViewGeometry = {
       label: { at: W(196, 176), text: 'Tövis alatti izom' }
     },
     {
+      // Kis görgetegizom: hátul-kívül, a tövis alatti izom alatt tapad a nagy gumón.
+      structureId: 'muscle-teres-minor',
+      layer: 'superficial-muscles',
+      z: 3.5,
+      outline: [W(150, 222), W(160, 230), H(-26, 2), H(-24, -6)],
+      fibers: fan([W(154, 226)], [H(-25, -2)], 1),
+      label: { at: W(136, 214), text: 'Kis görgetegizom' }
+    },
+    {
+      // Deltaizom hátsó része: a lapockatövistől a felkarcsontfej mögött lefelé (felülről a fej hátsó-külső részét takarja).
+      structureId: 'muscle-deltoid-posterior',
+      layer: 'superficial-muscles',
+      z: 4,
+      outline: [W(206, 196), W(160, 226), W(146, 240), H(-27, -4), H(-20, -18), W(200, 188)],
+      fibers: fan([W(200, 194), W(158, 228)], [H(-24, -10), H(-24, -10)], 3),
+      label: { at: W(186, 200), text: 'Deltaizom hátsó rész' }
+    },
+    {
+      // Deltaizom elülső része: a kulcscsont külső harmadától a felkarcsontfej előtt lefelé.
+      structureId: 'muscle-deltoid-anterior',
+      layer: 'superficial-muscles',
+      z: 12,
+      outline: [W(208, 326), W(182, 296), W(160, 262), H(-26, 6), H(-22, 16), W(176, 300), W(204, 334)],
+      fibers: fan([W(204, 328), W(180, 296)], [H(-24, 12), H(-24, 12)], 3),
+      label: { at: W(170, 316), text: 'Deltaizom elülső rész' }
+    },
+    {
       structureId: 'muscle-pectoralis-major-sternocostal',
       layer: 'superficial-muscles',
       z: 10,

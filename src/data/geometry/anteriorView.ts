@@ -62,8 +62,9 @@ export const anteriorView: ViewGeometry = {
   mirrorContext: true,
   orientation: { top: 'Kraniális (fej felé)', bottom: 'Kaudális (láb felé)', left: 'A test jobb oldala (laterális)', right: 'Középvonal / bal oldal' },
   frames: [
-    { id: 'humerus', parent: 'world', pivot: GH, angleKey: 'shoulderAbduction' },
-    { id: 'forearm', parent: 'humerus', pivot: { x: 0, y: 216 } }
+    // humerusScale / forearmScale: vetületi rövidülés, amikor a kar a nézet síkjából kilép (kiegészítő nézetek).
+    { id: 'humerus', parent: 'world', pivot: GH, angleKey: 'shoulderAbduction', scaleYKey: 'humerusScale' },
+    { id: 'forearm', parent: 'humerus', pivot: { x: 0, y: 216 }, angleKey: 'elbowAngle', scaleYKey: 'forearmScale' }
   ],
   bones: [
     {
@@ -112,6 +113,24 @@ export const anteriorView: ViewGeometry = {
       z: 3,
       outline: [H(6, 42), H(8, 74), W(184, 262), W(178, 350), W(160, 356), W(166, 260)],
       fibers: fan([W(168, 350), W(176, 300)], [H(6, 46), H(7, 70)], 4)
+    },
+    {
+      // Nagy görgetegizom: a lapocka alsó szögétől a felkarcsont elülső felszínéig (a széles hátizom mellett, fölötte).
+      structureId: 'muscle-teres-major',
+      layer: 'superficial-muscles',
+      z: 3.5,
+      outline: [W(196, 246), W(208, 290), W(196, 300), H(10, 84), H(8, 56)],
+      fibers: fan([W(198, 258), W(204, 290)], [H(8, 60), H(9, 80)], 3),
+      label: { at: W(178, 240), text: 'Nagy görgetegizom' }
+    },
+    {
+      // Tövis feletti izom: elölről csak a kulcscsont fölött, a vállcsúcs alatt futó része látszik.
+      structureId: 'muscle-supraspinatus',
+      layer: 'superficial-muscles',
+      z: 0.5,
+      outline: [W(236, 84), W(200, 82), W(172, 86), H(-14, -22), H(4, -24), W(196, 92), W(236, 92)],
+      fibers: fan([W(232, 88), W(200, 86)], [H(-4, -23), H(-6, -23)], 3),
+      label: { at: W(214, 78), text: 'Tövis feletti izom' }
     },
     {
       structureId: 'muscle-triceps-long-head',

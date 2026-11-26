@@ -63,6 +63,35 @@ describe('A nagy mellizom funkcióinak animációi', () => {
     expect(motionPose(m, 1, 'concentric').trunkY!).toBeLessThan(motionPose(m, 0, 'concentric').trunkY!);
   });
 
+  it('a kiegészítő nézetek léteznek, és a vetület a mozgással együtt változik', () => {
+    motions.forEach((m) =>
+      (m.extraViews ?? []).forEach((v) => {
+        expect(viewGeometries[v.viewId], `${m.id} → ${v.viewId}`).toBeDefined();
+        expect(Object.values(v.mapPose(motionPose(m, 0.5, 'concentric'))).every(Number.isFinite)).toBe(true);
+      })
+    );
+    const h = motionById('pm-horizontal-adduction')!.extraViews!.find((v) => v.viewId === 'anterior')!;
+    const lenAt = (t: number) => h.mapPose(motionPose(motionById('pm-horizontal-adduction')!, t, 'concentric')).humerusScale!;
+    // A kar előre fordul, ezért elölről egyre rövidebbnek látszik.
+    expect(lenAt(1)).toBeLessThan(lenAt(0));
+  });
+
+  it('hátulnézet: a jobb oldal a néző jobb oldalán van, a zárt láncban a kéz itt is a rúdon marad', () => {
+    const post = viewGeometries.posterior!;
+    const tr = computeFrameTransforms(post.frames, { shoulderAbduction: 30 });
+    expect(toWorld({ frame: 'humerus', x: 0, y: 0 }, tr).x).toBeGreaterThan(300);
+    // Távolításkor a kar laterálisan, vagyis jobbra mozdul.
+    expect(toWorld({ frame: 'humerus', x: 0, y: 216 }, tr).x).toBeGreaterThan(450);
+    const m = motionById('pm-closed-chain')!;
+    const g = viewGeometries['posterior-closed-chain']!;
+    [0, 0.5, 1].forEach((t) => {
+      const pose = motionPose(m, t, 'concentric');
+      const hand = toWorld({ frame: 'forearm', x: 0, y: 200 }, computeFrameTransforms(g.frames, pose));
+      expect(hand.x).toBeCloseTo(600 - GRIP.x, 3);
+      expect(hand.y + (pose.trunkY ?? 0)).toBeCloseTo(GRIP.y, 3);
+    });
+  });
+
   it('járulékos belégzés: a felkar nem mozdul, csak a mellkas', () => {
     const m = motionById('pm-accessory-inspiration')!;
     expect(m.contractionTypes).toEqual(['concentric']);

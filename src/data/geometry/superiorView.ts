@@ -62,6 +62,15 @@ export const superiorView: ViewGeometry = {
       fibers: fan([W(238, 164), W(200, 188)], [H(-19, -6), H(-19, 0)], 4)
     },
     {
+      // Kis görgetegizom: a lapocka oldalsó szélétől a nagy gumó hátsó-alsó részéig, a tövis alatti izom mellett.
+      structureId: 'muscle-teres-minor',
+      layer: 'superficial-muscles',
+      z: 2.5,
+      outline: [W(150, 214), W(160, 222), H(-21, 18), H(-20, 4)],
+      fibers: fan([W(152, 216)], [H(-20, 10)], 1),
+      label: { at: W(128, 206), text: 'Kis görgetegizom' }
+    },
+    {
       structureId: 'muscle-coracobrachialis',
       layer: 'superficial-muscles',
       z: 3,

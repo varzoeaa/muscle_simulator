@@ -4,6 +4,7 @@ import { superiorView } from './superiorView';
 import { lateralView } from './lateralView';
 import { superiorArmAtSideView } from './superiorArmAtSideView';
 import { anteriorClosedChainView, anteriorRespirationView, solveClosedChain } from './anteriorVariants';
+import { posteriorClosedChainView, posteriorView } from './posteriorView';
 
 export const views: AnatomicalView[] = [
   { id: 'anterior', atlas: true, name: { hu: 'Elülső nézet', en: 'Anterior view', la: 'Facies anterior' }, description: 'A mellkas és a váll elölről, anatómiai alaphelyzetben.' },
@@ -16,6 +17,8 @@ export const views: AnatomicalView[] = [
   },
   { id: 'anterior-closed-chain', name: { hu: 'Elülső nézet, rögzített kézzel', en: 'Anterior view, fixed hand' }, description: 'Zárt kinetikai lánc: a kéz rögzített, a törzs mozog.' },
   { id: 'anterior-respiration', name: { hu: 'Elülső nézet, rögzített felkarral', en: 'Anterior view, fixed arm' }, description: 'A mellkas mozgása rögzített felkar mellett.' },
+  { id: 'posterior', name: { hu: 'Hátulnézet', en: 'Posterior view', la: 'Facies posterior' }, description: 'A vállöv hátulról: a hátsó vállövi izmok és a lapocka.' },
+  { id: 'posterior-closed-chain', name: { hu: 'Hátulnézet, rögzített kézzel', en: 'Posterior view, fixed hand' }, description: 'Zárt kinetikai lánc hátulról.' },
   { id: 'lateral-bench', name: { hu: 'Oldalnézet (fekvenyomás)', en: 'Lateral view (bench press)' }, description: 'A gyakorlat szagittális síkú vetülete.' }
 ];
 
@@ -25,7 +28,9 @@ export const viewGeometries: Partial<Record<AnatomicalViewId, ViewGeometry>> = {
   lateral: lateralView,
   'superior-arm-at-side': superiorArmAtSideView,
   'anterior-closed-chain': anteriorClosedChainView,
-  'anterior-respiration': anteriorRespirationView
+  'anterior-respiration': anteriorRespirationView,
+  posterior: posteriorView,
+  'posterior-closed-chain': posteriorClosedChainView
 };
 
 /** Az egyes nézetek alaphelyzete (pl. Anatomy Lab statikus megjelenítéséhez). */
@@ -36,6 +41,8 @@ export const restPoses: Record<AnatomicalViewId, Pose> = {
   'superior-arm-at-side': { shoulderInternalRotation: 0 },
   'anterior-closed-chain': solveClosedChain({ lift: 0.4 }),
   'anterior-respiration': { shoulderAbduction: 30, ribLift: 0 },
+  posterior: { shoulderAbduction: 12 },
+  'posterior-closed-chain': solveClosedChain({ lift: 0.4 }),
   'lateral-bench': {}
 };
 
