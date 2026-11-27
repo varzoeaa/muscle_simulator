@@ -54,6 +54,12 @@ const pmSternoOrigin = [W(289, 134), W(293, 175), W(293, 220), W(291, 258), W(26
 const pmSternoInsertion = [H(-10, 46), H(-10, 84)];
 const pmAbdOrigin = [W(288, 292), W(270, 300), W(250, 309)];
 const pmAbdInsertion = [H(-6, 34), H(-6, 54)];
+/** Kis mellizom: eredés a 3–5. bordán a borda-bordaporc határ közelében, tapadás a hollócsőrnyúlványon. */
+const pmiOrigin = [W(250, 177), W(247, 202), W(244, 228)];
+const pmiInsertion = [W(186, 131), W(193, 139)];
+/** Kulcscsont alatti izom: az 1. borda és bordaporca határától a kulcscsont alsó felszínének középső harmadáig. */
+const subOrigin = [W(266, 129), W(275, 131)];
+const subInsertion = [W(226, 115), W(250, 121)];
 
 export const anteriorView: ViewGeometry = {
   viewId: 'anterior',
@@ -158,16 +164,18 @@ export const anteriorView: ViewGeometry = {
       structureId: 'muscle-pectoralis-minor',
       layer: 'deep-muscles',
       z: 7,
-      outline: [W(186, 130), W(254, 170), W(253, 198), W(249, 228), W(238, 228), W(196, 144)],
-      fibers: fan([W(186, 132), W(192, 140)], [W(252, 172), W(244, 226)], 5),
+      outline: [W(184, 129), W(254, 174), W(251, 202), W(248, 231), W(236, 231), W(195, 145)],
+      fibers: fan(pmiInsertion, pmiOrigin, 6),
       label: { at: W(226, 186), text: 'Kis mellizom' }
     },
     {
       structureId: 'muscle-subclavius',
       layer: 'deep-muscles',
       z: 8,
-      outline: [W(276, 124), W(250, 120), W(224, 114), W(222, 121), W(250, 127), W(274, 132)],
-      fibers: fan([W(274, 128)], [W(224, 118)], 1)
+      // A kulcscsont alsó széle alatt: a felső része a csont mögé bújik, az alsó része kilátszik.
+      outline: [W(280, 126), W(262, 119), W(248, 122), W(224, 116), W(220, 125), W(248, 132), W(277, 136)],
+      fibers: fan(subOrigin, subInsertion, 3),
+      label: { at: W(246, 130), text: 'Kulcscsont alatti izom' }
     },
     {
       structureId: 'muscle-pectoralis-major-abdominal',
@@ -215,7 +223,11 @@ export const anteriorView: ViewGeometry = {
     { structureId: 'muscle-pectoralis-major-abdominal', type: 'origin', extent: 'line', points: pmAbdOrigin },
     { structureId: 'muscle-pectoralis-major-clavicular', type: 'insertion', extent: 'line', points: [H(-14, 70), H(-14, 98)] },
     { structureId: 'muscle-pectoralis-major-sternocostal', type: 'insertion', extent: 'line', points: [H(-11, 46), H(-11, 84)] },
-    { structureId: 'muscle-pectoralis-major-abdominal', type: 'insertion', extent: 'line', points: [H(-8, 34), H(-8, 54)] }
+    { structureId: 'muscle-pectoralis-major-abdominal', type: 'insertion', extent: 'line', points: [H(-8, 34), H(-8, 54)] },
+    { structureId: 'muscle-pectoralis-minor', type: 'origin', extent: 'line', points: pmiOrigin },
+    { structureId: 'muscle-pectoralis-minor', type: 'insertion', extent: 'line', points: pmiInsertion },
+    { structureId: 'muscle-subclavius', type: 'origin', extent: 'line', points: subOrigin },
+    { structureId: 'muscle-subclavius', type: 'insertion', extent: 'line', points: subInsertion }
   ],
   joints: [
     { structureId: 'joint-glenohumeral', at: H(0, 0) },

@@ -72,7 +72,9 @@ const THORAX_MUSCLES: Record<string, (p: FramedPoint) => boolean> = {
   'muscle-pectoralis-major-abdominal': () => true,
   'muscle-external-oblique': () => true,
   // A kis mellizom bordai eredése mozog, a hollócsőrnyúlványi tapadása nem.
-  'muscle-pectoralis-minor': (p) => p.x > 230
+  'muscle-pectoralis-minor': (p) => p.x > 230,
+  // A kulcscsont alatti izom 1. bordai eredése mozog, a kulcscsonti tapadása nem.
+  'muscle-subclavius': (p) => p.x > 262
 };
 
 const toThorax = (p: FramedPoint, when: (p: FramedPoint) => boolean = () => true): FramedPoint =>

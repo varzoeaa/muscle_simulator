@@ -250,3 +250,14 @@ export function Disclaimer({ children }: { children?: ReactNode }) {
     </p>
   );
 }
+
+/** Üres modul: az izom elérhető, de ehhez a modulhoz még nem készült tartalom. */
+export function ModulePending({ name, what }: { name: string; what: string }) {
+  return (
+    <Panel>
+      <p className="text-sm text-ink-2">
+        A(z) {name.toLowerCase()} {what} még fejlesztés alatt állnak. Az izom anatómiája az Anatomy Labban már elérhető.
+      </p>
+    </Panel>
+  );
+}

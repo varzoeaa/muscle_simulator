@@ -136,6 +136,8 @@ body {
   stroke-opacity: 0.55;
   stroke-width: 1.4;
 }
+.an-ghost { opacity: 0.22; }
+.an-ghost:hover { opacity: 0.45; }
 .an-muscle.is-dim {
   fill: var(--an-muscle-dim);
   stroke: var(--an-muscle-dim-stroke);

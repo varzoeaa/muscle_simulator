@@ -324,5 +324,5 @@ export const pectoralisMajor: Muscle = {
   ],
   sourceIds: ['fipat-ta2', 'moore-coa', 'grays-anatomy', 'openstax-ap2e', 'statpearls-pectoral', 'neumann-kinesiology', 'rodriguez-ridao-2020', 'lauver-2016'],
   motionIds: ['pm-adduction', 'pm-horizontal-adduction', 'pm-internal-rotation', 'pm-flexion', 'pm-extension', 'pm-closed-chain', 'pm-accessory-inspiration'],
-  exerciseIds: ['barbell-bench-press', 'dumbbell-bench-press', 'dumbbell-fly', 'machine-chest-press', 'pec-deck', 'cable-crossover', 'push-up', 'dips', 'pectoral-stretch']
+  exerciseIds: ['barbell-bench-press', 'dumbbell-bench-press', 'dumbbell-fly', 'machine-chest-press', 'pec-deck', 'cable-crossover', 'push-up', 'dips', 'pectoral-stretch', 'supine-pectoral-stretch']
 };

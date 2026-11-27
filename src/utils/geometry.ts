@@ -47,6 +47,7 @@ export function computeFrameTransforms(frames: FrameDefinition[], pose: Pose): R
     const ty = f.translateYKey ? (pose[f.translateYKey] ?? 0) : 0;
     let m = multiply(parent, multiply(translate(f.pivot.x, f.pivot.y + ty), rotate(angle)));
     if (f.scaleYKey) m = multiply(m, scaleY(pose[f.scaleYKey] ?? 1));
+    if (f.localOrigin) m = multiply(m, translate(-f.localOrigin.x, -f.localOrigin.y));
     out[id] = m;
     return m;
   };

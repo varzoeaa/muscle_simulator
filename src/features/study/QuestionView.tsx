@@ -92,9 +92,11 @@ function optionClass(state: 'idle' | 'picked' | 'right' | 'wrong') {
 
 function MC({ q, submitted, feedback, onSubmit }: Sub<Extract<StudyQuestion, { type: 'multiple-choice' }>>) {
   const picked = submitted?.type === 'multiple-choice' ? submitted.optionId : null;
+  // A válaszlehetőségek sorrendje kérdésenként véletlenszerű (a helyes válasz helye ne legyen megjegyezhető).
+  const options = useMemo(() => shuffle(q.options), [q]);
   return (
     <div className="flex flex-col gap-2">
-      {q.options.map((o) => {
+      {options.map((o) => {
         const state = !picked ? 'idle' : feedback && o.id === q.correctOptionId ? 'right' : o.id === picked ? (feedback ? 'wrong' : 'picked') : 'idle';
         return (
           <button key={o.id} type="button" disabled={!!picked} onClick={() => onSubmit({ type: 'multiple-choice', optionId: o.id })} className={`rounded-xl border px-3 py-2.5 text-left text-sm text-ink transition ${optionClass(state)}`}>
@@ -111,6 +113,7 @@ function FillBlank({ q, submitted, feedback, onSubmit }: Sub<Extract<StudyQuesti
   const done = submitted?.type === 'fill-blank';
   const shown = done ? submitted.value : value;
   const [before, after] = q.text.split('___');
+  const options = useMemo(() => shuffle(q.options), [q]);
   return (
     <div className="flex flex-col gap-3">
       <p className="rounded-xl bg-bg-2/60 p-3 text-sm leading-relaxed text-ink">
@@ -119,7 +122,7 @@ function FillBlank({ q, submitted, feedback, onSubmit }: Sub<Extract<StudyQuesti
         {after}
       </p>
       <div className="flex flex-wrap gap-2">
-        {q.options.map((o) => (
+        {options.map((o) => (
           <button key={o} type="button" disabled={done} aria-pressed={value === o} onClick={() => setValue(o)} className={`rounded-full border px-3 py-1 text-sm ${value === o ? 'border-accent-2 bg-accent/20 text-ink' : 'border-line text-ink'}`}>
             {o}
           </button>
@@ -137,7 +140,8 @@ function FillBlank({ q, submitted, feedback, onSubmit }: Sub<Extract<StudyQuesti
 }
 
 function Matching({ q, submitted, feedback, onSubmit }: Sub<Extract<StudyQuestion, { type: 'matching' }>>) {
-  const rights = useMemo(() => shuffle(q.pairs.map((p) => ({ id: p.id, text: p.right }))), [q]);
+  // Az azonos szövegű jobb oldali elemek csak egyszer szerepelnek a listában.
+  const rights = useMemo(() => shuffle(q.pairs.filter((p, i) => q.pairs.findIndex((x) => x.right === p.right) === i).map((p) => ({ id: p.id, text: p.right }))), [q]);
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const done = submitted?.type === 'matching';
   const shown = done ? submitted.mapping : mapping;
@@ -145,7 +149,7 @@ function Matching({ q, submitted, feedback, onSubmit }: Sub<Extract<StudyQuestio
   return (
     <div className="flex flex-col gap-2">
       {q.pairs.map((p) => {
-        const ok = shown[p.id] === p.id;
+        const ok = q.pairs.find((x) => x.id === shown[p.id])?.right === p.right;
         return (
           <div key={p.id} className={`grid items-center gap-2 rounded-xl border p-2 sm:grid-cols-[1fr_1.4fr] ${done && feedback ? (ok ? 'border-emerald-500' : 'border-red-500') : 'border-line'}`}>
             <span className="text-sm font-medium text-ink">{p.left}</span>
@@ -183,6 +187,8 @@ function Diagram({ q, submitted, feedback, onSubmit }: Sub<Extract<StudyQuestion
   const shown = done ? submitted.structureId : picked;
   const boneTask = q.task !== 'muscle';
   const geometry = viewGeometries[q.viewId]!;
+  // Mély izomra kérdező feladat: a mély réteg látszik, a felületes izmok áttetszők.
+  const deepTask = !boneTask && q.selectableStructureIds.some((id) => geometry.muscles.some((m) => m.layer === 'deep-muscles' && m.structureId === id));
   return (
     <div className="flex flex-col gap-2">
       <div className="h-[42vh] min-h-[280px]">
@@ -193,7 +199,8 @@ function Diagram({ q, submitted, feedback, onSubmit }: Sub<Extract<StudyQuestion
           selectedId={shown}
           onSelect={done ? undefined : setPicked}
           selectableIds={q.selectableStructureIds}
-          layers={{ ...ALL_LAYERS, labels: false, attachments: false, 'superficial-muscles': !boneTask, 'deep-muscles': false }}
+          layers={{ ...ALL_LAYERS, labels: false, attachments: false, 'superficial-muscles': !boneTask, 'deep-muscles': deepTask }}
+          ghostSuperficial={deepTask}
           markedIds={done && feedback ? { correct: q.correctStructureIds, wrong: shown && !q.correctStructureIds.includes(shown) ? [shown] : [] } : undefined}
           ariaLabel="Tesztfeladat ábrája – kattints a megfelelő struktúrára"
         />
@@ -207,6 +214,7 @@ function Diagram({ q, submitted, feedback, onSubmit }: Sub<Extract<StudyQuestion
         )}
       </div>
       {boneTask && <p className="text-xs text-ink-2">Ennél a feladatnál az izmok rejtve vannak, hogy a csontok jól láthatók legyenek.</p>}
+      {deepTask && <p className="text-xs text-ink-2">Ennél a feladatnál a felületes izmok áttetszők, hogy a mélyebb réteg is látható legyen.</p>}
     </div>
   );
 }

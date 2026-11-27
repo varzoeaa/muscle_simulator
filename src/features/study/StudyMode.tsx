@@ -5,7 +5,7 @@ import type { ExamResult, Muscle, QuestionTopic, StudyAnswer, StudyQuestion } fr
 import { flashcardsForMuscle, questionsForMuscle, topicLabels } from '../../data/questions';
 import { buildExam, evaluation, gradeAnswer, score, wrongQuestions } from '../../engines/study/studyEngine';
 import { useStudyStore } from '../../stores/studyStore';
-import { Button, Panel, Segmented, SourceRefs } from '../../components/ui';
+import { Button, ModulePending, Panel, Segmented, SourceRefs } from '../../components/ui';
 import { QuestionView, correctAnswerText } from './QuestionView';
 import { isPersistentStorageAvailable } from '../../services/storage';
 
@@ -13,6 +13,12 @@ type Tab = 'cards' | 'practice' | 'exam' | 'results';
 
 export function StudyMode() {
   const { muscle } = useOutletContext<{ muscle: Muscle }>();
+  if (!questionsForMuscle(muscle.id).length && !flashcardsForMuscle(muscle.id).length) return <ModulePending name={muscle.name.hu} what="tanulókártyái és feladatai" />;
+  return <StudyModeContent muscle={muscle} />;
+}
+
+
+function StudyModeContent({ muscle }: { muscle: Muscle }) {
   const { slug } = useParams();
   const musclePath = `/izom/${slug}`;
   const [tab, setTab] = useState<Tab>('cards');

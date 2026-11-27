@@ -1,8 +1,10 @@
 import type { QuestionTopic } from '../../types';
 import { pmFlashcards, pmQuestions } from './pectoralisMajor';
+import { pmExtraFlashcards, pmExtraQuestions } from './pectoralisMajorExtra';
+import { pmiFlashcards, pmiQuestions } from './pectoralisMinor';
 
-export const questions = [...pmQuestions];
-export const flashcards = [...pmFlashcards];
+export const questions = [...pmQuestions, ...pmExtraQuestions, ...pmiQuestions];
+export const flashcards = [...pmFlashcards, ...pmExtraFlashcards, ...pmiFlashcards];
 
 export const questionsForMuscle = (muscleId: string) => questions.filter((q) => q.muscleId === muscleId);
 export const flashcardsForMuscle = (muscleId: string) => flashcards.filter((f) => f.muscleId === muscleId);

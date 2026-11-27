@@ -19,6 +19,9 @@ const clavOrigin = [W(287, 362), W(258, 361), W(232, 351)];
 const clavInsertion = [H(13, 100), H(13, 66)];
 const sternoOrigin = [W(300, 383), W(268, 386), W(238, 375)];
 const sternoInsertion = [H(12, 86), H(12, 44)];
+/** Kis mellizom: a hollócsőrnyúlványtól előre-befelé a 3–5. borda elülső felszínéig (a nagy mellizom alatt). */
+const pmiOrigin = [W(250, 362), W(234, 356)];
+const pmiInsertion = [W(154, 287), W(161, 293)];
 
 export const superiorView: ViewGeometry = {
   viewId: 'superior',
@@ -87,6 +90,14 @@ export const superiorView: ViewGeometry = {
       label: { at: H(12, 160), text: 'Kétfejű karizom' }
     },
     {
+      structureId: 'muscle-pectoralis-minor',
+      layer: 'deep-muscles',
+      z: 8,
+      outline: [W(150, 284), W(166, 292), W(254, 360), W(246, 370), W(226, 362), W(156, 298)],
+      fibers: fan(pmiInsertion, pmiOrigin, 4),
+      label: { at: W(206, 330), text: 'Kis mellizom' }
+    },
+    {
       structureId: 'muscle-pectoralis-major-sternocostal',
       layer: 'superficial-muscles',
       z: 10,
@@ -130,7 +141,9 @@ export const superiorView: ViewGeometry = {
     { structureId: 'muscle-pectoralis-major-clavicular', type: 'origin', extent: 'line', points: clavOrigin },
     { structureId: 'muscle-pectoralis-major-sternocostal', type: 'origin', extent: 'line', points: sternoOrigin },
     { structureId: 'muscle-pectoralis-major-clavicular', type: 'insertion', extent: 'line', points: [H(15, 70), H(15, 100)] },
-    { structureId: 'muscle-pectoralis-major-sternocostal', type: 'insertion', extent: 'line', points: [H(11, 46), H(11, 84)] }
+    { structureId: 'muscle-pectoralis-major-sternocostal', type: 'insertion', extent: 'line', points: [H(11, 46), H(11, 84)] },
+    { structureId: 'muscle-pectoralis-minor', type: 'origin', extent: 'line', points: pmiOrigin },
+    { structureId: 'muscle-pectoralis-minor', type: 'insertion', extent: 'line', points: pmiInsertion }
   ],
   joints: [
     { structureId: 'joint-glenohumeral', at: H(0, 0) },

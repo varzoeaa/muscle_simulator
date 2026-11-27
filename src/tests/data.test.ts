@@ -3,7 +3,7 @@ import { muscles, structureById } from '../data/muscles';
 import { pectoralisMajor } from '../data/muscles/pectoralisMajor';
 import { sources, sourceById } from '../data/sources/sources';
 import { viewGeometries } from '../data/geometry';
-import { motions } from '../data/motions/pectoralisMajorMotions';
+import { motions } from '../data/motions';
 import { exercises } from '../data/exercises';
 import { flashcards, questions } from '../data/questions';
 

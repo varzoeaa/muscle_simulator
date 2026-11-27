@@ -19,7 +19,7 @@ export function AnatomyLab() {
   const showLabels = useSettingsStore((s) => s.showLabels);
   const setShowLabels = useSettingsStore((s) => s.setShowLabels);
   const [layers, setLayers] = useState<Record<LayerId, boolean>>(ALL_LAYERS);
-  const [roleMovement, setRoleMovement] = useState<JointMovementId>('shoulder-adduction');
+  const [roleMovement, setRoleMovement] = useState<JointMovementId>(muscle.roles[0]?.movementId ?? 'shoulder-adduction');
 
   const geometry = viewGeometries[viewId]!;
   const region = muscle.regions.find((r) => r.id === selected);
@@ -71,7 +71,10 @@ export function AnatomyLab() {
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
-          <Panel title="Izomrészek kiválasztása" subtitle="A nagy mellizom egésze vagy egy-egy része">
+          <Panel
+            title={muscle.regions.length ? 'Izomrészek kiválasztása' : 'Kiválasztás'}
+            subtitle={muscle.regions.length ? `A(z) ${muscle.name.hu.toLowerCase()} egésze vagy egy-egy része` : 'Ennek az izomnak nincsenek külön elnevezett részei'}
+          >
             <div className="flex flex-col gap-1.5">
               {[{ id: muscle.id, name: muscle.name }, ...muscle.regions].map((r) => (
                 <button

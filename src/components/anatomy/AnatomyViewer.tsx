@@ -46,6 +46,8 @@ export interface AnatomyViewerProps {
   sceneExtras?: ReactNode;
   /** Minden felirat elrejtése (szerepkör-feliratoké is). */
   hideLabels?: boolean;
+  /** A felületes izmok áttetszők (pl. mély izomra kérdező tesztfeladatban). */
+  ghostSuperficial?: boolean;
 }
 
 /** Igaz, ha a struktúra azonos a megadott azonosítóval vagy annak része (pl. izomrész). */
@@ -299,6 +301,7 @@ function Layers(p: LayersProps) {
   // Kontextus-nézet: a kiválasztott izom itt nem látszik – az izmokat áttetszően, jól elkülöníthető kontúrral rajzoljuk.
   const contextOnly = !!selectedId && selectedId.startsWith('muscle-') && !selectedIsMuscle && !roleMap;
   const muscles = [...geometry.muscles].sort((a, b) => a.z - b.z);
+  const deepSelected = !roleMap && (!!p.ghostSuperficial || (!!selectedId && muscles.some((m) => m.layer === 'deep-muscles' && matchesStructure(m.structureId, selectedId))));
 
   const boneClass = (id: string, base: string) => {
     const marked = markedIds?.correct?.includes(id) ? ' is-selected' : '';
@@ -348,8 +351,10 @@ function Layers(p: LayersProps) {
       .join(' ');
     const fill = role === 'synergist' ? 'url(#pat-synergist)' : role === 'antagonist' ? 'url(#pat-antagonist)' : role === 'stabilizer' ? 'url(#pat-stabilizer)' : undefined;
     const clipId = `clip-${m.structureId}-${interactive ? 'a' : 'm'}`;
+    // Mély izom kiválasztásakor a fölötte fekvő felületes izmok áttetszők, hogy a kiválasztott izom látsszon.
+    const ghost = deepSelected && m.layer === 'superficial-muscles' && !selected;
     return (
-      <g key={m.structureId} id={interactive ? m.structureId : undefined} data-structure={m.structureId}>
+      <g key={m.structureId} id={interactive ? m.structureId : undefined} data-structure={m.structureId} className={ghost ? 'an-ghost' : undefined}>
         <clipPath id={clipId}>
           <path d={d} />
         </clipPath>
@@ -410,7 +415,9 @@ function Layers(p: LayersProps) {
         if (role) return true; // szerepkör-megjelenítésben minden jelölt izom feliratot kap
         // Szerepkör-módban csak a jelölt izmok kapnak feliratot, hogy a kis nézetek se zsúfolódjanak.
         if (roleMap || !layers.labels || !m.label || !layers[m.layer]) return false;
-        if (m.layer === 'deep-muscles' && layers['superficial-muscles'] && !(isolate && matchesStructure(m.structureId, selectedId))) return false;
+        // Mély izom kiválasztásakor az áttetsző felületes izmok felirata nem takarja el a jelöléseket.
+        if (deepSelected && m.layer === 'superficial-muscles') return false;
+        if (m.layer === 'deep-muscles' && layers['superficial-muscles'] && !((isolate || deepSelected) && matchesStructure(m.structureId, selectedId))) return false;
         return !isolate || !selectedIsMuscle || matchesStructure(m.structureId, selectedId);
       })
       .map((m) => {
@@ -467,7 +474,11 @@ function Layers(p: LayersProps) {
   const behind = muscles.filter((m) => m.z < 0 && !forward(m));
   const deep = muscles.filter((m) => m.z >= 0 && m.layer === 'deep-muscles' && !forward(m));
   const superficial = muscles.filter((m) => m.z >= 0 && m.layer === 'superficial-muscles' && !forward(m));
-  const roleMuscles = muscles.filter(forward);
+  // A szerepkörrel jelölt izmok közül az agonisták kerülnek legfelülre (pl. a mély kis mellizom a felette fekvő, szinergista nagy mellizom fölé).
+  const roleRank: Record<string, number> = { stabilizer: 0, antagonist: 1, synergist: 2, stretched: 3, agonist: 4 };
+  const roleMuscles = muscles
+    .filter(forward)
+    .sort((a, b) => (roleRank[roleForStructure(a.structureId, roleMap) ?? ''] ?? 0) - (roleRank[roleForStructure(b.structureId, roleMap) ?? ''] ?? 0) || a.z - b.z);
 
   return (
     <>

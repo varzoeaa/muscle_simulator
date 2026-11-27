@@ -179,6 +179,9 @@ export interface Muscle extends AnatomicalStructure {
 /* ---------- Geometria ---------- */
 
 export type AnatomicalViewId =
+  | 'anterior-girdle'
+  | 'superior-girdle'
+  | 'lateral-girdle'
   | 'anterior'
   | 'superior'
   | 'lateral'
@@ -265,6 +268,12 @@ export interface FrameDefinition {
   scaleYKey?: string;
   /** A frame eltolása a szülő y tengelye mentén (pl. a mellkas emelkedése). */
   translateYKey?: string;
+  /**
+   * A helyi koordináta-rendszer origója a szülő rendszerében. Ha meg van adva, alaphelyzetben a
+   * helyi koordináták megegyeznek a szülőével (pl. a lapocka pontjai világkoordinátákkal adhatók
+   * meg, a frame mégis a `pivot` körül forog).
+   */
+  localOrigin?: { x: number; y: number };
 }
 
 export interface ViewGeometry {
@@ -324,6 +333,8 @@ export interface MotionDefinition {
    * Kiegészítő nézetek ugyanarról a mozgásról (egymás mellett jelennek meg). A `mapPose`
    * a fő nézet pózából számolja a kiegészítő nézet pózát (pl. vetületi rövidüléssel).
    */
+  /** A fő nézet egyedi kivágása (pl. kis izomnál a vállöv környéke). */
+  viewBox?: [number, number, number, number];
   extraViews?: {
     viewId: AnatomicalViewId;
     mapPose: (pose: Pose) => Pose;
@@ -386,6 +397,15 @@ export interface ExercisePhaseRole {
 export interface ExerciseParameterConfig {
   rangeOfMotion?: { min: number; max: number; default: number };
   benchAngle?: { min: number; max: number; default: number; step: number };
+  /** Gépes tárogatás: a felkar magassága a vállhoz képest (fok; az ülésmagasság határozza meg). */
+  armElevation?: { min: number; max: number; default: number; step: number };
+  /** Csigás gyakorlat: a kábel húzásiránya a vízszinteshez képest (fok; + felső csiga, − alsó csiga). */
+  pulleyAngle?: { min: number; max: number; default: number; step: number };
+  /** Fekvőtámasz: a kéz és a láb alátámasztásának magassága (cm). */
+  handSupport?: { min: number; max: number; default: number; step: number };
+  feetSupport?: { min: number; max: number; default: number; step: number };
+  /** Tolódzkodás: a törzs előredőlése az alsó helyzetben (fok). */
+  dipLean?: { min: number; max: number; default: number; step: number };
   load?: {
     min: number;
     max: number;
@@ -415,6 +435,19 @@ export type ExerciseAnimation =
       /** Egyoldali gyakorlat: a másik kar nyugalomban marad. */
       unilateral?: boolean;
       /** Rövid leírás a nézetről (pl. a test helyzete a valóságban). */
+      viewNote: string;
+    }
+  | {
+      /** Vállöv-gyakorlat: a mozgó vállövű anatómiai nézetben (lapockamozgások). */
+      kind: 'girdle';
+      viewId: 'anterior-girdle' | 'superior-girdle' | 'lateral-girdle';
+      /** A póz a 0. és az 1. mélységnél (1 = a célizom leghosszabb helyzete). */
+      startPose: Pose;
+      endPose: Pose;
+      /** Egyoldali gyakorlat: a másik oldal alaphelyzetben marad. */
+      unilateral?: boolean;
+      /** Saját testsúlyos gyakorlat (a terhelés kijelzéséhez). */
+      bodyweight?: boolean;
       viewNote: string;
     };
 

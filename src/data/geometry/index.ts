@@ -5,6 +5,7 @@ import { lateralView } from './lateralView';
 import { superiorArmAtSideView } from './superiorArmAtSideView';
 import { anteriorClosedChainView, anteriorRespirationView, solveClosedChain } from './anteriorVariants';
 import { posteriorClosedChainView, posteriorView } from './posteriorView';
+import { anteriorGirdleView, lateralGirdleView, superiorGirdleView } from './girdleVariants';
 
 export const views: AnatomicalView[] = [
   { id: 'anterior', atlas: true, name: { hu: 'Elülső nézet', en: 'Anterior view', la: 'Facies anterior' }, description: 'A mellkas és a váll elölről, anatómiai alaphelyzetben.' },
@@ -19,7 +20,10 @@ export const views: AnatomicalView[] = [
   { id: 'anterior-respiration', name: { hu: 'Elülső nézet, rögzített felkarral', en: 'Anterior view, fixed arm' }, description: 'A mellkas mozgása rögzített felkar mellett.' },
   { id: 'posterior', name: { hu: 'Hátulnézet', en: 'Posterior view', la: 'Facies posterior' }, description: 'A vállöv hátulról: a hátsó vállövi izmok és a lapocka.' },
   { id: 'posterior-closed-chain', name: { hu: 'Hátulnézet, rögzített kézzel', en: 'Posterior view, fixed hand' }, description: 'Zárt kinetikai lánc hátulról.' },
-  { id: 'lateral-bench', name: { hu: 'Oldalnézet (fekvenyomás)', en: 'Lateral view (bench press)' }, description: 'A gyakorlat szagittális síkú vetülete.' }
+  { id: 'lateral-bench', name: { hu: 'Oldalnézet (fekvenyomás)', en: 'Lateral view (bench press)' }, description: 'A gyakorlat szagittális síkú vetülete.' },
+  { id: 'anterior-girdle', name: { hu: 'Elülső nézet – mozgó vállöv', en: 'Anterior view – moving shoulder girdle' }, description: 'A kulcscsont és a lapocka a frontális síkban mozog (emelés–süllyesztés, felfelé–lefelé rotáció).' },
+  { id: 'superior-girdle', name: { hu: 'Felülnézet – mozgó vállöv', en: 'Superior view – moving shoulder girdle' }, description: 'A kulcscsont és a lapocka a vízszintes síkban mozog (protrakció–retrakció).' },
+  { id: 'lateral-girdle', name: { hu: 'Oldalnézet – billenő lapocka', en: 'Lateral view – tilting scapula' }, description: 'A lapocka előre–hátra billen a mellkasfalon.' }
 ];
 
 export const viewGeometries: Partial<Record<AnatomicalViewId, ViewGeometry>> = {
@@ -30,7 +34,10 @@ export const viewGeometries: Partial<Record<AnatomicalViewId, ViewGeometry>> = {
   'anterior-closed-chain': anteriorClosedChainView,
   'anterior-respiration': anteriorRespirationView,
   posterior: posteriorView,
-  'posterior-closed-chain': posteriorClosedChainView
+  'posterior-closed-chain': posteriorClosedChainView,
+  'anterior-girdle': anteriorGirdleView,
+  'superior-girdle': superiorGirdleView,
+  'lateral-girdle': lateralGirdleView
 };
 
 /** Az egyes nézetek alaphelyzete (pl. Anatomy Lab statikus megjelenítéséhez). */
@@ -43,7 +50,10 @@ export const restPoses: Record<AnatomicalViewId, Pose> = {
   'anterior-respiration': { shoulderAbduction: 30, ribLift: 0 },
   posterior: { shoulderAbduction: 12 },
   'posterior-closed-chain': solveClosedChain({ lift: 0.4 }),
-  'lateral-bench': {}
+  'lateral-bench': {},
+  'anterior-girdle': { shoulderAbduction: 12 },
+  'superior-girdle': { shoulderHorizontalAbduction: 60 },
+  'lateral-girdle': { shoulderFlexion: 0 }
 };
 
 export const viewById = (id: AnatomicalViewId) => views.find((v) => v.id === id);

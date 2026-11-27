@@ -170,5 +170,5 @@ export const benchPress: Exercise = {
     load: { min: 20, max: 180, default: 60, step: 2.5, mode: 'barbell', implementKg: 20, implementName: 'olimpiai rúd' }
   },
   cycleDurationMs: 4000,
-  sourceIds: ['nsca-essentials', 'neumann-kinesiology', 'rodriguez-ridao-2020', 'lauver-2016']
+  sourceIds: ['nsca-essentials', 'neumann-kinesiology', 'rodriguez-ridao-2020', 'lauver-2016', 'saeterbakken-2011']
 };

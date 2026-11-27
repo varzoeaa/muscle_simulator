@@ -10,12 +10,13 @@ export function gradeAnswer(question: StudyQuestion, answer: StudyAnswer): boole
       return answer.type === 'diagram-identify' && question.correctStructureIds.includes(answer.structureId);
     case 'fill-blank':
       return answer.type === 'fill-blank' && normalize(answer.value) === normalize(question.answer);
-    case 'matching':
-      return (
-        answer.type === 'matching' &&
-        question.pairs.length === Object.keys(answer.mapping).length &&
-        question.pairs.every((p) => answer.mapping[p.id] === p.id)
-      );
+    case 'matching': {
+      // A választott jobb oldali elemet a szövege alapján értékeljük, így két bal oldali elemhez
+      // tartozhat ugyanaz a válasz (pl. „Zárt lánc”).
+      if (answer.type !== 'matching' || question.pairs.length !== Object.keys(answer.mapping).length) return false;
+      const rightText = (id: string | undefined) => question.pairs.find((x) => x.id === id)?.right;
+      return question.pairs.every((p) => rightText(answer.mapping[p.id]) === p.right);
+    }
   }
 }
 

@@ -16,6 +16,14 @@ export const nerves: Nerve[] = [
     roots: 'C8–T1',
     origin: 'A plexus brachialis belső kötegéből (fasciculus medialis) ered.',
     sourceIds: ['moore-coa', 'statpearls-pectoral']
+  },
+  {
+    id: 'nerve-subclavius',
+    kind: 'nerve',
+    name: { hu: 'Kulcscsont alatti ideg', en: 'Nerve to subclavius', la: 'Nervus subclavius' },
+    roots: 'C5–C6',
+    origin: 'A plexus brachialis felső törzséből (truncus superior) ered.',
+    sourceIds: ['moore-coa', 'statpearls-pectoral']
   }
 ];
 

@@ -132,7 +132,7 @@ export const dumbbellBenchPress: Exercise = {
     load: { min: 2, max: 50, default: 16, step: 1, mode: 'per-hand', implementKg: 0, implementName: 'kézisúlyzó' }
   },
   cycleDurationMs: 4000,
-  sourceIds: ['nsca-essentials', 'neumann-kinesiology']
+  sourceIds: ['nsca-essentials', 'neumann-kinesiology', 'saeterbakken-2011', 'rodriguez-ridao-2020', 'lauver-2016']
 };
 
 export const dumbbellFly: Exercise = {
@@ -187,6 +187,7 @@ export const dumbbellFly: Exercise = {
   ],
   parameters: {
     rangeOfMotion: { min: 0.3, max: 1, default: 1 },
+    benchAngle: { min: -15, max: 45, default: 0, step: 5 },
     load: { min: 2, max: 30, default: 8, step: 1, mode: 'per-hand', implementKg: 0, implementName: 'kézisúlyzó' }
   },
   cycleDurationMs: 4400,
@@ -298,6 +299,7 @@ export const pecDeck: Exercise = {
   ],
   parameters: {
     rangeOfMotion: { min: 0.3, max: 1, default: 1 },
+    armElevation: { min: -20, max: 20, default: 0, step: 5 },
     load: { min: 5, max: 100, default: 30, step: 5, mode: 'stack', implementKg: 0, implementName: 'súlyoszlop' }
   },
   cycleDurationMs: 4000,
@@ -362,6 +364,7 @@ export const cableCrossover: Exercise = {
   ],
   parameters: {
     rangeOfMotion: { min: 0.3, max: 1, default: 1 },
+    pulleyAngle: { min: -30, max: 30, default: 0, step: 5 },
     load: { min: 2.5, max: 40, default: 10, step: 2.5, mode: 'per-hand', implementKg: 0, implementName: 'kábelenként' }
   },
   cycleDurationMs: 4000,
@@ -415,10 +418,12 @@ export const pushUp: Exercise = {
     { text: 'A fej, a váll, a csípő és a boka egy vonalban maradjon.', evidence: 'educational-model', sourceIds: TECH }
   ],
   parameters: {
-    rangeOfMotion: { min: 0.3, max: 1, default: 1 }
+    rangeOfMotion: { min: 0.3, max: 1, default: 1 },
+    handSupport: { min: 0, max: 60, default: 0, step: 10 },
+    feetSupport: { min: 0, max: 60, default: 0, step: 10 }
   },
   cycleDurationMs: 3600,
-  sourceIds: ['nsca-essentials', 'neumann-kinesiology']
+  sourceIds: ['nsca-essentials', 'neumann-kinesiology', 'ebben-2011', 'suprak-2011', 'cogley-2005', 'ludewig-2004']
 };
 
 export const dips: Exercise = {
@@ -482,10 +487,11 @@ export const dips: Exercise = {
     { text: 'Könnyítéshez gumiszalagos vagy gépi segítséget használj.', evidence: 'educational-model', sourceIds: TECH }
   ],
   parameters: {
-    rangeOfMotion: { min: 0.3, max: 1, default: 1 }
+    rangeOfMotion: { min: 0.3, max: 1, default: 1 },
+    dipLean: { min: 0, max: 40, default: 30, step: 5 }
   },
   cycleDurationMs: 3800,
-  sourceIds: ['nsca-essentials', 'neumann-kinesiology']
+  sourceIds: ['nsca-essentials', 'neumann-kinesiology', 'mckenzie-2022-variants', 'mckenzie-2022-fatigue']
 };
 
 const stretchedRoles = (c: LengthChange, note?: string): ExercisePhaseRole[] => [
@@ -547,7 +553,72 @@ export const pectoralStretch: Exercise = {
     rangeOfMotion: { min: 0.3, max: 1, default: 1 }
   },
   cycleDurationMs: 9000,
-  sourceIds: ['nsca-essentials', 'neumann-kinesiology']
+  sourceIds: ['nsca-essentials', 'neumann-kinesiology', 'umehara-2021', 'garber-2011', 'behm-2016']
 };
 
-export const chestExercises: Exercise[] = [dumbbellBenchPress, dumbbellFly, machineChestPress, pecDeck, cableCrossover, pushUp, dips, pectoralStretch];
+export const supinePectoralStretch: Exercise = {
+  id: 'supine-pectoral-stretch',
+  name: { hu: 'Fekvő mellizomnyújtás hengeren (kétkaros)', en: 'Supine pectoral stretch on a foam roller' },
+  muscleIds: ['muscle-pectoralis-major'],
+  status: 'available',
+  animation: {
+    kind: 'transverse',
+    implement: 'stretch',
+    range: [88, 112],
+    viewNote:
+      'Felülnézet: hanyatt fekvés a gerinc alatt hosszában fekvő hengeren; a kinyújtott karok oldalt, a gravitáció húzza őket a test síkja alá. A vállízületben ez mindkét oldalon horizontális távolítás.'
+  },
+  romText: 'a karok a teljes tartomány {rom}%-áig ereszkednek',
+  startPosition: [
+    'Hanyattfekvés a hengeren úgy, hogy a fej és a medence is rajta legyen; a talp a talajon, a térd hajlított.',
+    'A karok oldalt, a választott magasságban (pl. vállmagasság alatt, vállmagasságban vagy fölötte), a tenyér felfelé néz.'
+  ],
+  execution: [
+    'A karok ellazulnak, és a saját súlyuk viszi őket a talaj felé, amíg a mellkas elején enyhe-közepes húzás érezhető.',
+    'A helyzetet nyugodt légzéssel megtartjuk; a derék nem homorít, a bordák nem emelkednek meg.',
+    'Lassú visszatérés: a karok a test fölé emelkednek, majd pihenés.'
+  ],
+  primaryMovers: [],
+  secondaryMovers: [],
+  stabilizers: ['muscle-rectus-abdominis', 'muscle-external-oblique'],
+  commonMistakes: [
+    'A derék homorítása és a bordák megemelése – a nyújtás a törzs mozgásába „szökik”.',
+    'Túl nagy tartomány erőltetése, a vállízület elején kellemetlen érzés.',
+    'A fej leesik a hengerről.',
+    'Visszatartott légzés.'
+  ],
+  phases: [
+    { type: 'passive-stretch', name: 'Nyújtás felvétele', from: 0, to: 0.25, description: 'A karok a gravitáció hatására ereszkednek; a vállízület horizontális távolításba kerül, a nagy mellizom passzívan hosszabbodik.' },
+    { type: 'static-stretch', name: 'Statikus tartás', from: 0.25, to: 0.8, description: 'A nyújtott helyzet megtartása ellazult karral; a mellizom hossza közel állandó.' },
+    { type: 'release', name: 'Visszatérés', from: 0.8, to: 1, description: 'A karok lassan a test fölé emelkednek; a mellizom passzívan visszarövidül.' }
+  ],
+  phaseRoles: {
+    'passive-stretch': [
+      ...stretchedRoles('lengthening', 'A nyújtást a karok súlya hozza létre: a nyújtott izom ideálisan ellazult.').filter((r) => r.role === 'stretched'),
+      role('stabilizer', 'Törzs – a derék és a bordák helyzetének megtartása', ['muscle-rectus-abdominis', 'muscle-external-oblique'], 'constant', 'educational-model', TECH)
+    ],
+    'static-stretch': [
+      ...stretchedRoles('constant').filter((r) => r.role === 'stretched'),
+      role('stabilizer', 'Törzs – a derék és a bordák helyzetének megtartása', ['muscle-rectus-abdominis', 'muscle-external-oblique'], 'constant', 'educational-model', TECH)
+    ],
+    release: [
+      ...stretchedRoles('shortening').filter((r) => r.role === 'stretched'),
+      role('stabilizer', 'Törzs – a derék és a bordák helyzetének megtartása', ['muscle-rectus-abdominis', 'muscle-external-oblique'], 'constant', 'educational-model', TECH)
+    ]
+  },
+  anatomyExplanation: [
+    { text: 'A karok oldalra-lefelé ereszkedése a vállízületben horizontális távolítás – a nagy mellizom közelítő működésével ellentétes irány, ezért nyújtja.', evidence: 'anatomical-fact', sourceIds: KIN },
+    { text: 'A henger miatt a lapockák szabadon mozoghatnak hátrafelé; a nyújtás nagyságát a karok súlya és a karhelyzet határozza meg, nem aktív erőkifejtés.', evidence: 'educational-model', sourceIds: KIN }
+  ],
+  coachingNotes: [
+    { text: 'Engedd el a karokat, ne nyomd őket lefelé; a nyújtás legyen fájdalommentes.', evidence: 'educational-model', sourceIds: TECH },
+    { text: 'Ha a vállad eleje kellemetlen, vidd a karokat lejjebb, a törzs mellé, vagy támaszd alá a könyököt.', evidence: 'educational-model', sourceIds: TECH }
+  ],
+  parameters: {
+    rangeOfMotion: { min: 0.3, max: 1, default: 1 }
+  },
+  cycleDurationMs: 9000,
+  sourceIds: ['nsca-essentials', 'neumann-kinesiology', 'umehara-2021', 'garber-2011', 'behm-2016']
+};
+
+export const chestExercises: Exercise[] = [dumbbellBenchPress, dumbbellFly, machineChestPress, pecDeck, cableCrossover, pushUp, dips, pectoralStretch, supinePectoralStretch];

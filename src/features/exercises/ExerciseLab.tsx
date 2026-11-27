@@ -8,6 +8,8 @@ import { superiorView } from '../../data/geometry/superiorView';
 import { BenchPressScene } from '../../components/anatomy/BenchPressScene';
 import { SagittalExerciseScene } from '../../components/anatomy/SagittalExerciseScene';
 import { TransverseExerciseScene } from '../../components/anatomy/TransverseExerciseScene';
+import { GirdleExerciseScene } from '../../components/anatomy/GirdleExerciseScene';
+import { viewGeometries } from '../../data/geometry';
 import type { SceneMuscleLabel } from '../../components/anatomy/sagittalFigure';
 import { isStructureDrawn } from '../../components/anatomy/AnatomyViewer';
 import { AnimationControls } from '../../components/animation/AnimationControls';
@@ -17,6 +19,27 @@ import { applyRangeOfMotion, cycleDepth, phaseAt } from '../../engines/animation
 import { platesPerSide } from '../../engines/animation/benchKinematics';
 import { useAnimationPlayer, useReducedMotion } from '../../hooks/useAnimationPlayer';
 import { useSettingsStore } from '../../stores/settingsStore';
+import { ModulePending } from '../../components/ui';
+import {
+  BenchAngleComparison,
+  BenchImplementComparison,
+  FlyAngleComparison,
+  FlyMachineComparison,
+  PecDeckHeightComparison,
+  CablePulleyComparison,
+  cablePulleyZoneFor,
+  benchAngleZoneFor,
+  flyAngleZoneFor,
+  pecDeckHeightZoneFor
+} from './BenchVariantComparison';
+import { lerp } from '../../utils/geometry';
+import { PushUpOtherVariants, PushUpSupportComparison, pushUpSupportText, pushUpTilt } from './PushUpVariantPanels';
+import { DIP_VARIANTS, type DipOptions, type DipVariant, type PushUpOptions } from '../../engines/animation/sagittalKinematics';
+import { DipLeanComparison, DipVariantComparison } from './DipVariantPanels';
+import { dipVariantNames } from '../../data/exercises/dipVariants';
+import { DEFAULT_STRETCH, type StretchPosition } from '../../data/exercises/stretchVariants';
+import { StretchComparison, StretchDosagePanel, StretchPositionPanel, emphasizedRegionIds } from './StretchPanels';
+import type { HandWidth } from '../../data/exercises/pushUpVariants';
 
 type PhaseFilter = 'all' | ExercisePhaseType;
 
@@ -34,21 +57,25 @@ export function ExerciseLab() {
   const [params, setParams] = useSearchParams();
   const ids = muscle.exerciseIds;
   const exercise = exerciseById(ids.includes(params.get('gyakorlat') ?? '') ? params.get('gyakorlat')! : ids[0]);
-  const select = (id: string) =>
+  /** Gyakorlatváltás; a pad dőlésszöge átvihető (pl. rúdról kézisúlyzóra váltáskor). */
+  const select = (id: string, benchAngle?: number) =>
     setParams(
       (p) => {
         p.set('gyakorlat', id);
+        if (benchAngle === undefined) p.delete('pad');
+        else p.set('pad', String(benchAngle));
         return p;
       },
       { replace: true }
     );
+  const padParam = Number(params.get('pad'));
 
-  if (!exercise) return <p className="text-sm text-ink-2">Ehhez az izomhoz még nincs gyakorlat.</p>;
+  if (!exercise) return <ModulePending name={muscle.name.hu} what="gyakorlatai" />;
 
   return (
     <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
       {/* A kulcs miatt gyakorlatváltáskor a lejátszás és a paraméterek alaphelyzetbe kerülnek. */}
-      <ExerciseView key={exercise.id} exercise={exercise} />
+      <ExerciseView key={exercise.id} exercise={exercise} initialAngle={params.has('pad') && Number.isFinite(padParam) ? padParam : undefined} onSelect={select} />
 
       <aside className="flex flex-col gap-3 xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)] xl:self-start xl:overflow-y-auto">
         <Panel title="Gyakorlatok" subtitle={`${muscle.name.hu} – gyakorlatkönyvtár`}>
@@ -81,13 +108,24 @@ export function ExerciseLab() {
   );
 }
 
-function ExerciseView({ exercise }: { exercise: Exercise }) {
+function ExerciseView({ exercise, initialAngle, onSelect }: { exercise: Exercise; initialAngle?: number; onSelect: (id: string, benchAngle?: number) => void }) {
   const reduced = useReducedMotion();
   const player = useAnimationPlayer(exercise.cycleDurationMs, { loop: true });
   const p = exercise.parameters;
   const [rom, setRom] = useState(p.rangeOfMotion?.default ?? 1);
-  const [angle, setAngle] = useState(p.benchAngle?.default ?? 0);
+  const [angle, setAngle] = useState(p.benchAngle && initialAngle !== undefined ? Math.min(p.benchAngle.max, Math.max(p.benchAngle.min, initialAngle)) : (p.benchAngle?.default ?? 0));
   const [load, setLoad] = useState(p.load?.default ?? 0);
+  const [elevation, setElevation] = useState(p.armElevation?.default ?? 0);
+  const [pulley, setPulley] = useState(p.pulleyAngle?.default ?? 0);
+  const [pushUp, setPushUp] = useState<PushUpOptions>({ handCm: p.handSupport?.default ?? 0, feetCm: p.feetSupport?.default ?? 0, knees: false });
+  const [handWidth, setHandWidth] = useState<HandWidth>('shoulder');
+  const [dips, setDips] = useState<DipOptions>({ variant: 'bar', lean: p.dipLean?.default ?? 30 });
+  const setDipVariant = (variant: DipVariant) => setDips({ variant, lean: DIP_VARIANTS[variant].defaultLean });
+  const [stretchPosRaw, setStretchPos] = useState<StretchPosition>(DEFAULT_STRETCH);
+  const isStretch = exercise.animation.kind === 'transverse' && exercise.animation.implement === 'stretch';
+  const supineStretch = exercise.id === 'supine-pectoral-stretch';
+  // Fekve a medence nem fordul el.
+  const stretchPos = supineStretch ? { ...stretchPosRaw, trunkRotation: false } : stretchPosRaw;
   const [phaseFilter, setPhaseFilter] = useState<PhaseFilter>('all');
   const showLabels = useSettingsStore((s) => s.showLabels);
   const setShowLabels = useSettingsStore((s) => s.setShowLabels);
@@ -110,14 +148,17 @@ function ExerciseView({ exercise }: { exercise: Exercise }) {
   const depth = applyRangeOfMotion(cycleDepth(exercise.phases, t), rom);
   const roles = rolesFor(exercise, phase.type);
   const anim = exercise.animation;
-  const drawn = (id: string) => (anim.kind === 'transverse' ? isStructureDrawn(superiorView, id) : sagittalMuscles.includes(id));
+  const drawn = (id: string) =>
+    anim.kind === 'transverse' ? isStructureDrawn(superiorView, id) : anim.kind === 'girdle' ? isStructureDrawn(viewGeometries[anim.viewId]!, id) : sagittalMuscles.includes(id);
+  // A gyakorlat célizma (pl. nagy vagy kis mellizom) – a fejléc-címke ennek a szerepét mutatja.
+  const target = exercise.muscleIds[0] ?? 'muscle-pectoralis-major';
   const sceneLabels = sceneMuscleLabels(roles);
   const roleMap = useMemo(() => transverseRoleMap(roles), [roles]);
-  const pecRole = roles.find((r) => r.structureIds.includes('muscle-pectoralis-major'));
+  const pecRole = roles.find((r) => r.structureIds.includes(target));
   const agonists = [...new Set(roles.filter((r) => r.role === 'agonist').flatMap((r) => r.structureIds))];
   const presentRoles = displayRolesIn(exercise);
   const hidden = hiddenRoles(roles, drawn);
-  const phaseText = `${phase.name}${pecRole ? `, nagy mellizom: ${lengthText[pecRole.lengthChange].text}` : ''}`;
+  const phaseText = `${phase.name}${pecRole ? `, ${structureName(target).hu.toLowerCase()}: ${lengthText[pecRole.lengthChange].text}` : ''}`;
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
@@ -141,24 +182,71 @@ function ExerciseView({ exercise }: { exercise: Exercise }) {
           />
         )}
         {anim.kind === 'sagittal' && (
-          <SagittalExerciseScene preset={anim.preset} depth={depth} loadKg={load} phaseText={phaseText} active={player.state.playing} showLabels={showLabels} muscleLabels={sceneLabels} />
+          <SagittalExerciseScene
+            preset={anim.preset}
+            depth={depth}
+            loadKg={load}
+            phaseText={phaseText}
+            active={player.state.playing}
+            showLabels={showLabels}
+            muscleLabels={sceneLabels}
+            pushUp={p.handSupport ? pushUp : undefined}
+            dips={p.dipLean ? dips : undefined}
+          />
         )}
         {anim.kind === 'transverse' && (
           <TransverseExerciseScene
             animation={anim}
             depth={depth}
             roleMap={roleMap}
-            activeIds={player.state.playing && pecRole?.role !== 'stretched' ? agonists : []}
+            activeIds={isStretch ? emphasizedRegionIds(stretchPos) : player.state.playing && pecRole?.role !== 'stretched' ? agonists : []}
             showLabels={showLabels}
             ariaLabel={`${exercise.name.hu} felülnézetben – ${phaseText}`}
+          />
+        )}
+        {anim.kind === 'girdle' && (
+          <GirdleExerciseScene
+            animation={anim}
+            depth={depth}
+            roleMap={roleMap}
+            activeIds={player.state.playing && pecRole?.role !== 'stretched' ? agonists : []}
+            showLabels={showLabels}
+            ariaLabel={`${exercise.name.hu} – ${phaseText}`}
           />
         )}
         <div className="pointer-events-none absolute left-2 top-2 flex max-w-[46%] flex-col gap-1.5 text-xs" aria-live="polite">
           <span className="rounded-lg bg-surface/90 px-2 py-1 font-medium text-ink ring-1 ring-line">{phase.name}</span>
           {pecRole && (
             <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface/90 px-2 py-1 text-ink ring-1 ring-line">
-              {lengthText[pecRole.lengthChange].icon} Nagy mellizom: {pecRole.role === 'stretched' ? 'passzív, ' : 'aktív, '}
+              {lengthText[pecRole.lengthChange].icon} {structureName(target).hu}: {pecRole.role === 'stretched' ? 'passzív, ' : 'aktív, '}
               {lengthText[pecRole.lengthChange].text}
+            </span>
+          )}
+          {p.benchAngle && (
+            <span className="rounded-lg bg-surface/90 px-2 py-1 text-ink ring-1 ring-line">
+              {angle}° – {(anim.kind === 'bench' ? benchAngleZoneFor : flyAngleZoneFor)(angle).name}
+            </span>
+          )}
+          {p.dipLean && (
+            <span className="rounded-lg bg-surface/90 px-2 py-1 text-ink ring-1 ring-line">
+              {dipVariantNames[dips.variant]} · törzsdőlés alul: {dips.lean}°
+            </span>
+          )}
+          {p.handSupport && (
+            <span className="rounded-lg bg-surface/90 px-2 py-1 text-ink ring-1 ring-line">
+              {pushUpSupportText(pushUp)} · a test dőlése: {Math.round(pushUpTilt(pushUp).top)}° → {Math.round(pushUpTilt(pushUp).bottom)}°
+            </span>
+          )}
+          {p.pulleyAngle && (
+            <span className="rounded-lg bg-surface/90 px-2 py-1 text-ink ring-1 ring-line">
+              Húzásirány: {pulley > 0 ? '+' : ''}
+              {pulley}° – {cablePulleyZoneFor(pulley).name}
+            </span>
+          )}
+          {p.armElevation && (
+            <span className="rounded-lg bg-surface/90 px-2 py-1 text-ink ring-1 ring-line">
+              Kar: {elevation > 0 ? '+' : ''}
+              {elevation}° – {pecDeckHeightZoneFor(elevation).name}
             </span>
           )}
           {showLabels && loadText(exercise, load) && <span className="rounded-lg bg-surface/90 px-2 py-1 text-ink ring-1 ring-line">{loadText(exercise, load)}</span>}
@@ -202,7 +290,7 @@ function ExerciseView({ exercise }: { exercise: Exercise }) {
             timelineLabel="Ismétlés idővonala"
           />
           {reduced && <p className="text-xs text-ink-2">Csökkentett mozgás beállítás észlelve: az animáció csak kézi indításra fut, a pulzáló kiemelés ki van kapcsolva.</p>}
-          {anim.kind === 'transverse' && <p className="text-xs text-ink-2">{anim.viewNote}</p>}
+          {(anim.kind === 'transverse' || anim.kind === 'girdle') && <p className="text-xs text-ink-2">{anim.viewNote}</p>}
         </div>
       </Panel>
 
@@ -222,6 +310,66 @@ function ExerciseView({ exercise }: { exercise: Exercise }) {
           )}
           {p.benchAngle && (
             <Slider id="angle" label="Pad dőlésszöge" value={angle} min={p.benchAngle.min} max={p.benchAngle.max} step={p.benchAngle.step} onChange={setAngle} format={(v) => `${v}° – ${v < 0 ? 'negatív' : v === 0 ? 'vízszintes' : 'ferde'}`} />
+          )}
+          {p.dipLean && (
+            <Slider
+              id="dip-lean"
+              label="Törzs előredőlése (alsó helyzet)"
+              value={dips.lean}
+              min={p.dipLean.min}
+              max={p.dipLean.max}
+              step={p.dipLean.step}
+              onChange={(v) => setDips((o) => ({ ...o, lean: v }))}
+              format={(v) => v + '°' + (v < 15 ? ' – közel függőleges' : v < 30 ? ' – közepes' : ' – előredőlt')}
+            />
+          )}
+          {p.handSupport && (
+            <Slider
+              id="hand-support"
+              label="Kéz alátámasztása"
+              value={pushUp.handCm}
+              min={p.handSupport.min}
+              max={p.handSupport.max}
+              step={p.handSupport.step}
+              onChange={(v) => setPushUp((o) => ({ ...o, handCm: v }))}
+              format={(v) => (v ? v + ' cm (pad, doboz)' : 'talajon')}
+            />
+          )}
+          {p.feetSupport && (
+            <Slider
+              id="feet-support"
+              label="Láb alátámasztása"
+              value={pushUp.knees ? 0 : pushUp.feetCm}
+              min={p.feetSupport.min}
+              max={p.feetSupport.max}
+              step={p.feetSupport.step}
+              onChange={(v) => setPushUp((o) => ({ ...o, feetCm: v, knees: false }))}
+              format={(v) => (pushUp.knees ? 'térdelő változat' : v ? v + ' cm (pad, doboz)' : 'talajon')}
+            />
+          )}
+          {p.pulleyAngle && (
+            <Slider
+              id="pulley"
+              label="A csiga magassága (húzásirány)"
+              value={pulley}
+              min={p.pulleyAngle.min}
+              max={p.pulleyAngle.max}
+              step={p.pulleyAngle.step}
+              onChange={setPulley}
+              format={(v) => (v > 0 ? '+' : '') + v + '° – ' + (v > 0 ? 'felülről lefelé' : v === 0 ? 'vállmagasság' : 'alulról felfelé')}
+            />
+          )}
+          {p.armElevation && (
+            <Slider
+              id="elevation"
+              label="A kar magassága (ülésmagasság)"
+              value={elevation}
+              min={p.armElevation.min}
+              max={p.armElevation.max}
+              step={p.armElevation.step}
+              onChange={setElevation}
+              format={(v) => (v > 0 ? '+' : '') + v + '° – ' + (v < 0 ? 'a váll alatt' : v === 0 ? 'vállmagasság' : 'a váll fölött')}
+            />
           )}
           {p.load && (
             <Slider
@@ -249,13 +397,51 @@ function ExerciseView({ exercise }: { exercise: Exercise }) {
           )}
           <div>
             <dt className="inline">Terhelés: </dt>
-            <dd className="inline text-ink">{loadText(exercise, load) ?? (exercise.animation.kind === 'sagittal' ? 'saját testsúly' : 'nincs külső terhelés')}</dd>
+            <dd className="inline text-ink">{loadText(exercise, load) ?? (exercise.animation.kind === 'sagittal' || (exercise.animation.kind === 'girdle' && exercise.animation.bodyweight) ? 'saját testsúly' : 'nincs külső terhelés')}</dd>
           </div>
         </dl>
-        <div className="mt-3">
+        <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
           <Toggle label="Feliratok" checked={showLabels} onChange={setShowLabels} />
+          {p.handSupport && <Toggle label="Térdelő változat" checked={pushUp.knees} onChange={(v) => setPushUp((o) => ({ ...o, knees: v }))} />}
         </div>
       </Panel>
+
+      {anim.kind === 'bench' && p.benchAngle && (
+        <>
+          <BenchAngleComparison angle={angle} onAngle={setAngle} implement={anim.implement} />
+          <BenchImplementComparison implement={anim.implement} onSwitch={(to) => onSelect(to === 'barbell' ? 'barbell-bench-press' : 'dumbbell-bench-press', angle)} />
+        </>
+      )}
+      {exercise.id === 'dumbbell-fly' && p.benchAngle && <FlyAngleComparison angle={angle} onAngle={setAngle} />}
+      {p.armElevation && <PecDeckHeightComparison elevation={elevation} onElevation={setElevation} />}
+      {p.pulleyAngle && <CablePulleyComparison angle={pulley} onAngle={setPulley} />}
+      {!isStretch && exercise.phases.some((ph) => ph.type === 'passive-stretch') && <StretchDosagePanel />}
+      {isStretch && (
+        <>
+          <StretchPositionPanel p={stretchPos} onChange={setStretchPos} supine={supineStretch} />
+          <StretchDosagePanel />
+          <StretchComparison current={supineStretch ? 'roller' : 'wall'} onSwitch={(to) => onSelect(to === 'roller' ? 'supine-pectoral-stretch' : 'pectoral-stretch')} />
+        </>
+      )}
+      {p.dipLean && (
+        <>
+          <DipVariantComparison options={dips} onVariant={setDipVariant} />
+          <DipLeanComparison options={dips} rom={rom} onLean={(v) => setDips((o) => ({ ...o, lean: v }))} />
+        </>
+      )}
+      {p.handSupport && (
+        <>
+          <PushUpSupportComparison options={pushUp} onChange={setPushUp} />
+          <PushUpOtherVariants width={handWidth} onWidth={setHandWidth} />
+        </>
+      )}
+      {anim.kind === 'transverse' && (anim.implement === 'dumbbell' || anim.implement === 'pec-deck') && (
+        <FlyMachineComparison
+          current={anim.implement === 'dumbbell' ? 'dumbbell' : 'machine'}
+          position={lerp(anim.range[0], anim.range[1], depth)}
+          onSwitch={(to) => onSelect(to === 'dumbbell' ? 'dumbbell-fly' : 'pec-deck')}
+        />
+      )}
 
       <div className="grid gap-3 lg:grid-cols-2">
         <Panel className="lg:col-span-2">
@@ -393,10 +579,12 @@ function disclaimerText(exercise: Exercise): string {
     return 'Egyszerűsített 2D szagittális vetület: a terhelés függőleges pályán mozog, az alkar függőleges, a felkar rövidülése a vállízületi távolítás vetületi következménye. A testarányok és a fogásszélesség rögzítettek. Nem erő- vagy EMG-szimuláció.';
   if (a.kind === 'sagittal')
     return a.preset === 'dips'
-      ? 'Egyszerűsített 2D oldalnézet: a kéz a korláton rögzített, az alkar függőleges, a felkar a könyök körül fordul, a törzs a mélységgel előredől. A lapocka mozgása nincs ábrázolva. Nem erő- vagy EMG-szimuláció.'
+      ? 'Egyszerűsített 2D oldalnézet: a kéz a támaszon (korlát, gyűrű, pad) rögzített – a gyűrű instabilitását a modell nem ábrázolja –, az alkar függőleges, a felkar a könyök körül fordul, a törzs a mélységgel előredől. A lapocka mozgása nincs ábrázolva. Nem erő- vagy EMG-szimuláció.'
       : 'Egyszerűsített 2D oldalnézet a fekvenyomás-modell alapján: az alkar merőleges a törzsre, a kéz egyenes pályán mozog; a felkar rövidülése vetületi következmény. ' +
           (a.preset === 'push-up' ? 'Zárt lánc: a kéz és a lábujj a talajon rögzített, a test e két pont között billen. ' : 'Ülő helyzet, rögzített háttámla. ') +
           'Nem erő- vagy EMG-szimuláció.';
+  if (a.kind === 'girdle')
+    return 'Egyszerűsített 2D vállöv-modell: a kulcscsont és a lapocka egy-egy ízület körül fordul, a lapocka mellkasfalon való csúszása és a forgástengely vándorlása nincs ábrázolva. A szögek szemléltetők. Nem erő- vagy EMG-szimuláció.';
   return 'Egyszerűsített 2D felülnézet: a vállízület horizontális távolítása és közelítése nyújtott karral (a valóságban enyhén hajlított könyökkel). A lapocka mozgása és a test helyzete a térben nincs ábrázolva. Nem erő- vagy EMG-szimuláció.';
 }
 

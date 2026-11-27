@@ -6,8 +6,9 @@ import { AnatomyViewer, ALL_LAYERS, isStructureDrawn } from '../../components/an
 import { AnimationControls } from '../../components/animation/AnimationControls';
 import { RoleLegend } from '../../components/anatomy/RoleLegend';
 import { RoleTable } from '../anatomy/AnatomyLab';
+import { ModulePending } from '../../components/ui';
 import { ClaimList, Disclaimer, Panel, Segmented, TermBlock, Toggle } from '../../components/ui';
-import { motionById } from '../../data/motions/pectoralisMajorMotions';
+import { motionById } from '../../data/motions';
 import { viewGeometries, viewById } from '../../data/geometry';
 import { structureName } from '../../data/muscles';
 import { lengthChange, motionPose } from '../../engines/animation/animationEngine';
@@ -49,7 +50,7 @@ export function BiomechanicsLab() {
     return map;
   }, [motion, roleMode]);
 
-  if (!motion) return <p className="text-sm text-ink-2">Ehhez az izomhoz még nincs mozgásdefiníció.</p>;
+  if (!motion) return <ModulePending name={muscle.name.hu} what="mozgásanimációi" />;
   const geometry = viewGeometries[motion.viewId]!;
   const pose = motionPose(motion, player.state.progress, type);
   const change = lengthChange(type, player.state.playing);
@@ -71,7 +72,8 @@ export function BiomechanicsLab() {
     roleMap,
     activeIds,
     attachmentsFor: muscle.id,
-    layers: { ...ALL_LAYERS, labels: showLabels, 'deep-muscles': false }
+    // A mély réteg csak akkor látszik, ha maga a vizsgált izom is mély (pl. kis mellizom); egyébként zsúfolná az ábrát.
+    layers: { ...ALL_LAYERS, labels: showLabels, 'deep-muscles': geometry.muscles.some((m) => m.layer === 'deep-muscles' && m.structureId === muscle.id) }
   };
   const statusBadges = (
     <div className="flex flex-wrap gap-1.5 text-xs" aria-live="polite">
@@ -121,7 +123,7 @@ export function BiomechanicsLab() {
 
         {extraViews.length === 0 ? (
           <div className="h-[52vh] min-h-[320px] md:h-[60vh]">
-            <AnatomyViewer {...viewerProps} geometry={geometry} pose={pose} ariaLabel={mainAria} overlay={<div className="pointer-events-none absolute left-2 top-2">{statusBadges}</div>} />
+            <AnatomyViewer {...viewerProps} geometry={geometry} pose={pose} viewBoxOverride={motion.viewBox} ariaLabel={mainAria} overlay={<div className="pointer-events-none absolute left-2 top-2">{statusBadges}</div>} />
           </div>
         ) : (
           <div className="flex flex-col gap-2">
@@ -132,7 +134,7 @@ export function BiomechanicsLab() {
                 title={viewById(motion.viewId)?.name.hu ?? ''}
                 note="Fő nézet – a mozgás síkja torzítás nélkül"
               >
-                <AnatomyViewer {...viewerProps} geometry={geometry} pose={pose} ariaLabel={mainAria} />
+                <AnatomyViewer {...viewerProps} geometry={geometry} pose={pose} viewBoxOverride={motion.viewBox} ariaLabel={mainAria} />
               </ViewTile>
               {extraViews.map((v) => (
                 <ViewTile key={v.viewId} title={viewById(v.viewId)?.name.hu ?? ''} note={[v.note, roleMode === 'selected' ? 'Izomnév: vidd fölé az egeret, vagy válts szerepkör-megjelenítésre.' : undefined].filter(Boolean).join(' ')}>
