@@ -21,7 +21,7 @@ src/
 ├── data/
 │   ├── muscles/         izomadatlapok (pectoralisMajor.ts), kapcsolódó izmok névjegyzéke, közös registry
 │   ├── bones/ joints/ nerves/ sources/
-│   ├── geometry/        nézetenkénti 2D geometria (anteriorView.ts, superiorView.ts)
+│   ├── geometry/        nézetenkénti 2D geometria (elülső, felül-, oldalnézet, kar a törzs mellett, zárt láncú és légzési változat)
 │   ├── motions/         mozgásdefiníciók (MotionDefinition)
 │   ├── exercises/       gyakorlatdefiníciók (Exercise)
 │   └── questions/       kérdések és tanulókártyák
@@ -40,7 +40,10 @@ src/
    - Az izomkontúr pontjai vegyesen tartozhatnak a mellkashoz (eredés) és a felkarcsonthoz (tapadás); így a csont mozgatásakor az izom automatikusan nyúlik/rövidül.
    - Csontok: path a saját frame-jükben; izmok: zárt Catmull–Rom görbe; rostirányok: (eredés, tapadás) pontpárok, az izomkontúrra vágva.
    - Minden struktúra egyedi anatómiai azonosítót kap (`muscle-pectoralis-major-clavicular`, `bone-clavicle`, …), ezek az SVG `id`-jai.
-3. **Mozgás** (`data/motions`): `MotionDefinition` = nézet + kiinduló/végső póz + működési típusok leírása + szerepek. Az `animationEngine.motionPose` a működési típus szerint interpolál.
+3. **Mozgás** (`data/motions`): `MotionDefinition` = nézet + kiinduló/végső póz + működési típusok leírása + szerepek. Az `animationEngine.motionPose` a működési típus szerint interpolál; a `solvePose` (opcionális) a köztes pózból származtat teljes pózt (pl. a zárt láncú húzódzkodás inverz kinematikája), a `contractionTypes` pedig leszűkítheti a választható működési típusokat.
+   - Frame-ek: forgatás (`angleKey`), vetületi rövidülés (`scaleYKey`) és eltolás (`translateYKey`, pl. a mellkas emelkedése belégzéskor).
+   - Zárt lánc: a `ViewGeometry.sceneOffsetYKey` a teljes testet tolja el, a `fixtures` (pl. rúd) helyben marad.
+   - Rajzolási sorrend oldalnézetben: a negatív `z` értékű izmok a `front` jelölésű csontok (felkar, alkar) mögé kerülnek.
 4. **Megjelenítés** (`AnatomyViewer`): rétegek (csontok, mély izmok, felületes izmok, ízületek, eredés/tapadás, feliratok) kapcsolhatók; kiemelés, halványítás, izolálás, szerepkör-színezés (szín + mintázat + betűjel), nagyítás/pásztázás (gombok, Ctrl+görgő, húzás, nyílbillentyűk), billentyűzetes kiválasztás. A tükrözött oldal nem interaktív kontextus.
 
 ## Animációs motor

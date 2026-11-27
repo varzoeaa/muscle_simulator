@@ -76,7 +76,8 @@ export const reset = (s: AnimationState): AnimationState => ({ ...s, playing: fa
 export function motionPose(motion: MotionDefinition, t: number, type: ContractionType): Pose {
   const e = easeInOut(clamp(t, 0, 1));
   const shortening = type === 'concentric' ? e : type === 'eccentric' ? 1 - e : 0.5;
-  return lerpPose(motion.startPose, motion.endPose, shortening);
+  const pose = lerpPose(motion.startPose, motion.endPose, shortening);
+  return motion.solvePose ? motion.solvePose(pose) : pose;
 }
 
 /** Minőségi (nem numerikus) izomhossz-változás iránya a vizsgált izomra. */
@@ -90,23 +91,26 @@ export const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 *
 /* ---------------- Exercise Lab: ciklus és szakaszok ---------------- */
 
 export function phaseAt(phases: ExercisePhase[], t: number): ExercisePhase | undefined {
-  return phases.find((p) => t >= p.from && t <= p.to) ?? phases[phases.length - 1];
+  // Félig nyitott intervallum: a határon már a következő szakasz kezdődik (különben egy szakasz
+  // elejére ugorva az előző szakasz lenne aktív).
+  return phases.find((p) => t >= p.from && t < p.to) ?? (t < (phases[0]?.from ?? 0) ? phases[0] : phases[phases.length - 1]);
 }
 
 /**
- * A rúd "mélysége" a ciklus egy pontján: 0 = felső helyzet (kinyújtott kar), 1 = alsó helyzet.
- * A szakaszok határait az adatfájl definiálja.
+ * A gyakorlat „mélysége” a ciklus egy pontján: 0 = kiinduló helyzet, 1 = az a helyzet, ahol a
+ * nagy mellizom a leghosszabb (fekvenyomásnál az alsó helyzet, tárogatásnál a nyitott kar,
+ * nyújtásnál a nyújtott helyzet). A szakaszok határait az adatfájl definiálja.
  */
 export function cycleDepth(phases: ExercisePhase[], t: number): number {
   const p = phaseAt(phases, t);
   if (!p) return 0;
   const local = p.to > p.from ? clamp((t - p.from) / (p.to - p.from), 0, 1) : 0;
-  if (p.type === 'eccentric') return easeInOut(local);
-  if (p.type === 'concentric') return 1 - easeInOut(local);
-  // Izometriás: a megelőző szakasz végpontjában marad.
+  if (p.type === 'eccentric' || p.type === 'passive-stretch') return easeInOut(local);
+  if (p.type === 'concentric' || p.type === 'release') return 1 - easeInOut(local);
+  // Tartás (izometriás vagy statikus nyújtás): a megelőző szakasz végpontjában marad.
   const idx = phases.indexOf(p);
   const prev = phases[idx - 1];
-  return prev?.type === 'concentric' ? 0 : 1;
+  return prev?.type === 'concentric' || prev?.type === 'release' ? 0 : 1;
 }
 
 /**

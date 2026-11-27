@@ -33,6 +33,7 @@
   --an-synergist: #c58b3c;
   --an-antagonist: #5d84c4;
   --an-stabilizer: #8f6bbd;
+  --an-stretched: #4fae9a;
   --an-body: #463b44;
   --an-body-stroke: #66565f;
   --an-limb: #5b4c57;
@@ -72,6 +73,7 @@
   --an-synergist: #b07020;
   --an-antagonist: #3a68b0;
   --an-stabilizer: #7550a8;
+  --an-stretched: #2f8f7b;
   --an-body: #e6d9de;
   --an-body-stroke: #c4aeb8;
   --an-limb: #d6c3cb;
@@ -128,6 +130,14 @@ body {
   stroke-width: 1.2;
   transition: fill 0.2s ease, opacity 0.2s ease;
 }
+.an-muscle.is-context {
+  fill-opacity: 0.55;
+  stroke: var(--ml-text);
+  stroke-opacity: 0.55;
+  stroke-width: 1.4;
+}
+.an-ghost { opacity: 0.22; }
+.an-ghost:hover { opacity: 0.45; }
 .an-muscle.is-dim {
   fill: var(--an-muscle-dim);
   stroke: var(--an-muscle-dim-stroke);
@@ -145,6 +155,9 @@ body {
 .an-muscle.role-synergist { fill: var(--an-synergist); }
 .an-muscle.role-antagonist { fill: var(--an-antagonist); }
 .an-muscle.role-stabilizer { fill: var(--an-stabilizer); }
+.an-muscle.role-stretched { fill: var(--an-stretched); }
+.an-implement { fill: var(--an-plate); fill-opacity: 0.85; stroke: var(--an-body-stroke); stroke-width: 1.5; }
+.an-cable { stroke: var(--an-plate); stroke-width: 2; stroke-dasharray: 6 4; fill: none; opacity: 0.85; }
 .an-muscle.is-active {
   animation: an-pulse 1.1s ease-in-out infinite;
 }
@@ -159,6 +172,7 @@ body {
   pointer-events: none;
 }
 .an-bone { fill: var(--an-bone); stroke: var(--an-bone-stroke); stroke-width: 1; }
+.an-fixture { fill: none; stroke: var(--an-bone-stroke); stroke-width: 7; stroke-linecap: round; }
 .an-bone-line { fill: none; stroke: var(--an-bone); stroke-linecap: round; }
 .an-cartilage-line { fill: none; stroke: var(--an-cartilage); stroke-linecap: round; }
 .an-bone.is-selected, .an-bone-line.is-selected { stroke: var(--ml-accent-2); }
@@ -194,3 +208,4 @@ input[type='range'] {
 :root[data-theme='light'] .evidence-documented-observation { color: #255f9e; }
 :root[data-theme='light'] .evidence-educational-model { color: #8a5a12; }
 :root[data-theme='light'] .evidence-pending-verification { color: #a32b2b; }
+.an-label-agonist, .an-label-synergist, .an-label-antagonist, .an-label-stabilizer, .an-label-stretched { font-weight: 700; }

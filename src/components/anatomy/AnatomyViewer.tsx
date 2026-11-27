@@ -1,8 +1,8 @@
-import { memo, useCallback, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
 import { Maximize2, Minus, Plus } from 'lucide-react';
-import type { LayerId, MuscleRoleType, Pose, ViewGeometry } from '../../types';
+import type { DisplayRoleType, LayerId, Pose, ViewGeometry } from '../../types';
 import { computeFrameTransforms, matrixToSvg, smoothClosedPath, toWorld, type Matrix } from '../../utils/geometry';
-import { structureName } from '../../data/muscles';
+import { structureGroups, structureName } from '../../data/muscles';
 
 export const ALL_LAYERS: Record<LayerId, boolean> = {
   bones: true,
@@ -24,7 +24,7 @@ export interface AnatomyViewerProps {
   /** Csak a kiválasztott izom (és a csontok) látszik. */
   isolate?: boolean;
   /** Szerepkör szerinti színezés (Biomechanics Lab). */
-  roleMap?: Record<string, MuscleRoleType>;
+  roleMap?: Record<string, DisplayRoleType>;
   /** Aktív izmok (pulzáló kiemelés). */
   activeIds?: string[];
   /** Ha meg van adva, csak ezek a struktúrák kattinthatók (pl. tesztfeladatban). */
@@ -40,30 +40,57 @@ export interface AnatomyViewerProps {
   minimal?: boolean;
   /** Statikus nézetben a szűkebb kivágás használata. */
   focus?: boolean;
+  /** Egyedi kivágás (pl. kiegészítő nézetben csak a vizsgált oldal). */
+  viewBoxOverride?: [number, number, number, number];
+  /** A jelenet koordinátáiban rajzolt kiegészítő elemek (pl. kábel a kéztől a csigáig). */
+  sceneExtras?: ReactNode;
+  /** Minden felirat elrejtése (szerepkör-feliratoké is). */
+  hideLabels?: boolean;
+  /** A felületes izmok áttetszők (pl. mély izomra kérdező tesztfeladatban). */
+  ghostSuperficial?: boolean;
 }
 
 /** Igaz, ha a struktúra azonos a megadott azonosítóval vagy annak része (pl. izomrész). */
 export const matchesStructure = (structureId: string, key: string | null | undefined) =>
   !!key && (structureId === key || structureId.startsWith(`${key}-`));
 
-export const roleForStructure = (structureId: string, roleMap?: Record<string, MuscleRoleType>): MuscleRoleType | undefined => {
+export const roleForStructure = (structureId: string, roleMap?: Record<string, DisplayRoleType>): DisplayRoleType | undefined => {
   if (!roleMap) return undefined;
   if (roleMap[structureId]) return roleMap[structureId];
-  const key = Object.keys(roleMap).find((k) => matchesStructure(structureId, k));
+  const key = Object.keys(roleMap).find((k) => matchesStructure(structureId, k) || !!structureGroups[k]?.includes(structureId));
   return key ? roleMap[key] : undefined;
 };
 
-const roleLetter: Record<MuscleRoleType, string> = { agonist: 'AG', synergist: 'SZ', antagonist: 'AN', stabilizer: 'ST' };
+/** Szerepel-e a struktúra (vagy annak része / csoporttagja) a nézet izomkontúrjai között. */
+export const isStructureDrawn = (geometry: ViewGeometry, structureId: string): boolean =>
+  geometry.muscles.some(
+    (m) => matchesStructure(m.structureId, structureId) || matchesStructure(structureId, m.structureId) || !!structureGroups[structureId]?.includes(m.structureId)
+  );
+
+/** Rövid felirat: a zárójeles kiegészítések nélküli magyar név. */
+const shortName = (id: string) => structureName(id).hu.replace(/\s*\([^)]*\)/g, '');
+
+const roleLetter: Record<DisplayRoleType, string> = { agonist: 'AG', synergist: 'SZ', antagonist: 'AN', stabilizer: 'ST', stretched: 'NY' };
 
 function AnatomyViewerImpl(props: AnatomyViewerProps) {
-  const { geometry, pose, mirrorPose, layers = ALL_LAYERS, ariaLabel, overlay, className, minimal, focus } = props;
-  const [vx, vy, vw, vh] = (focus && geometry.focusViewBox) || geometry.viewBox;
+  const { geometry, pose, mirrorPose, layers = ALL_LAYERS, ariaLabel, overlay, className, minimal, focus, sceneExtras } = props;
+  const [vx, vy, vw, vh] = props.viewBoxOverride ?? ((focus && geometry.focusViewBox) || geometry.viewBox);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [hover, setHover] = useState<string | null>(null);
   const drag = useRef<{ x: number; y: number; px: number; py: number; moved: boolean } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  // A feliratok képernyőn mért mérete minden nézetméretnél azonos legyen (kis, egymás melletti nézetekben is olvasható).
+  const [pxWidth, setPxWidth] = useState(0);
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(([e]) => setPxWidth(e?.contentRect.width ?? 0));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
+  const sceneOffset = geometry.sceneOffsetYKey ? (pose[geometry.sceneOffsetYKey] ?? 0) : 0;
   const transforms = useMemo(() => computeFrameTransforms(geometry.frames, pose), [geometry.frames, pose]);
   const mirrorTransforms = useMemo(
     () => computeFrameTransforms(geometry.frames, mirrorPose ?? pose),
@@ -118,6 +145,10 @@ function AnatomyViewerImpl(props: AnatomyViewerProps) {
     }
   };
 
+  const svgH = svgRef.current?.getBoundingClientRect().height ?? 0;
+  // „meet” illesztésnél a szűkebb irány határozza meg a felhasználói egység / képpont arányt.
+  const unitsPerPx = pxWidth > 0 ? Math.max(vw / pxWidth, svgH > 0 ? vh / svgH : 0) : 1;
+  const labelScale = Math.min(3, Math.max(0.5, unitsPerPx * 1.1)) / zoom;
   const cx = vx + vw / 2;
   const cy = vy + vh / 2;
   const viewTransform = `translate(${cx + pan.x} ${cy + pan.y}) scale(${zoom}) translate(${-cx} ${-cy})`;
@@ -154,12 +185,25 @@ function AnatomyViewerImpl(props: AnatomyViewerProps) {
           </pattern>
         </defs>
         <g transform={viewTransform}>
+          <g transform={sceneOffset ? `translate(0 ${sceneOffset})` : undefined}>
           {geometry.mirrorContext && (
             <g transform={`translate(${mirrorAxis * 2} 0) scale(-1 1)`} aria-hidden="true" opacity={0.9} style={{ pointerEvents: 'none' }}>
               <Layers {...props} transforms={mirrorTransforms} layers={{ ...layers, labels: false, attachments: false, joints: false }} interactive={false} hover={null} setHover={() => undefined} />
             </g>
           )}
-          <Layers {...props} transforms={transforms} layers={layers} interactive hover={hover} setHover={setHover} dragRef={drag} />
+          {sceneExtras && <g aria-hidden="true">{sceneExtras}</g>}
+          <Layers {...props} transforms={transforms} layers={layers} interactive hover={hover} setHover={setHover} dragRef={drag} labelScale={labelScale} />
+          </g>
+          {geometry.fixtures?.map((f, i) => (
+            <g key={`fx-${i}`} aria-hidden="true">
+              <path d={f.d} className="an-fixture" />
+              {f.label && (
+                <text x={f.label.x} y={f.label.y} textAnchor="middle" className="an-label">
+                  {f.label.text}
+                </text>
+              )}
+            </g>
+          ))}
         </g>
       </svg>
 
@@ -221,10 +265,11 @@ interface LayersProps extends AnatomyViewerProps {
   hover: string | null;
   setHover: (id: string | null) => void;
   dragRef?: React.RefObject<{ moved: boolean } | null>;
+  labelScale?: number;
 }
 
 function Layers(p: LayersProps) {
-  const { geometry, transforms, layers, selectedId, isolate, roleMap, activeIds, selectableIds, attachmentsFor, markedIds, interactive, hover, setHover, onSelect, dragRef } = p;
+  const { geometry, transforms, layers, selectedId, isolate, roleMap, activeIds, selectableIds, attachmentsFor, markedIds, interactive, hover, setHover, onSelect, dragRef, labelScale = 1 } = p;
 
   const canSelect = (id: string) => interactive && !!onSelect && (!selectableIds || selectableIds.includes(id));
   const handle = (id: string) => () => {
@@ -251,32 +296,38 @@ function Layers(p: LayersProps) {
         }
       : {};
 
-  const selectedIsMuscle = !!selectedId && selectedId.startsWith('muscle-');
+  // Ha a kiválasztott izom ebben a nézetben nem szerepel (pl. a nagy mellizom hátulnézetben), a többi izmot nem halványítjuk.
+  const selectedIsMuscle = !!selectedId && selectedId.startsWith('muscle-') && isStructureDrawn(geometry, selectedId);
+  // Kontextus-nézet: a kiválasztott izom itt nem látszik – az izmokat áttetszően, jól elkülöníthető kontúrral rajzoljuk.
+  const contextOnly = !!selectedId && selectedId.startsWith('muscle-') && !selectedIsMuscle && !roleMap;
   const muscles = [...geometry.muscles].sort((a, b) => a.z - b.z);
+  const deepSelected = !roleMap && (!!p.ghostSuperficial || (!!selectedId && muscles.some((m) => m.layer === 'deep-muscles' && matchesStructure(m.structureId, selectedId))));
 
   const boneClass = (id: string, base: string) => {
     const marked = markedIds?.correct?.includes(id) ? ' is-selected' : '';
     return `${base}${matchesStructure(id, selectedId) && !selectedIsMuscle ? ' is-selected' : ''}${marked}${canSelect(id) ? ' an-clickable' : ''}`;
   };
 
-  const renderBones = () =>
+  const renderBones = (front: boolean, overlay = false) =>
     geometry.bones.map((b, i) => {
+      if (!!b.overlay !== overlay || (!overlay && !!b.front !== front)) return null;
       const t = transforms[b.frame];
       if (!t) return null;
-      const cls = b.stroke ? (b.variant === 'cartilage' ? 'an-cartilage-line' : 'an-bone-line') : 'an-bone';
+      const cls = b.variant === 'implement' ? 'an-implement' : b.stroke ? (b.variant === 'cartilage' ? 'an-cartilage-line' : 'an-bone-line') : 'an-bone';
       return (
         <g key={`${b.structureId}-${i}`} transform={matrixToSvg(t)} id={interactive && i === geometry.bones.findIndex((x) => x.structureId === b.structureId) ? b.structureId : undefined}>
           <path d={b.d} className={boneClass(b.structureId, cls)} strokeWidth={b.stroke} {...a11y(b.structureId)}>
-            <title>{structureName(b.structureId).hu}</title>
+            <title>{b.title ?? structureName(b.structureId).hu}</title>
           </path>
         </g>
       );
     });
 
   const renderMuscle = (m: (typeof muscles)[number]) => {
-    if (!layers[m.layer]) return null;
     const selected = matchesStructure(m.structureId, selectedId);
     const role = roleForStructure(m.structureId, roleMap);
+    // A szerepkörrel jelölt mély izmok akkor is látszanak, ha a mély réteg ki van kapcsolva.
+    if (!layers[m.layer] && !role) return null;
     if (isolate && selectedIsMuscle && !selected && !role) return null;
     const pts = m.outline.map((pt) => toWorld(pt, transforms));
     const d = smoothClosedPath(pts);
@@ -287,6 +338,7 @@ function Layers(p: LayersProps) {
     const cls = [
       'an-muscle',
       dim && 'is-dim',
+      contextOnly && 'is-context',
       selected && !roleMap && 'is-selected',
       role && `role-${role}`,
       selected && roleMap && 'is-selected',
@@ -299,8 +351,10 @@ function Layers(p: LayersProps) {
       .join(' ');
     const fill = role === 'synergist' ? 'url(#pat-synergist)' : role === 'antagonist' ? 'url(#pat-antagonist)' : role === 'stabilizer' ? 'url(#pat-stabilizer)' : undefined;
     const clipId = `clip-${m.structureId}-${interactive ? 'a' : 'm'}`;
+    // Mély izom kiválasztásakor a fölötte fekvő felületes izmok áttetszők, hogy a kiválasztott izom látsszon.
+    const ghost = deepSelected && m.layer === 'superficial-muscles' && !selected;
     return (
-      <g key={m.structureId} id={interactive ? m.structureId : undefined} data-structure={m.structureId}>
+      <g key={m.structureId} id={interactive ? m.structureId : undefined} data-structure={m.structureId} className={ghost ? 'an-ghost' : undefined}>
         <clipPath id={clipId}>
           <path d={d} />
         </clipPath>
@@ -354,21 +408,53 @@ function Layers(p: LayersProps) {
         );
       });
 
-  const renderLabels = () =>
-    muscles
-      .filter((m) => m.label && layers[m.layer])
-      .filter((m) => m.layer !== 'deep-muscles' || !layers['superficial-muscles'] || (isolate && matchesStructure(m.structureId, selectedId)))
-      .filter((m) => !isolate || !selectedIsMuscle || matchesStructure(m.structureId, selectedId))
-      .map((m) => {
-        const at = toWorld(m.label!.at, transforms);
+  const renderLabels = () => {
+    const items = muscles
+      .filter((m) => {
         const role = roleForStructure(m.structureId, roleMap);
-        return (
-          <text key={`lbl-${m.structureId}`} x={at.x} y={at.y} textAnchor="middle" className="an-label">
-            {m.label!.text}
-            {role ? ` (${roleLetter[role]})` : ''}
-          </text>
-        );
+        if (role) return true; // szerepkör-megjelenítésben minden jelölt izom feliratot kap
+        // Szerepkör-módban csak a jelölt izmok kapnak feliratot, hogy a kis nézetek se zsúfolódjanak.
+        if (roleMap || !layers.labels || !m.label || !layers[m.layer]) return false;
+        // Mély izom kiválasztásakor az áttetsző felületes izmok felirata nem takarja el a jelöléseket.
+        if (deepSelected && m.layer === 'superficial-muscles') return false;
+        if (m.layer === 'deep-muscles' && layers['superficial-muscles'] && !((isolate || deepSelected) && matchesStructure(m.structureId, selectedId))) return false;
+        return !isolate || !selectedIsMuscle || matchesStructure(m.structureId, selectedId);
+      })
+      .map((m) => {
+        const role = roleForStructure(m.structureId, roleMap);
+        let at: { x: number; y: number };
+        if (m.label) at = toWorld(m.label.at, transforms);
+        else {
+          const pts = m.outline.map((pt) => toWorld(pt, transforms));
+          at = { x: pts.reduce((a, p) => a + p.x, 0) / pts.length, y: pts.reduce((a, p) => a + p.y, 0) / pts.length };
+        }
+        const text = `${m.label?.text ?? shortName(m.structureId)}${role ? ` (${roleLetter[role]})` : ''}`;
+        return { id: m.structureId, role, x: at.x, y: at.y, text };
       });
+    // Egyszerű ütközéskerülés: az egymást takaró feliratokat függőlegesen széthúzzuk.
+    const placed: { x: number; y: number; w: number }[] = [];
+    const H = 14 * labelScale;
+    items
+      .sort((a, b) => a.y - b.y)
+      .forEach((it) => {
+        const w = it.text.length * 6 * labelScale;
+        const hits = () => placed.some((p) => Math.abs(p.x - it.x) < (p.w + w) / 2 && Math.abs(p.y - it.y) < H);
+        for (let i = 0; i < 12 && hits(); i++) it.y += H / 2;
+        placed.push({ x: it.x, y: it.y, w });
+      });
+    return items.map((it) => (
+      <text
+        key={`lbl-${it.id}`}
+        x={it.x}
+        y={it.y}
+        textAnchor="middle"
+        className={`an-label${it.role ? ` an-label-${it.role}` : ''}`}
+        style={{ fontSize: 11 * labelScale, strokeWidth: 3 * labelScale }}
+      >
+        {it.text}
+      </text>
+    ));
+  };
 
   const renderJoints = () =>
     geometry.joints.map((j) => {
@@ -382,17 +468,30 @@ function Layers(p: LayersProps) {
       );
     });
 
-  const deep = muscles.filter((m) => m.layer === 'deep-muscles');
-  const superficial = muscles.filter((m) => m.layer === 'superficial-muscles');
+  // Negatív z: az előtérbe hozott (front) csontok mögött – pl. oldalnézetben a felkar takarja a mellkasfali izmokat.
+  // Szerepkör-megjelenítésben a jelölt izmok előtérbe kerülnek, hogy ne takarják el őket más izmok vagy a felkar.
+  const forward = (m: (typeof muscles)[number]) => !!roleMap && !!roleForStructure(m.structureId, roleMap);
+  const behind = muscles.filter((m) => m.z < 0 && !forward(m));
+  const deep = muscles.filter((m) => m.z >= 0 && m.layer === 'deep-muscles' && !forward(m));
+  const superficial = muscles.filter((m) => m.z >= 0 && m.layer === 'superficial-muscles' && !forward(m));
+  // A szerepkörrel jelölt izmok közül az agonisták kerülnek legfelülre (pl. a mély kis mellizom a felette fekvő, szinergista nagy mellizom fölé).
+  const roleRank: Record<string, number> = { stabilizer: 0, antagonist: 1, synergist: 2, stretched: 3, agonist: 4 };
+  const roleMuscles = muscles
+    .filter(forward)
+    .sort((a, b) => (roleRank[roleForStructure(a.structureId, roleMap) ?? ''] ?? 0) - (roleRank[roleForStructure(b.structureId, roleMap) ?? ''] ?? 0) || a.z - b.z);
 
   return (
     <>
-      {layers.bones && <g data-layer="bones">{renderBones()}</g>}
+      {layers.bones && <g data-layer="bones">{renderBones(false)}</g>}
+      <g data-layer="behind-limb">{behind.map(renderMuscle)}</g>
+      {layers.bones && <g data-layer="bones-front">{renderBones(true)}</g>}
       <g data-layer="deep-muscles">{deep.map(renderMuscle)}</g>
       <g data-layer="superficial-muscles">{superficial.map(renderMuscle)}</g>
+      <g data-layer="role-muscles">{roleMuscles.map(renderMuscle)}</g>
+      {layers.bones && <g data-layer="bones-overlay">{renderBones(false, true)}</g>}
       {layers.joints && <g data-layer="joints">{renderJoints()}</g>}
       {layers.attachments && attachmentsFor && <g data-layer="attachments">{renderAttachments()}</g>}
-      {layers.labels && <g data-layer="labels">{renderLabels()}</g>}
+      {interactive && !p.hideLabels && (layers.labels || !!roleMap) && <g data-layer="labels">{renderLabels()}</g>}
     </>
   );
 }

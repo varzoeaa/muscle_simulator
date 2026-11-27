@@ -86,7 +86,10 @@ export function MuscleLayout() {
             </p>
           </div>
         ) : (
-          <Outlet context={{ muscle }} />
+          // A kulcs miatt izomváltáskor a modulok állapota (kiválasztás, nézet, lejátszás) alaphelyzetbe áll.
+          <div key={muscle.id} className="contents">
+            <Outlet context={{ muscle }} />
+          </div>
         )}
       </div>
     </div>

@@ -1,5 +1,7 @@
 import type { AnatomicalStructure, Muscle, Term } from '../../types';
 import { pectoralisMajor } from './pectoralisMajor';
+import { pectoralisMinor } from './pectoralisMinor';
+import { subclavius } from './subclavius';
 import { contextMuscles } from './contextMuscles';
 import { bones } from '../bones/bones';
 import { joints } from '../joints/joints';
@@ -33,8 +35,8 @@ const planned = (id: string, name: Term, summary: string): Muscle => ({
 
 export const muscles: Muscle[] = [
   pectoralisMajor,
-  planned('muscle-pectoralis-minor', { hu: 'Kis mellizom', en: 'Pectoralis minor', la: 'Musculus pectoralis minor' }, 'A nagy mellizom alatt fekvő, háromszög alakú izom; a lapocka hollócsőrnyúlványához tapad.'),
-  planned('muscle-subclavius', { hu: 'Kulcscsont alatti izom', en: 'Subclavius', la: 'Musculus subclavius' }, 'Kis, hengeres izom az első borda és a kulcscsont alsó felszíne között.'),
+  pectoralisMinor,
+  subclavius,
   planned('muscle-serratus-anterior', { hu: 'Elülső fűrészizom', en: 'Serratus anterior', la: 'Musculus serratus anterior' }, 'A mellkas oldalfalán fekvő, fűrészfogszerű eredésű izom; a lapocka belső széléhez tapad.')
 ];
 
@@ -64,3 +66,11 @@ const registry: AnatomicalStructure[] = [
 export const structureById = (id: string): AnatomicalStructure | undefined => registry.find((s) => s.id === id);
 export const structureName = (id: string): Term => structureById(id)?.name ?? { hu: id, en: id };
 export const allStructures = registry;
+
+/**
+ * Gyűjtő-azonosítók: a szerepkör-táblázatokban csoportként szereplő izmok, amelyek
+ * az ábrán külön kontúrként jelennek meg (pl. a rotátorköpeny négy izma).
+ */
+export const structureGroups: Record<string, string[]> = {
+  'muscle-rotator-cuff': ['muscle-supraspinatus', 'muscle-infraspinatus', 'muscle-teres-minor', 'muscle-subscapularis']
+};

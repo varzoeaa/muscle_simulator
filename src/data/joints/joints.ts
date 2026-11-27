@@ -60,6 +60,7 @@ const sagittal: Term = { hu: 'Szagittális sík', en: 'Sagittal plane', la: 'Pla
 const frontal: Term = { hu: 'Frontális sík', en: 'Frontal (coronal) plane', la: 'Planum frontale' };
 const transverse: Term = { hu: 'Horizontális (transzverzális) sík', en: 'Transverse plane', la: 'Planum transversale' };
 const scapular: Term = { hu: 'Lapocka-mellkasi mozgás', en: 'Scapulothoracic motion' };
+const thoracic: Term = { hu: 'Mellkasmozgás (légzés)', en: 'Thoracic (respiratory) motion' };
 
 export const movements: JointMovement[] = [
   { id: 'shoulder-flexion', name: { hu: 'Hajlítás (vállízület)', en: 'Shoulder flexion', la: 'Flexio' }, plane: sagittal },
@@ -80,6 +81,7 @@ export const movements: JointMovement[] = [
   { id: 'scapular-downward-rotation', name: { hu: 'Lapocka lefelé rotációja', en: 'Scapular downward rotation' }, plane: scapular },
   { id: 'scapular-anterior-tilt', name: { hu: 'Lapocka előrebillenése', en: 'Scapular anterior tilt' }, plane: scapular },
   { id: 'scapular-posterior-tilt', name: { hu: 'Lapocka hátrabillenése', en: 'Scapular posterior tilt' }, plane: scapular },
+  { id: 'accessory-inspiration', name: { hu: 'Járulékos belégzés (a bordák emelése)', en: 'Accessory inspiration' }, plane: thoracic },
   { id: 'clavicular-depression', name: { hu: 'Kulcscsont süllyesztése', en: 'Clavicular depression', la: 'Depressio' }, plane: scapular }
 ];
 

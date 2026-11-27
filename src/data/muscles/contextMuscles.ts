@@ -13,6 +13,7 @@ export const contextMuscles: AnatomicalStructure[] = [
   { id: 'muscle-teres-major', kind: 'muscle', name: { hu: 'Nagy görgetegizom', en: 'Teres major', la: 'Musculus teres major' } },
   { id: 'muscle-trapezius', kind: 'muscle', name: { hu: 'Csuklyásizom', en: 'Trapezius', la: 'Musculus trapezius' } },
   { id: 'muscle-rhomboids', kind: 'muscle', name: { hu: 'Rombuszizmok', en: 'Rhomboids', la: 'Musculi rhomboidei' } },
+  { id: 'muscle-levator-scapulae', kind: 'muscle', name: { hu: 'Lapockaemelő izom', en: 'Levator scapulae', la: 'Musculus levator scapulae' } },
   { id: 'muscle-supraspinatus', kind: 'muscle', name: { hu: 'Tövis feletti izom', en: 'Supraspinatus', la: 'Musculus supraspinatus' } },
   { id: 'muscle-infraspinatus', kind: 'muscle', name: { hu: 'Tövis alatti izom', en: 'Infraspinatus', la: 'Musculus infraspinatus' } },
   { id: 'muscle-teres-minor', kind: 'muscle', name: { hu: 'Kis görgetegizom', en: 'Teres minor', la: 'Musculus teres minor' } },
