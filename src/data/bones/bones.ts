@@ -15,12 +15,22 @@ export const bones: Bone[] = [
   { id: 'bone-costal-cartilages', kind: 'bone', name: { hu: 'Bordaporcok', en: 'Costal cartilages', la: 'Cartilagines costales' } },
   { id: 'bone-clavicle', kind: 'bone', name: { hu: 'Kulcscsont', en: 'Clavicle', la: 'Clavicula' } },
   {
+    id: 'bone-skull',
+    kind: 'bone',
+    name: { hu: 'Koponya (nyakszirtcsont)', en: 'Skull (occipital bone)', la: 'Cranium (os occipitale)' },
+    landmarks: [
+      { id: 'bone-external-occipital-protuberance', kind: 'bone-landmark', name: { hu: 'Külső nyakszirti dudor', en: 'External occipital protuberance', la: 'Protuberantia occipitalis externa' } },
+      { id: 'bone-superior-nuchal-line', kind: 'bone-landmark', name: { hu: 'Felső tarkóvonal', en: 'Superior nuchal line', la: 'Linea nuchalis superior' } }
+    ]
+  },
+  {
     id: 'bone-scapula',
     kind: 'bone',
     name: { hu: 'Lapocka', en: 'Scapula', la: 'Scapula' },
     landmarks: [
       { id: 'bone-scapula-coracoid', kind: 'bone-landmark', name: { hu: 'Hollócsőrnyúlvány', en: 'Coracoid process', la: 'Processus coracoideus' } },
       { id: 'bone-scapula-acromion', kind: 'bone-landmark', name: { hu: 'Vállcsúcs', en: 'Acromion', la: 'Acromion' } },
+      { id: 'bone-scapula-spine', kind: 'bone-landmark', name: { hu: 'Lapockatövis', en: 'Spine of scapula', la: 'Spina scapulae' } },
       { id: 'bone-scapula-medial-border', kind: 'bone-landmark', name: { hu: 'A lapocka belső széle', en: 'Medial border of scapula', la: 'Margo medialis scapulae' } },
       { id: 'bone-scapula-superior-angle', kind: 'bone-landmark', name: { hu: 'A lapocka felső szöge', en: 'Superior angle of scapula', la: 'Angulus superior scapulae' } },
       { id: 'bone-scapula-inferior-angle', kind: 'bone-landmark', name: { hu: 'A lapocka alsó szöge', en: 'Inferior angle of scapula', la: 'Angulus inferior scapulae' } }
@@ -40,7 +50,13 @@ export const bones: Bone[] = [
   },
   { id: 'bone-radius', kind: 'bone', name: { hu: 'Orsócsont', en: 'Radius', la: 'Radius' } },
   { id: 'bone-ulna', kind: 'bone', name: { hu: 'Singcsont', en: 'Ulna', la: 'Ulna' } },
-  { id: 'bone-vertebral-column', kind: 'bone', name: { hu: 'Gerincoszlop (csigolya)', en: 'Vertebral column (vertebra)', la: 'Columna vertebralis' } },
+  { id: 'bone-vertebral-column', kind: 'bone', name: { hu: 'Gerincoszlop (csigolya)', en: 'Vertebral column (vertebra)', la: 'Columna vertebralis' },
+    landmarks: [
+      { id: 'bone-spinous-processes', kind: 'bone-landmark', name: { hu: 'Tövisnyúlványok', en: 'Spinous processes', la: 'Processus spinosi' } },
+      { id: 'ligament-nuchae', kind: 'bone-landmark', name: { hu: 'Tarkószalag', en: 'Nuchal ligament', la: 'Ligamentum nuchae' } },
+      { id: 'ligament-supraspinous', kind: 'bone-landmark', name: { hu: 'Tövisnyúlvány feletti szalag', en: 'Supraspinous ligament', la: 'Ligamentum supraspinale' } }
+    ]
+  },
   { id: 'bone-external-oblique-aponeurosis', kind: 'bone', name: { hu: 'A külső ferde hasizom bőnye', en: 'Aponeurosis of external oblique', la: 'Aponeurosis musculi obliqui externi abdominis' } }
 ];
 

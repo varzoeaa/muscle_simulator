@@ -137,6 +137,8 @@ export interface MuscleRegion extends AnatomicalStructure {
   insertion: Attachment;
   innervation: Claim;
   functions: Claim[];
+  /** A rostok iránya az eredéstől a tapadás felé (rövid, forrásolt leírás). */
+  fiberDirection?: Claim;
 }
 
 export type MuscleRoleType = 'agonist' | 'antagonist' | 'synergist' | 'stabilizer';
@@ -174,6 +176,21 @@ export interface Muscle extends AnatomicalStructure {
   sourceIds: string[];
   /** Az adatlaphoz tartozó elsődleges anatómiai nézet. */
   defaultViewId: AnatomicalViewId;
+  /**
+   * Az Anatómia modulban választható nézetek. Ha nincs megadva, az összes atlasznézet; olyan
+   * izomnál, amely csak bizonyos nézetekben van megrajzolva (pl. csuklyásizom: hátulnézet),
+   * csak ezek.
+   */
+  atlasViewIds?: AnatomicalViewId[];
+  /** Nézetenkénti megjegyzés (pl. mi takart vagy sematikus az adott vetületben). */
+  viewNotes?: Partial<Record<AnatomicalViewId, string>>;
+  /** Témánként csoportosított funkciók (pl. vállöv, fej és nyak) külön panelekben. */
+  functionSections?: { title: string; claims: Claim[] }[];
+  /**
+   * Közös kártyán bemutatott izomcsoport tagjai (pl. a rombuszizmok: kis és nagy rombuszizom).
+   * Később külön adatlapként is bemutathatók.
+   */
+  memberIds?: string[];
   motionIds: string[];
   exerciseIds: string[];
 }
@@ -304,6 +321,8 @@ export interface ViewGeometry {
   sceneOffsetYKey?: string;
   /** Rögzített környezeti elemek (nem anatómiai struktúrák), a nézet rendszerében. */
   fixtures?: { d: string; label?: { x: number; y: number; text: string } }[];
+  /** Tájékozódási feliratok (pl. tarkó, gerinc középvonala) – a „Feliratok” réteggel jelennek meg. */
+  landmarkLabels?: { at: FramedPoint; text: string; anchor?: 'start' | 'middle' | 'end' }[];
 }
 
 /** Pózok: szögek (fok) a frame-ek angleKey kulcsai szerint. */

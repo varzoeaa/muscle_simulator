@@ -100,6 +100,32 @@ export const sources: ScientificSource[] = [
     note: 'Gyakorlattechnikai fejezet – fekvenyomás kiinduló helyzete és kivitelezése.'
   },
   {
+    id: 'statpearls-trapezius',
+    kind: 'online-reference',
+    authors: 'Ourieff, J., Scheckel, B., Agarwal, A.',
+    title: 'Anatomy, Back, Trapezius',
+    publisher: 'StatPearls Publishing, Treasure Island (FL) – NCBI Bookshelf NBK518994',
+    year: 2023,
+    url: 'https://www.ncbi.nlm.nih.gov/books/NBK518994/',
+    verification: 'verified-online',
+    checkedAt: '2026-11-28',
+    note: 'Utolsó frissítés: 2023-03-11; teljes szöveg alapján. Átvett adatok: eredés és tapadás, járulékos ideg (motoros), C3–C4 (érző, proprioceptív), vérellátás, hátsó nyakháromszög. A fejezet néhány funkcióállítását (a felkar befelé forgatása, a széles hátizom beidegzése) nem vettük át, mert más forrásokkal ellentétesek.'
+  },
+  {
+    id: 'grays-1918',
+    kind: 'open-textbook',
+    authors: 'Gray, H.; szerk. Lewis, W. H.',
+    title: 'Anatomy of the Human Body, 20. kiadás – Muscles connecting the upper extremity to the vertebral column (432–435. o.)',
+    publisher: 'Lea & Febiger, Philadelphia',
+    year: 1918,
+    edition: '20',
+    url: 'https://archive.org/details/anatomyofhumanbo1918gray',
+    license: 'Közkincs (public domain)',
+    verification: 'verified-online',
+    checkedAt: '2026-11-28',
+    note: 'A digitalizált teljes szöveg alapján (Internet Archive). Történeti kiadás: a csuklyásizom eredése, tapadása, rostiránya, változatai, beidegzése és működése a 432–435. oldalon. A mai tankönyvi leírásokkal összevetve használjuk.'
+  },
+  {
     id: 'lunden-2010',
     kind: 'journal-article',
     authors: 'Lunden, J. B., Braman, J. P., LaPrade, R. F., Ludewig, P. M.',

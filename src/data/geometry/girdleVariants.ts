@@ -215,6 +215,8 @@ export const posteriorGirdleView: ViewGeometry = reframe({
     'muscle-rhomboids': onScapulaP,
     // A csuklyásizom lapockatövisi és vállcsúcsi tapadása mozog; a kulcscsonti része és a gerinci eredése nem.
     'muscle-trapezius': (p) => (p.x >= 340 && p.y >= 95 ? 'scapula' : undefined),
+    // A lapockaemelő izom lapockai (felső szögleti) vége mozog, a nyaki eredése nem.
+    'muscle-levator-scapulae': (p) => (p.x >= 340 && p.y >= 85 ? 'scapula' : undefined),
     'muscle-teres-major': all('scapula'),
     'muscle-infraspinatus': all('scapula'),
     'muscle-supraspinatus': all('scapula'),
@@ -224,7 +226,9 @@ export const posteriorGirdleView: ViewGeometry = reframe({
     'muscle-triceps-long-head': all('scapula')
   },
   attachments: {
-    'muscle-serratus-anterior:insertion': all('scapula')
+    'muscle-serratus-anterior:insertion': all('scapula'),
+    'muscle-trapezius-transverse:insertion': all('scapula'),
+    'muscle-trapezius-ascending:insertion': all('scapula')
   },
   joints: { 'joint-glenohumeral': 'scapula' }
 });

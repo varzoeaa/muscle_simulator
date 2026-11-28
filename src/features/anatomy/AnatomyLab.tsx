@@ -42,7 +42,9 @@ export function AnatomyLab() {
             label="Anatómiai nézet"
             value={viewId}
             onChange={setViewId}
-            options={views.filter((v) => v.atlas && viewGeometries[v.id]).map((v) => ({ value: v.id, label: v.name.hu, title: v.description }))}
+            options={views
+              .filter((v) => (muscle.atlasViewIds ? muscle.atlasViewIds.includes(v.id) : v.atlas) && viewGeometries[v.id])
+              .map((v) => ({ value: v.id, label: v.name.hu, title: v.description }))}
           />
         </div>
 
@@ -59,6 +61,8 @@ export function AnatomyLab() {
             ariaLabel={`${muscle.name.hu} – ${views.find((v) => v.id === viewId)?.name.hu}`}
           />
         </div>
+
+        {muscle.viewNotes?.[viewId] && <p className="rounded-xl border border-dashed border-line px-3 py-2 text-xs leading-relaxed text-ink-2">{muscle.viewNotes[viewId]}</p>}
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-2">
           <LegendSwatch color="var(--an-origin)" label="E – Eredés (origo)" />
@@ -93,7 +97,7 @@ export function AnatomyLab() {
           <Panel title={<span className="inline-flex items-center gap-1.5"><Layers size={15} /> Rétegek és megjelenítés</span>}>
             <Toggle label="Csontváz" checked={layers.bones} onChange={(v) => setLayer('bones', v)} />
             <Toggle label="Felületes izmok" checked={layers['superficial-muscles']} onChange={(v) => setLayer('superficial-muscles', v)} />
-            <Toggle label="Mély izmok" hint="kis mellizom, kulcscsont alatti izom" checked={layers['deep-muscles']} onChange={(v) => setLayer('deep-muscles', v)} />
+            <Toggle label="Mély izmok" hint="pl. kis mellizom, kulcscsont alatti izom, rombuszizmok" checked={layers['deep-muscles']} onChange={(v) => setLayer('deep-muscles', v)} />
             <Toggle label="Eredés és tapadás" checked={layers.attachments} onChange={(v) => setLayer('attachments', v)} />
             <Toggle label="Ízületek" checked={layers.joints} onChange={(v) => setLayer('joints', v)} />
             <Toggle label="Feliratok" checked={showLabels} onChange={setShowLabels} />
@@ -128,6 +132,12 @@ export function AnatomyLab() {
                     <AttachmentRow key={`i${i}`} kind="insertion" text={o.description} extent={o.extent} sourceIds={o.sourceIds} />
                   ))}
                 </dl>
+                {region?.fiberDirection && (
+                  <div className="mt-3 border-t border-line pt-2">
+                    <div className="mb-1 text-xs text-ink-2">Rostirány</div>
+                    <ClaimList claims={[region.fiberDirection]} />
+                  </div>
+                )}
               </Panel>
 
               <Panel title={<TermInline term={{ hu: 'Beidegzés', en: 'Innervation', la: 'Innervatio' }} />}>
@@ -149,6 +159,13 @@ export function AnatomyLab() {
               <Panel title="Funkciók">
                 <ClaimList claims={region ? region.functions : muscle.functions} />
               </Panel>
+
+              {!region &&
+                muscle.functionSections?.map((sec) => (
+                  <Panel key={sec.title} title={sec.title}>
+                    <ClaimList claims={sec.claims} />
+                  </Panel>
+                ))}
 
               {!region && (
                 <>

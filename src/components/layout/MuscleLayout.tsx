@@ -82,7 +82,7 @@ export function MuscleLayout() {
           <div className="rounded-2xl border border-line bg-surface p-6">
             <TermBlock term={muscle.name} size="lg" />
             <p className="mt-4 flex items-center gap-2 text-sm text-ink-2">
-              <Clock size={16} /> Ennek az izomnak az oktatási moduljai még fejlesztés alatt állnak. Az első verzióban a nagy mellizom modulja érhető el teljes egészében.
+              <Clock size={16} /> Ennek az izomnak az oktatási moduljai még fejlesztés alatt állnak. Az ábrákon kontextusként már szerepel.
             </p>
           </div>
         ) : (

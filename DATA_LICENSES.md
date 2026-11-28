@@ -24,6 +24,7 @@ Az alkalmazás működése nem függ külső szolgáltatástól.
 | **OpenStax** Anatomy & Physiology 2e | Nyílt tankönyv (HTML/PDF), ábrák | openstax.org | Nincs API | **CC BY 4.0** | Táblázatok a mellöv izmairól | Raszteres ábrák | Szöveges forrásként hivatkozzuk (`openstax-ap2e`). |
 | **Wikimedia Commons** | Képek, néhány SVG | commons.wikimedia.org (MediaWiki API, CORS-képes) | Kulcs nélkül | Fájlonként eltérő (CC BY, CC BY-SA, PD) | Számos mellizom-ábra | Egyes SVG-k léteznek, de nem rétegezettek / nem animálhatók csontokhoz kötve | Nem használjuk; fájlonkénti licencvizsgálat kellene. |
 | **PubMed / PMC** | Bibliográfiai adatbázis | pubmed.ncbi.nlm.nih.gov, E-utilities | Kulcs nélkül, limitált | Cikkenként eltérő | EMG-vizsgálatok, StatPearls | – | Forrásellenőrzéshez (Lauver 2016, Rodríguez-Ridao 2020, StatPearls). |
+| **Gray's Anatomy, 20. kiadás (1918)** – Internet Archive | Digitalizált tankönyv (szöveg, képek) | archive.org/details/anatomyofhumanbo1918gray | Nincs API | **Közkincs** | A csuklyásizom és a vállövi izmok szöveges leírása | Raszteres ábrák | Csak szöveges forrásként (`grays-1918`); ábrát nem veszünk át. |
 | **FIPAT – Terminologia Anatomica 2 (TA2)** | Terminológia | fipat.library.dal.ca/TA2, PDF | Nincs API | Kiadvány: **CC BY-ND 4.0**; a terminusok közkincs | Latin terminusok | – | A latin nevek hivatkozási alapja. |
 
 ## A saját geometria licence

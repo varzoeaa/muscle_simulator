@@ -188,6 +188,14 @@ body {
   pointer-events: none;
 }
 .an-clickable { cursor: pointer; }
+.an-landmark {
+  fill: var(--ml-text-2);
+  font-style: italic;
+  paint-order: stroke;
+  stroke: var(--an-canvas);
+  pointer-events: none;
+}
+.an-landmark-dot { fill: var(--ml-text-2); opacity: 0.8; }
 
 @media (prefers-reduced-motion: reduce) {
   .an-muscle.is-active { animation: none; filter: brightness(1.15); }

@@ -474,6 +474,26 @@ function Layers(p: LayersProps) {
     ));
   };
 
+  // Tájékozódási feliratok (pl. tarkó, gerinc középvonala): kis, dőlt, halvány szöveg egy ponttal.
+  const renderLandmarks = () =>
+    (geometry.landmarkLabels ?? []).map((l, i) => {
+      const at = toWorld(l.at, transforms);
+      return (
+        <g key={`lm-${i}`} aria-hidden="true">
+          <circle cx={at.x} cy={at.y} r={1.8 * labelScale} className="an-landmark-dot" />
+          <text
+            x={at.x + (l.anchor === 'end' ? -5 : l.anchor === 'start' ? 5 : 0) * labelScale}
+            y={at.y + (l.anchor === 'middle' ? 12 : 3.5) * labelScale}
+            textAnchor={l.anchor ?? 'middle'}
+            className="an-landmark"
+            style={{ fontSize: 9.5 * labelScale, strokeWidth: 3 * labelScale }}
+          >
+            {l.text}
+          </text>
+        </g>
+      );
+    });
+
   const renderJoints = () =>
     geometry.joints.map((j) => {
       const at = toWorld(j.at, transforms);
@@ -513,6 +533,7 @@ function Layers(p: LayersProps) {
       {layers.bones && <g data-layer="bones-overlay">{renderBones(false, true)}</g>}
       {layers.joints && <g data-layer="joints">{renderJoints()}</g>}
       {layers.attachments && attachmentsFor && <g data-layer="attachments">{renderAttachments()}</g>}
+      {interactive && !p.hideLabels && layers.labels && !roleMap && <g data-layer="landmarks">{renderLandmarks()}</g>}
       {interactive && !p.hideLabels && (layers.labels || !!roleMap) && <g data-layer="labels">{renderLabels()}</g>}
     </>
   );

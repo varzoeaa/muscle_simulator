@@ -32,6 +32,19 @@ const saIntOrigin = [W(201, 168), W(203, 192)];
 const saInfInsertion = [W(250, 206), W(234, 290)];
 const saInfOrigin = [W(203, 220), W(198, 250), W(194, 280), W(191, 310), W(192, 340)];
 
+/*
+ * Csuklyásizom (felületes): a pontok „elölnézeti” elrendezésben, a gerinc középvonala x = 300.
+ * Tájékozódási szintek (sematikus): külső nyakszirti dudor y ≈ 10, C7 y ≈ 80, T1 y ≈ 100, majd
+ * csigolyánként kb. 28 egység (T3 ≈ 156, T4 ≈ 184, T12 ≈ 408). A lapockatövis a (256, 142) és a
+ * (150, 104) pont között fut, a vállcsúcs-kulcscsonti ízület (160, 100) körül van.
+ */
+const trDesOrigin = [W(280, 6), W(300, 10), W(300, 44), W(300, 78)];
+const trDesInsertion = [W(210, 92), W(188, 95), W(166, 98)];
+const trTraOrigin = [W(300, 82), W(300, 120), W(300, 156)];
+const trTraInsertion = [W(162, 104), W(184, 116), W(214, 127), W(238, 135)];
+const trAscOrigin = [W(300, 166), W(300, 290), W(300, 408)];
+const trAscInsertion = [W(246, 139)];
+
 const ribs: BoneShapeGeometry[] = Array.from({ length: 10 }, (_, i) => {
   const y = 112 + i * 27;
   return worldBone('bone-ribs', `M294,${y} Q240,${y - 10} ${198 + i * 2},${y + 26}`, 7);
@@ -39,7 +52,7 @@ const ribs: BoneShapeGeometry[] = Array.from({ length: 10 }, (_, i) => {
 
 export const posteriorView: ViewGeometry = {
   viewId: 'posterior',
-  viewBox: [-120, 30, 840, 520],
+  viewBox: [-120, -100, 840, 650],
   mirrorContext: true,
   orientation: { top: 'Kraniális (fej felé)', bottom: 'Kaudális (láb felé)', left: 'A test bal oldala (tükrözött)', right: 'A test jobb oldala' },
   frames: [
@@ -48,7 +61,10 @@ export const posteriorView: ViewGeometry = {
   ],
   bones: [
     ...ribs,
-    worldBone('bone-vertebral-column', 'M294,56 L306,56 L306,470 L294,470 Z'),
+    // Koponya hátulról (fél kontúr, a tükrözés egészíti ki) és a nyaki gerinc.
+    worldBone('bone-skull', 'M300,-86 C274,-86 252,-66 252,-36 C252,-10 264,6 282,12 L300,14 Z'),
+    worldBone('bone-vertebral-column', 'M294,14 L306,14 L306,470 L294,470 Z'),
+    { structureId: 'ligament-nuchae', frame: 'world', d: mirrorPathX('M300,12 L300,80', AXIS), stroke: 4, variant: 'cartilage' },
     worldBone('bone-scapula', 'M248,94 L258,140 L240,288 L226,292 L172,176 L160,146 L176,120 L210,104 Z'),
     worldBone('bone-scapula', 'M256,142 L196,120 L150,104', 9),
     worldBone('bone-clavicle', 'M290,92 C250,86 200,92 162,98', 9),
@@ -100,8 +116,18 @@ export const posteriorView: ViewGeometry = {
       label: { at: W(214, 290), text: 'Nagy görgetegizom' }
     },
     {
+      // A csuklyásizom alatt fekvő, mély izom (hátulról nagyrészt takart).
+      structureId: 'muscle-levator-scapulae',
+      layer: 'deep-muscles',
+      z: 3,
+      outline: [W(286, 14), W(276, 16), W(262, 44), W(248, 90), W(252, 132), W(258, 128), W(270, 70), W(288, 30)],
+      fibers: fan([W(282, 20), W(284, 34)], [W(250, 96), W(254, 128)], 3),
+      label: { at: W(270, 58), text: 'Lapockaemelő izom' }
+    },
+    {
+      // A csuklyásizom alatt fekvő, mély izmok (kis és nagy rombuszizom egy kontúrként).
       structureId: 'muscle-rhomboids',
-      layer: 'superficial-muscles',
+      layer: 'deep-muscles',
       z: 4,
       outline: [W(298, 92), W(298, 252), W(242, 286), W(256, 140)],
       fibers: fan([W(296, 100), W(296, 246)], [W(254, 144), W(242, 282)], 6),
@@ -128,16 +154,32 @@ export const posteriorView: ViewGeometry = {
       layer: 'superficial-muscles',
       z: 7,
       outline: [W(248, 100), W(254, 134), W(196, 116), H(-14, -20), H(-4, -24), W(204, 102)],
-      fibers: fan([W(248, 108), W(246, 128)], [H(-8, -22), H(-10, -21)], 3),
-      label: { at: W(222, 112), text: 'Tövis feletti izom' }
+      // Felirat nélkül: hátulról a csuklyásizom takarja (kiválasztva vagy szerepkörrel jelölve kap feliratot).
+      fibers: fan([W(248, 108), W(246, 128)], [H(-8, -22), H(-10, -21)], 3)
     },
     {
-      structureId: 'muscle-trapezius',
+      structureId: 'muscle-trapezius-descending',
       layer: 'superficial-muscles',
       z: 8,
-      outline: [W(300, 36), W(300, 330), W(268, 250), W(256, 150), W(200, 124), W(156, 102), W(196, 86), W(268, 62)],
-      fibers: fan([W(298, 50), W(298, 180), W(298, 320)], [W(162, 102), W(230, 136), W(262, 240)], 7),
-      label: { at: W(278, 70), text: 'Csuklyásizom' }
+      outline: [W(300, 10), W(280, 6), W(276, 20), W(264, 44), W(244, 66), W(214, 84), W(186, 92), W(164, 96), W(160, 102), W(300, 80)],
+      fibers: fan([W(299, 16), W(299, 46), W(299, 74)], [W(208, 93), W(188, 95), W(168, 99)], 6),
+      label: { at: W(266, 44), text: 'Felső (leszálló) rész' }
+    },
+    {
+      structureId: 'muscle-trapezius-transverse',
+      layer: 'superficial-muscles',
+      z: 8,
+      outline: [W(300, 80), W(160, 102), W(158, 107), W(184, 117), W(214, 128), W(240, 137), W(300, 162)],
+      fibers: fan([W(299, 88), W(299, 118), W(299, 146)], [W(166, 105), W(200, 121), W(236, 134)], 5),
+      label: { at: W(262, 124), text: 'Középső (haránt) rész' }
+    },
+    {
+      structureId: 'muscle-trapezius-ascending',
+      layer: 'superficial-muscles',
+      z: 8,
+      outline: [W(300, 162), W(240, 137), W(252, 141), W(258, 156), W(262, 204), W(270, 270), W(286, 350), W(300, 410)],
+      fibers: fan([W(299, 196), W(299, 300), W(299, 402)], [W(246, 140), W(248, 141), W(250, 142)], 6),
+      label: { at: W(284, 262), text: 'Alsó (felszálló) rész' }
     },
     {
       structureId: 'muscle-triceps-long-head',
@@ -164,6 +206,12 @@ export const posteriorView: ViewGeometry = {
     }
   ],
   attachments: [
+    { structureId: 'muscle-trapezius-descending', type: 'origin', extent: 'line', points: trDesOrigin },
+    { structureId: 'muscle-trapezius-descending', type: 'insertion', extent: 'line', points: trDesInsertion },
+    { structureId: 'muscle-trapezius-transverse', type: 'origin', extent: 'line', points: trTraOrigin },
+    { structureId: 'muscle-trapezius-transverse', type: 'insertion', extent: 'line', points: trTraInsertion },
+    { structureId: 'muscle-trapezius-ascending', type: 'origin', extent: 'line', points: trAscOrigin },
+    { structureId: 'muscle-trapezius-ascending', type: 'insertion', extent: 'point', points: trAscInsertion },
     { structureId: 'muscle-serratus-anterior-superior', type: 'origin', extent: 'line', points: saSupOrigin },
     { structureId: 'muscle-serratus-anterior-superior', type: 'insertion', extent: 'line', points: saSupInsertion },
     { structureId: 'muscle-serratus-anterior-intermediate', type: 'origin', extent: 'line', points: saIntOrigin },
@@ -175,12 +223,22 @@ export const posteriorView: ViewGeometry = {
     { structureId: 'joint-glenohumeral', at: H(0, 0) },
     { structureId: 'joint-acromioclavicular', at: W(160, 100) },
     { structureId: 'joint-elbow', at: H(0, 216) }
+  ],
+  landmarkLabels: [
+    { at: W(352, -40), text: 'Tarkó (nyakszirt)', anchor: 'end' },
+    { at: W(296, 10), text: 'Külső nyakszirti dudor', anchor: 'end' },
+    { at: W(296, 80), text: 'C7', anchor: 'end' },
+    { at: W(296, 408), text: 'T12 – a gerinc középvonala', anchor: 'end' },
+    { at: W(232, 148), text: 'Lapockatövis', anchor: 'end' },
+    { at: W(150, 92), text: 'Vállcsúcs', anchor: 'start' },
+    { at: W(186, 88), text: 'Kulcscsont (látható része)', anchor: 'start' }
   ]
 };
 
 /** Hátulnézet zárt láncú húzódzkodáshoz: ugyanaz a rögzített rúd és törzseltolás, mint elölről. */
 export const posteriorClosedChainView: ViewGeometry = {
   ...posteriorView,
+  landmarkLabels: undefined,
   viewId: 'posterior-closed-chain',
   viewBox: [-120, -320, 840, 680],
   sceneOffsetYKey: 'trunkY',

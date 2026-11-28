@@ -2,6 +2,22 @@ import type { Nerve } from '../../types';
 
 export const nerves: Nerve[] = [
   {
+    id: 'nerve-accessory',
+    kind: 'nerve',
+    name: { hu: 'Járulékos ideg (XI. agyideg)', en: 'Accessory nerve (cranial nerve XI)', la: 'Nervus accessorius' },
+    roots: 'agyideg (XI.); gerincvelői gyökei a felső nyaki szakaszból erednek',
+    origin: 'A nyakszirti nagy lyukon át a koponyába lép, a foramen jugularén át kilép, a fejbiccentő izmot ellátja, majd a nyak hátsó háromszögén át a csuklyásizom alá fut.',
+    sourceIds: ['statpearls-trapezius', 'grays-1918']
+  },
+  {
+    id: 'nerve-cervical-c3-c4',
+    kind: 'nerve',
+    name: { hu: 'C3–C4 nyaki idegek ágai', en: 'Branches of cervical nerves C3–C4', la: 'Rami nervorum cervicalium III–IV' },
+    roots: 'C3–C4 (ventrális ágak)',
+    origin: 'A nyaki fonat felől a csuklyásizomhoz futó ágak; a StatPearls szerint érző (fájdalom) és proprioceptív rostokat visznek.',
+    sourceIds: ['statpearls-trapezius', 'grays-1918']
+  },
+  {
     id: 'nerve-lateral-pectoral',
     kind: 'nerve',
     name: { hu: 'Külső mellizomideg', en: 'Lateral pectoral nerve', la: 'Nervus pectoralis lateralis' },

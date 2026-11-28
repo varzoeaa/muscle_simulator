@@ -79,6 +79,16 @@ Ami **nem** mért vagy validált:
 - Kifejezetten erre az izomra épülő edzőtermi gyakorlatot nem találtunk. A három gyakorlatban (lapocka-süllyesztés támaszban – a kis mellizommal közös –, lapocka-lehúzás csigán nyújtott karral, vállvonogatás) a szerepe a forrásokban leírt működéséből (a kulcscsont és a vállöv süllyesztése, a kulcscsont rögzítése) és a vállöv-mozgások szerepeiből következik; aktivitását egyik gyakorlatnál sem mérték.
 - A lehúzásnál a fej fölé emelt kar a lapockával együtt mozog (a vállízület szöge állandó); a lapocka felfelé rotációja szemléltető érték.
 
+## Csuklyásizom (Anatómia)
+
+- Az adatlap egyetlen nézete a hátulnézet (`atlasViewIds`); a csuklyásizom a többi atlasznézetben nincs megrajzolva. A mozgásanimációk, gyakorlatok és kvízek később készülnek.
+- **Sematikus ábra:** a koponya, a nyaki gerinc, a tarkószalag és a három régió kontúrja saját szerkesztésű; a rostvonalak az irányt szemléltetik (felső: lefelé–oldalra, középső: közel vízszintes, alsó: felfelé–oldalra), a régióhatárok és a csigolyaszintek (kb. C7, T3/T4, T12) nem mért adatok.
+- **Takart vagy hozzávetőleges tapadások:** a felső rész a kulcscsont laterális harmadának hátsó szélén tapad; a kulcscsont hátulról csak a váll tetején, rövidülve látszik, ezért ez a jelölés hozzávetőleges. A középső rész a vállcsúcs mediális szélén és a lapockatövis felső ajkán, az alsó rész a tövis mediális végének gumóján tapad – a tövis vonalán, sematikusan jelölve. Ezt a nézet alatt megjegyzés is jelzi.
+- **Rétegek:** a lapockaemelő izom és a rombuszizmok a csuklyásizom alatt, mély rétegként jelennek meg (kiválasztáskor áttetsző felületes izmokkal). A rombuszizmok egy közös kontúr; a kis és a nagy rombuszizom adatszinten külön is felvehető (`memberIds`).
+- **Tájékozódási pontok:** tarkó, külső nyakszirti dudor, C7, T12 (gerinc középvonala), lapockatövis, vállcsúcs és a kulcscsont látható része feliratként jelenik meg (a „Feliratok” réteggel).
+- **Rotáció:** a lapocka felfelé rotációja külön szerepel; a lapocka egyéb térbeli forgásai (belső–külső rotáció, billenés) részenkénti szerep nélkül, a felkar belső–külső rotációja pedig nem a csuklyásizom közvetlen funkciójaként.
+- A fej és a nyak mozgását (rögzített vállöv mellett) Gray (1918) alapján tanítjuk: kétoldalt hátrafelé húzás, egyoldalt azonos oldali oldalra hajlítás. A fej forgatásában betöltött szerepet ellenőrzött forrás hiányában nem tanítjuk.
+
 ## Ábrázolásból kimaradt elemek
 
 - **Idegek:** a külső és belső mellizomideg lefutásához nem áll rendelkezésre ellenőrzött geometria, ezért az ábrákon nem szerepelnek; a beidegzés szövegesen jelenik meg.

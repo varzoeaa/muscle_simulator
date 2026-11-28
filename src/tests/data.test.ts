@@ -23,13 +23,15 @@ const allSourceIdsIn = (obj: unknown): string[] => {
 };
 
 describe('Anatómiai adatmodellek validálása', () => {
-  it('a négy felületes mellizom szerepel, a nagy mellizom elérhető', () => {
-    expect(muscles.map((m) => m.id)).toEqual([
+  it('a négy felületes mellizom szerepel, a nagy mellizom elérhető', async () => {
+    const { muscleSections } = await import('../data/muscles');
+    expect(muscleSections.find((x) => x.id === 'superficial-chest')!.muscleIds).toEqual([
       'muscle-pectoralis-major',
       'muscle-pectoralis-minor',
       'muscle-subclavius',
       'muscle-serratus-anterior'
     ]);
+    muscleSections.flatMap((x) => x.muscleIds).forEach((id) => expect(muscles.some((m) => m.id === id), id).toBe(true));
     expect(pectoralisMajor.status).toBe('available');
   });
 
