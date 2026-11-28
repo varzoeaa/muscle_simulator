@@ -35,8 +35,8 @@ export function AnatomyLab() {
       <div className="flex min-w-0 flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h1 className="font-serif text-2xl text-ink">Anatomy Lab</h1>
-            <p className="text-xs text-ink-2">Anatómiai ismeretek – kattints egy izomra vagy izomrészre</p>
+            <h1 className="font-serif text-2xl text-ink">Anatómia</h1>
+            <p className="text-xs text-ink-2">Kattints egy izomra vagy izomrészre a részletekért</p>
           </div>
           <Segmented<AnatomicalViewId>
             label="Anatómiai nézet"
@@ -105,7 +105,7 @@ export function AnatomyLab() {
             <Panel title="Kiválasztott struktúra">
               <TermBlock term={structureName(selected)} />
               <p className="mt-3 text-sm text-ink-2">
-                Kapcsolódó struktúra – az első verzióban nem rendelkezik önálló oktatási modullal. A mozgásokban betöltött szerepe a Biomechanics Labban látható.
+                Kapcsolódó struktúra – az első verzióban nem rendelkezik önálló oktatási modullal. A mozgásokban betöltött szerepe a Biomechanika modulban látható.
               </p>
               <button type="button" className="mt-3 text-sm text-accent-2 underline" onClick={() => setSelected(muscle.id)}>
                 Vissza: {muscle.name.hu}
@@ -156,7 +156,12 @@ export function AnatomyLab() {
                     <ul className="text-sm">
                       {muscle.jointIds.map((id) => {
                         const j = jointById(id);
-                        return j ? <li key={id}><TermInline term={j.name} /></li> : null;
+                        return j ? (
+                          <li key={id} className="mb-1">
+                            <TermInline term={j.name} />
+                            {muscle.jointNotes?.[id] && <span className="block text-xs text-ink-2">{muscle.jointNotes[id]}</span>}
+                          </li>
+                        ) : null;
                       })}
                     </ul>
                   </Panel>

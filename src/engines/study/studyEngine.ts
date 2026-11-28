@@ -39,7 +39,7 @@ export function evaluation(percent: number): string {
   if (percent >= 90) return 'Kiváló – a témakört magabiztosan ismered.';
   if (percent >= 75) return 'Jó – néhány részletet érdemes átismételni.';
   if (percent >= 50) return 'Közepes – ismételd át a hibás kérdésekhez kapcsolódó tananyagot.';
-  return 'Gyenge – javasolt az Anatomy Lab tananyagának újbóli áttekintése.';
+  return 'Gyenge – javasolt az Anatómia modul tananyagának újbóli áttekintése.';
 }
 
 /** Fisher–Yates keverés, injektálható véletlenforrással (tesztelhetőség). */

@@ -59,7 +59,7 @@ export const pmAdduction: MotionDefinition = {
   regionNotes: [
     {
       regionId: 'muscle-pectoralis-major-sternocostal',
-      text: 'A fő közelítő rész: rostjai emelt karnál a közelítés irányába húznak.'
+      text: 'Rostjai emelt karnál a közelítés irányába húznak; a részek pontos erősorrendje karhelyzet- és terhelésfüggő.'
     },
     {
       regionId: 'muscle-pectoralis-major-abdominal',
@@ -67,7 +67,7 @@ export const pmAdduction: MotionDefinition = {
     },
     {
       regionId: 'muscle-pectoralis-major-clavicular',
-      text: 'Közelítő szerepe kisebb, és a karhelyzettől függ; elsősorban a vállízület hajlításában jelentős.'
+      text: 'Közelítésben betöltött szerepe a karhelyzettől függ; a részek erősorrendjét ebben a mozgásban nem mérték. Fő ismert működése a vállízület hajlítása.'
     }
   ],
   claims: [
@@ -212,7 +212,7 @@ export const pmFlexion: MotionDefinition = {
     { text: 'A nagy mellizom kulcscsonti része a vállízület hajlító izma.', evidence: 'anatomical-fact', sourceIds: ['moore-coa', 'neumann-kinesiology'] },
     { text: 'A hajlítás agonistái a deltaizom elülső része és a nagy mellizom kulcscsonti része.', evidence: 'anatomical-fact', sourceIds: ['neumann-kinesiology'] },
     {
-      text: 'Az animáció 80°-ig mutatja a mozgást. A magasabb karemeléshez a lapocka felfelé rotációja is szükséges, ezt az ábra nem mutatja.',
+      text: 'Az animáció 80°-nál megáll: ez a modell határa, mert csak a vállízület forog. A valóságban a lapocka már 80°-on belül is részt vesz a karemelésben (felfelé rotáció), és a magasabb karemeléshez még inkább; ezt az ábra nem mutatja.',
       evidence: 'educational-model',
       sourceIds: []
     }
@@ -283,7 +283,7 @@ export const pmClosedChain: MotionDefinition = {
   solvePose: solveClosedChain,
   durationMs: 3600,
   description:
-    'Zárt kinetikai lánc: a kéz a rúdon rögzített, ezért nem a kar mozog a törzs felé, hanem a törzs a kar felé. Az ízületben ugyanaz a közelítés zajlik, de a nagy mellizom a mozgó eredést (mellkas) húzza a rögzített tapadás (felkarcsont) felé. Az animáció a széles fogású húzódzkodás felső szakaszát mutatja elölről, sematikusan.',
+    'Zárt kinetikai lánc: a kéz a rúdon rögzített, ezért nem a kar mozog a törzs felé, hanem a törzs a kar felé. A vállízületben a közelítéshez hasonló szögváltozás zajlik, de a felkar, a könyök és a lapocka helyzete együtt változik, és a nagy mellizom a mozgó eredést (mellkas) húzza a rögzített tapadás (felkarcsont) felé. Az animáció a széles fogású húzódzkodás felső szakaszát mutatja elölről, sematikusan.',
   resistance: 'Ellenállás: a testsúly. A gravitáció a törzset lefelé húzza, a karokat a távolítás irányába viszi.',
   contraction: {
     concentric: {
@@ -301,13 +301,13 @@ export const pmClosedChain: MotionDefinition = {
   },
   roles: rolesFor('shoulder-adduction'),
   regionNotes: [
-    { regionId: 'muscle-pectoralis-major-sternocostal', text: 'A közelítés fő mellizom-része; rögzített karnál a mellkast húzza a felkar felé.' },
+    { regionId: 'muscle-pectoralis-major-sternocostal', text: 'Rostiránya alapján ebben a karhelyzetben a közelítésben vehet részt, rögzített karnál a mellkast a felkar felé húzhatja; a részek hozzájárulását nem mérték.' },
     { regionId: 'muscle-pectoralis-major-abdominal', text: 'A legalsó rostok a szegycsonti-bordai résszel együtt húznak.' },
-    { regionId: 'muscle-pectoralis-major-clavicular', text: 'Közelítő szerepe kisebb, és a karhelyzettől függ.' }
+    { regionId: 'muscle-pectoralis-major-clavicular', text: 'Közelítésben betöltött szerepe a karhelyzettől függ; a részek hozzájárulását nem mérték.' }
   ],
   claims: [
     { text: 'Rögzített felkar esetén (pl. a húzódzkodás felső szakaszában) a nagy mellizom a törzset a kar felé húzhatja.', evidence: 'anatomical-fact', sourceIds: ['grays-anatomy'] },
-    { text: 'Nyitott és zárt láncban ugyanaz az ízületi mozgás zajlik; a különbség az, hogy melyik csontvég mozog.', evidence: 'educational-model', sourceIds: ['neumann-kinesiology'] },
+    { text: 'A bemutatott részmozgásban a kéz rögzített, és a felkar, a könyök és a lapocka helyzete együtt változhat; ezért ez nem egyszerűen a nyitott láncú közelítés megfordítása. Az animáció csak a vállízületi közelítéshez kapcsolódó részt mutatja.', evidence: 'educational-model', sourceIds: ['neumann-kinesiology'] },
     {
       text: 'Az ábra a könyökhajlító izmok munkáját és a lapocka mozgását nem mutatja; a kar helyzetét egyszerű kétszegmenses geometria számolja a rögzített fogásból.',
       evidence: 'educational-model',
@@ -327,7 +327,7 @@ export const pmAccessoryInspiration: MotionDefinition = {
   durationMs: 3000,
   contractionTypes: ['concentric'],
   description:
-    'Ha a felső végtag és a vállöv rögzített (pl. a kéz egy asztalon vagy a térden támaszkodik), a nagy mellizom „fordítva” működhet: a felkar nem mozdul, az izom a szegycsontot és a bordákat emeli a felkar felé. Így járulékos belégzőizomként segítheti a mellkas tágulását.',
+    'Ha a felső végtag és a vállöv rögzített (pl. a kéz egy asztalon vagy a térden támaszkodik), a nagy mellizom „fordítva” működhet: a felkar nem mozdul, az izom a szegycsontot és a bordákat a felkar felé emelheti. Így járulékos belégzőizomként segítheti a mellkas tágulását.',
   resistance:
     'Külső teher nincs. A nyugodt belégzést a fő belégzőizmok (rekeszizom, külső bordaközi izmok) végzik; ezek az ábrán nem szerepelnek.',
   contraction: {
@@ -340,9 +340,9 @@ export const pmAccessoryInspiration: MotionDefinition = {
   },
   roles: rolesFor('accessory-inspiration'),
   regionNotes: [
-    { regionId: 'muscle-pectoralis-major-sternocostal', text: 'Eredése a szegycsonton és a bordaporcokon van, ezért ez a rész emelheti a bordákat.' },
-    { regionId: 'muscle-pectoralis-major-abdominal', text: 'A szegycsonti-bordai résszel együtt húzhat.' },
-    { regionId: 'muscle-pectoralis-major-clavicular', text: 'A kulcscsonton ered, ezért a bordák emelésében nem vesz részt.' }
+    { regionId: 'muscle-pectoralis-major-sternocostal', text: 'Eredése a szegycsonton és a bordaporcokon van, ezért rögzített vállövnél elméletben ez a rész emelheti a bordákat; a részek külön szerepét nem mérték.' },
+    { regionId: 'muscle-pectoralis-major-abdominal', text: 'Feltételezhetően a szegycsonti-bordai résszel együtt húzhat (nem mért, oktatási modell).' },
+    { regionId: 'muscle-pectoralis-major-clavicular', text: 'A kulcscsonton ered, nem a bordákon; bordaemelő szerepe ezért nem várható (oktatási modell, nem mért).' }
   ],
   claims: [
     { text: 'Rögzített vállöv mellett a nagy mellizmot járulékos belégzőizomként is leírják.', evidence: 'anatomical-fact', sourceIds: ['grays-anatomy'] },

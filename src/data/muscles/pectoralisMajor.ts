@@ -2,6 +2,7 @@ import type { Muscle } from '../../types';
 
 const ANAT = ['moore-coa', 'grays-anatomy', 'openstax-ap2e', 'statpearls-pectoral'];
 const KIN = ['neumann-kinesiology', 'moore-coa'];
+const NERVE = ['moore-coa', 'statpearls-pectoral', 'lee-2007'];
 
 export const pectoralisMajor: Muscle = {
   id: 'muscle-pectoralis-major',
@@ -31,15 +32,19 @@ export const pectoralisMajor: Muscle = {
       insertion: {
         type: 'insertion',
         description: {
-          hu: 'A felkarcsont bicepsbarázdájának külső pereme (a nagy gumó taraja) – a közös ín elülső, disztálisabb lemezében',
-          en: 'Lateral lip of the intertubercular sulcus (crest of greater tubercle), anterior lamina of the tendon',
+          hu: 'A felkarcsont bicepsbarázdájának laterális ajka (a nagy gumó taraja) – a klasszikus leírás szerint a közös ín elülső, disztálisabb lemezében',
+          en: 'Lateral lip of the intertubercular sulcus (crest of greater tubercle) – in the classical description, the anterior, more distal lamina of the tendon',
           la: 'Crista tuberculi majoris'
         },
         structureIds: ['bone-humerus-crest-greater-tubercle'],
         extent: 'line',
         sourceIds: ANAT
       },
-      innervation: { text: 'Külső mellizomideg (n. pectoralis lateralis), főként C5–C6', evidence: 'anatomical-fact', sourceIds: ['moore-coa', 'statpearls-pectoral'] },
+      innervation: {
+        text: 'Tipikusan a külső mellizomideg (n. pectoralis lateralis; gyökei tipikusan C5–C7). A részenkénti pontos szegmentális eloszlás forrásfüggő, a gyökök egyénenként változnak.',
+        evidence: 'anatomical-fact',
+        sourceIds: NERVE
+      },
       functions: [
         { text: 'A vállízület hajlítása (flexio), főként anatómiai helyzetből indulva.', evidence: 'anatomical-fact', sourceIds: KIN },
         { text: 'Horizontális közelítés és befelé forgatás a teljes izommal együtt.', evidence: 'anatomical-fact', sourceIds: KIN }
@@ -53,8 +58,8 @@ export const pectoralisMajor: Muscle = {
       origin: {
         type: 'origin',
         description: {
-          hu: 'A szegycsont elülső felszíne és a felső hat bordaporc',
-          en: 'Anterior surface of the sternum and the superior six costal cartilages',
+          hu: 'A szegycsont elülső felszíne és a felső hat bordaporc (tankönyvi leírás; egyes források az 1–7. bordaporcot adják meg)',
+          en: 'Anterior surface of the sternum and the superior six costal cartilages (textbook description; some sources give costal cartilages 1–7)',
           la: 'Sternum et cartilagines costales I–VI'
         },
         structureIds: ['bone-sternum', 'bone-costal-cartilages'],
@@ -64,8 +69,8 @@ export const pectoralisMajor: Muscle = {
       insertion: {
         type: 'insertion',
         description: {
-          hu: 'A nagy gumó taraja – a rostok csavarodva, a közös ín hátsó lemezében, proximálisabban tapadnak',
-          en: 'Crest of greater tubercle – fibres twist and insert more proximally in the posterior lamina',
+          hu: 'A nagy gumó taraja – a klasszikus leírás szerint a rostok csavarodva, a közös ín hátsó lemezében, proximálisabban tapadnak',
+          en: 'Crest of greater tubercle – in the classical description the fibres twist and insert more proximally in the posterior lamina',
           la: 'Crista tuberculi majoris'
         },
         structureIds: ['bone-humerus-crest-greater-tubercle'],
@@ -73,12 +78,12 @@ export const pectoralisMajor: Muscle = {
         sourceIds: ANAT
       },
       innervation: {
-        text: 'Külső és belső mellizomideg (n. pectoralis lateralis et medialis), C7–C8–T1',
+        text: 'Külső és belső mellizomideg (n. pectoralis lateralis et medialis); a tipikus leírás szerint főként alsóbb (C7–T1) szegmentumokból. A részenkénti pontos eloszlás forrásfüggő.',
         evidence: 'anatomical-fact',
-        sourceIds: ['moore-coa', 'statpearls-pectoral']
+        sourceIds: NERVE
       },
       functions: [
-        { text: 'A vállízület fő közelítő (adductio) része, emelt karhelyzetből különösen hatékony.', evidence: 'anatomical-fact', sourceIds: KIN },
+        { text: 'A vállízület közelítésében (adductio) vesz részt; rostiránya alapján emelt karhelyzetből húz kedvezőbb irányban. A részek pontos erősorrendje karhelyzet- és terhelésfüggő.', evidence: 'educational-model', sourceIds: KIN },
         { text: 'Hajlított (előreemelt) karhelyzetből a vállízület feszítése az anatómiai helyzetig.', evidence: 'anatomical-fact', sourceIds: KIN }
       ]
     },
@@ -101,18 +106,18 @@ export const pectoralisMajor: Muscle = {
       insertion: {
         type: 'insertion',
         description: {
-          hu: 'A nagy gumó taraja – a leginkább proximálisan, a hátsó ínlemezben',
-          en: 'Crest of greater tubercle – most proximal fibres of the posterior lamina',
+          hu: 'A nagy gumó taraja – a klasszikus leírás szerint a leginkább proximálisan, a hátsó ínlemezben',
+          en: 'Crest of greater tubercle – in the classical description, the most proximal fibres of the posterior lamina',
           la: 'Crista tuberculi majoris'
         },
         structureIds: ['bone-humerus-crest-greater-tubercle'],
         extent: 'line',
         sourceIds: ['grays-anatomy', 'moore-coa']
       },
-      innervation: { text: 'Belső mellizomideg (n. pectoralis medialis), C8–T1', evidence: 'anatomical-fact', sourceIds: ['moore-coa'] },
+      innervation: { text: 'Tipikusan a belső mellizomideg (n. pectoralis medialis; gyökei tipikusan C8–T1). A pontos szegmentális eloszlás forrásfüggő.', evidence: 'anatomical-fact', sourceIds: NERVE },
       functions: [
         {
-          text: 'Közelítés és a kar lefelé-előre húzása emelt karhelyzetből; a szegycsonti-bordai résszel együtt működik.',
+          text: 'Közelítés és a kar lefelé-előre húzása emelt karhelyzetből; a szegycsonti-bordai résszel együtt működik. A hasi rész anatómiai régió: egyes felosztások (pl. boncolásos vizsgálatok) a szegycsonti-bordai fejhez sorolják.',
           evidence: 'educational-model',
           sourceIds: KIN
         }
@@ -146,8 +151,8 @@ export const pectoralisMajor: Muscle = {
     {
       type: 'insertion',
       description: {
-        hu: 'A felkarcsont bicepsbarázdájának külső pereme (nagy gumó taraja); a lapos ín két lemeze U alakban csavarodik',
-        en: 'Lateral lip of intertubercular sulcus (crest of greater tubercle); bilaminar, twisted tendon',
+        hu: 'A felkarcsont bicepsbarázdájának laterális ajka (a nagy gumó taraja); a klasszikus leírás szerint a lapos ín két lemeze U alakban csavarodik',
+        en: 'Lateral lip of intertubercular sulcus (crest of greater tubercle); classically described as a bilaminar, U-shaped twisted tendon',
         la: 'Crista tuberculi majoris'
       },
       structureIds: ['bone-humerus-crest-greater-tubercle'],
@@ -156,8 +161,13 @@ export const pectoralisMajor: Muscle = {
     }
   ],
   innervation: [
-    { text: 'Külső mellizomideg (n. pectoralis lateralis, C5–C7) – főként a kulcscsonti részt látja el.', evidence: 'anatomical-fact', sourceIds: ['moore-coa', 'statpearls-pectoral'] },
-    { text: 'Belső mellizomideg (n. pectoralis medialis, C8–T1) – főként a szegycsonti-bordai és a hasi részt látja el.', evidence: 'anatomical-fact', sourceIds: ['moore-coa', 'statpearls-pectoral'] }
+    { text: 'Külső mellizomideg (n. pectoralis lateralis; tipikus gyöktartomány C5–C7) – a tipikus leírás szerint főként a kulcscsonti részt látja el.', evidence: 'anatomical-fact', sourceIds: ['moore-coa', 'statpearls-pectoral'] },
+    { text: 'Belső mellizomideg (n. pectoralis medialis; tipikus gyöktartomány C8–T1) – a tipikus leírás szerint főként a szegycsonti-bordai és a hasi részt látja el.', evidence: 'anatomical-fact', sourceIds: ['moore-coa', 'statpearls-pectoral'] },
+    {
+      text: 'A gyökök eredete egyénenként változik: egy boncolásos vizsgálatban a külső mellizomideg az esetek felében C5–C7, másik felében C6–C7 gyökökből eredt, a belső többnyire C8–T1-ből, de előfordult csak C8 vagy csak T1 is. Az izomrészekre vonatkozó pontos szegmentális eloszlás ezért tipikus, forrásfüggő leírás.',
+      evidence: 'documented-observation',
+      sourceIds: ['lee-2007']
+    }
   ],
   nerveIds: ['nerve-lateral-pectoral', 'nerve-medial-pectoral'],
   functions: [
@@ -185,7 +195,7 @@ export const pectoralisMajor: Muscle = {
       movementId: 'shoulder-adduction',
       role: 'synergist',
       structureIds: ['muscle-triceps-long-head', 'muscle-coracobrachialis', 'muscle-rhomboids'],
-      note: 'A rombuszizmok a lapocka lefelé rotációjával és rögzítésével segítik a közelítést.',
+      note: 'A rombuszizmok a lapocka lefelé rotációjával és rögzítésével segítik a közelítést. A szinergisták listája a szemléltetett karhelyzetre és ellenállásra vonatkozik; más karhelyzetben és terhelésnél eltérhet.',
       evidence: 'educational-model',
       sourceIds: KIN
     },
@@ -207,7 +217,7 @@ export const pectoralisMajor: Muscle = {
       movementId: 'shoulder-horizontal-adduction',
       role: 'synergist',
       structureIds: ['muscle-coracobrachialis', 'muscle-biceps-brachii'],
-      note: 'A kétfejű karizom rövid feje kis mértékben járul hozzá.',
+      note: 'A kétfejű karizom rövid feje kis mértékben járul hozzá. A lista a szemléltetett karhelyzetre és ellenállásra vonatkozik.',
       evidence: 'educational-model',
       sourceIds: KIN
     },
@@ -222,7 +232,7 @@ export const pectoralisMajor: Muscle = {
       movementId: 'shoulder-horizontal-adduction',
       role: 'stabilizer',
       structureIds: ['muscle-serratus-anterior', 'muscle-rotator-cuff'],
-      note: 'Az elülső fűrészizom a lapockát a mellkasfalhoz rögzíti; a rotátorköpeny a felkarcsontfejet az ízületi árokban centrálja.',
+      note: 'Más képletre hatnak: az elülső fűrészizom a lapockát mozgás közben a mellkasfal közelében tartja (nem mozdulatlanul), a rotátorköpeny a felkarcsontfejet az ízületi árokban centrálja. A stabilizálók szerepe karhelyzet- és terhelésfüggő.',
       evidence: 'educational-model',
       sourceIds: KIN
     },
@@ -251,7 +261,8 @@ export const pectoralisMajor: Muscle = {
       movementId: 'shoulder-flexion',
       role: 'synergist',
       structureIds: ['muscle-coracobrachialis', 'muscle-biceps-brachii'],
-      evidence: 'anatomical-fact',
+      note: 'A szinergisták hozzájárulása a karhelyzettől és a terheléstől függ; a lista a szemléltetett mozgásra vonatkozik.',
+      evidence: 'educational-model',
       sourceIds: KIN
     },
     {
@@ -307,22 +318,27 @@ export const pectoralisMajor: Muscle = {
   ],
   notes: [
     {
-      text: 'A rostok iránya a három részben eltérő, ezért a karhelyzet határozza meg, melyik rész tud hatékonyabban húzni. A kulcscsonti rész rostjai felülről-befelé, a hasi rész rostjai alulról-befelé futnak.',
+      text: 'A rostok iránya a három részben eltérő, ezért a karhelyzet befolyásolja, melyik rész húz kedvezőbb irányban. A kulcscsonti rész rostjai felülről-befelé, a hasi rész rostjai alulról-befelé futnak.',
       evidence: 'anatomical-fact',
       sourceIds: ANAT
     },
     {
-      text: 'A közös ín két lemeze csavarodott: a kulcscsonti rostok disztálisabban, a legalsó rostok proximálisabban tapadnak. Emelt karnál a csavarodás kiegyenesedik.',
+      text: 'Klasszikus anatómiai leírás: a közös ín kétlemezes, és lemezei U alakban csavarodnak; a kulcscsonti rostok disztálisabban, a legalsó rostok proximálisabban tapadnak.',
       evidence: 'anatomical-fact',
       sourceIds: ['grays-anatomy', 'moore-coa']
     },
     {
-      text: 'Ferde padon (kb. 30°) végzett fekvenyomásnál EMG-vizsgálatokban a felső (kulcscsonti) rész nagyobb aktivitását mérték, mint vízszintes padon; vízszintes padon a középső és alsó rész aktivitása volt nagyobb.',
+      text: 'A disztális tapadás rétegeiről és az ín csavarodásáról a boncolásos vizsgálatok eltérő eredményt adtak (egy-, két- és háromrétegű leírások). Egy 8 kadaveres vizsgálat két fejet és kétlemezes tapadást talált, de a fejek egyértelmű behajlását vagy csavarodását nem.',
+      evidence: 'documented-observation',
+      sourceIds: ['ganokroj-2022']
+    },
+    {
+      text: 'Rudas fekvenyomás EMG-vizsgálataiban a felső (kulcscsonti) rész átlagos EMG-je 30°-nál volt a legnagyobb a vizsgált szögek közül, de a vízszintes padhoz képest a különbség nem volt statisztikailag jelentős, illetve csak a koncentrikus szakasz egy részében jelentkezett; vízszintes padon a középső és alsó rész EMG-je volt nagyobb. Az EMG nem az izomerő vagy a hipertrófia mértéke.',
       evidence: 'documented-observation',
       sourceIds: ['rodriguez-ridao-2020', 'lauver-2016']
     }
   ],
-  sourceIds: ['fipat-ta2', 'moore-coa', 'grays-anatomy', 'openstax-ap2e', 'statpearls-pectoral', 'neumann-kinesiology', 'rodriguez-ridao-2020', 'lauver-2016'],
+  sourceIds: ['fipat-ta2', 'moore-coa', 'grays-anatomy', 'openstax-ap2e', 'statpearls-pectoral', 'ganokroj-2022', 'lee-2007', 'neumann-kinesiology', 'rodriguez-ridao-2020', 'lauver-2016'],
   motionIds: ['pm-adduction', 'pm-horizontal-adduction', 'pm-internal-rotation', 'pm-flexion', 'pm-extension', 'pm-closed-chain', 'pm-accessory-inspiration'],
   exerciseIds: ['barbell-bench-press', 'dumbbell-bench-press', 'dumbbell-fly', 'machine-chest-press', 'pec-deck', 'cable-crossover', 'push-up', 'dips', 'pectoral-stretch', 'supine-pectoral-stretch']
 };

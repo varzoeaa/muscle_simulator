@@ -6,7 +6,7 @@ import { nerveById } from '../data/nerves/nerves';
 import { sourceById } from '../data/sources/sources';
 import { isStructureDrawn } from '../components/anatomy/AnatomyViewer';
 
-describe('Kis mellizom – Anatomy Lab adatok', () => {
+describe('Kis mellizom – anatómiai adatok', () => {
   const m = muscleById('muscle-pectoralis-minor')!;
 
   it('elérhető, és minden hivatkozott struktúra, ideg, ízület, mozgás és forrás létezik', () => {

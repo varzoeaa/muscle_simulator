@@ -1,5 +1,5 @@
 /**
- * MuscleLab – központi típusdefiníciók.
+ * Myo – központi típusdefiníciók.
  * Az anatómiai adatok, a geometria, az animációs definíciók és a megjelenítés szét vannak választva.
  */
 
@@ -165,6 +165,8 @@ export interface Muscle extends AnatomicalStructure {
   nerveIds: string[];
   functions: Claim[];
   jointIds: string[];
+  /** Ízületenkénti rövid magyarázat (pl. közvetlen vagy közvetett érintettség). */
+  jointNotes?: Record<string, string>;
   roles: MuscleRole[];
   stabilization: Claim[];
   /** Kapcsolódó magyarázatok (gyakorlati összefüggések). */
@@ -179,6 +181,7 @@ export interface Muscle extends AnatomicalStructure {
 /* ---------- Geometria ---------- */
 
 export type AnatomicalViewId =
+  | 'posterior-girdle'
   | 'anterior-girdle'
   | 'superior-girdle'
   | 'lateral-girdle'
@@ -196,7 +199,7 @@ export interface AnatomicalView {
   id: AnatomicalViewId;
   name: Term;
   description: string;
-  /** Megjelenik-e az Anatomy Lab nézetválasztójában (a mozgásspecifikus nézetek nem). */
+  /** Megjelenik-e az Anatómia modul nézetválasztójában (a mozgásspecifikus nézetek nem). */
   atlas?: boolean;
 }
 
@@ -219,6 +222,11 @@ export interface MuscleShapeGeometry {
   label?: { at: FramedPoint; text: string };
   /** Kirajzolási sorrend; nagyobb érték kerül felülre. */
   z: number;
+  /**
+   * A felületes rétegben van, de nagyrészt más izmok takarják (pl. elülső fűrészizom): kiválasztásakor
+   * a fölötte (nagyobb z-vel) rajzolt izmok áttetszők lesznek, mint mély izom kiválasztásakor.
+   */
+  revealOnSelect?: boolean;
 }
 
 export interface AttachmentGeometry {
@@ -440,7 +448,7 @@ export type ExerciseAnimation =
   | {
       /** Vállöv-gyakorlat: a mozgó vállövű anatómiai nézetben (lapockamozgások). */
       kind: 'girdle';
-      viewId: 'anterior-girdle' | 'superior-girdle' | 'lateral-girdle';
+      viewId: 'anterior-girdle' | 'superior-girdle' | 'lateral-girdle' | 'posterior-girdle';
       /** A póz a 0. és az 1. mélységnél (1 = a célizom leghosszabb helyzete). */
       startPose: Pose;
       endPose: Pose;
@@ -448,6 +456,8 @@ export type ExerciseAnimation =
       unilateral?: boolean;
       /** Saját testsúlyos gyakorlat (a terhelés kijelzéséhez). */
       bodyweight?: boolean;
+      /** Egyedi kivágás (pl. kis izomnál a vállöv környéke, vagy fej fölé emelt karnál). */
+      viewBox?: [number, number, number, number];
       viewNote: string;
     };
 

@@ -57,6 +57,10 @@ const pmAbdInsertion = [H(-6, 34), H(-6, 54)];
 /** Kis mellizom: eredés a 3–5. bordán a borda-bordaporc határ közelében, tapadás a hollócsőrnyúlványon. */
 const pmiOrigin = [W(250, 177), W(247, 202), W(244, 228)];
 const pmiInsertion = [W(186, 131), W(193, 139)];
+/** Elülső fűrészizom: a fűrészfogszerű bordai nyúlványok csúcsai (eredés). */
+const saSupOriginA = [W(202, 152), W(216, 176)];
+const saIntOriginA = [W(217, 180), W(224, 212)];
+const saInfOriginA = [W(230, 256), W(232, 302), W(220, 326)];
 /** Kulcscsont alatti izom: az 1. borda és bordaporca határától a kulcscsont alsó felszínének középső harmadáig. */
 const subOrigin = [W(266, 129), W(275, 131)];
 const subInsertion = [W(226, 115), W(250, 121)];
@@ -105,12 +109,30 @@ export const anteriorView: ViewGeometry = {
       outline: [W(293, 300), W(293, 440), W(225, 440), W(196, 360), W(206, 336), W(250, 316)],
       fibers: fan([W(205, 340), W(220, 330), W(250, 318)], [W(240, 440), W(270, 440), W(292, 420)], 6)
     },
+    // Elülső fűrészizom három része (StatPearls): felső (1–2. borda), középső (2–3.), alsó (4–9.).
     {
-      structureId: 'muscle-serratus-anterior',
+      structureId: 'muscle-serratus-anterior-superior',
       layer: 'superficial-muscles',
+      revealOnSelect: true,
       z: 2,
-      outline: [W(200, 150), W(216, 176), W(208, 196), W(224, 212), W(214, 236), W(230, 256), W(220, 280), W(232, 302), W(218, 326), W(200, 340), W(186, 300), W(180, 230), W(186, 170)],
-      fibers: fan([W(214, 178), W(220, 214), W(226, 256), W(228, 300)], [W(190, 160), W(184, 230), W(188, 300), W(196, 336)], 6),
+      outline: [W(200, 150), W(216, 176), W(210, 188), W(183, 186), W(186, 170)],
+      fibers: fan([W(203, 154), W(214, 176)], [W(187, 172), W(184, 184)], 3)
+    },
+    {
+      structureId: 'muscle-serratus-anterior-intermediate',
+      layer: 'superficial-muscles',
+      revealOnSelect: true,
+      z: 2,
+      outline: [W(210, 188), W(208, 196), W(224, 212), W(216, 230), W(180, 230), W(183, 186)],
+      fibers: fan([W(210, 192), W(222, 212)], [W(183, 190), W(181, 226)], 4)
+    },
+    {
+      structureId: 'muscle-serratus-anterior-inferior',
+      layer: 'superficial-muscles',
+      revealOnSelect: true,
+      z: 2,
+      outline: [W(216, 230), W(214, 236), W(230, 256), W(220, 280), W(232, 302), W(218, 326), W(200, 340), W(186, 300), W(180, 230)],
+      fibers: fan(saInfOriginA, [W(182, 236), W(186, 300), W(198, 336)], 6),
       label: { at: W(200, 326), text: 'Elülső fűrészizom' }
     },
     {
@@ -227,7 +249,10 @@ export const anteriorView: ViewGeometry = {
     { structureId: 'muscle-pectoralis-minor', type: 'origin', extent: 'line', points: pmiOrigin },
     { structureId: 'muscle-pectoralis-minor', type: 'insertion', extent: 'line', points: pmiInsertion },
     { structureId: 'muscle-subclavius', type: 'origin', extent: 'line', points: subOrigin },
-    { structureId: 'muscle-subclavius', type: 'insertion', extent: 'line', points: subInsertion }
+    { structureId: 'muscle-subclavius', type: 'insertion', extent: 'line', points: subInsertion },
+    { structureId: 'muscle-serratus-anterior-superior', type: 'origin', extent: 'line', points: saSupOriginA },
+    { structureId: 'muscle-serratus-anterior-intermediate', type: 'origin', extent: 'line', points: saIntOriginA },
+    { structureId: 'muscle-serratus-anterior-inferior', type: 'origin', extent: 'line', points: saInfOriginA }
   ],
   joints: [
     { structureId: 'joint-glenohumeral', at: H(0, 0) },

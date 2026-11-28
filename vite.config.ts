@@ -16,8 +16,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/icon.svg'],
       manifest: {
-        name: 'MuscleLab – Interactive Anatomy & Biomechanics',
-        short_name: 'MuscleLab',
+        name: 'Myo – interaktív anatómia és biomechanika',
+        short_name: 'Myo',
         description: 'Interaktív anatómiai és biomechanikai oktatási alkalmazás',
         lang: 'hu',
         theme_color: '#171419',

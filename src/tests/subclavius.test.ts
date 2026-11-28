@@ -6,7 +6,7 @@ import { nerveById } from '../data/nerves/nerves';
 import { sourceById } from '../data/sources/sources';
 import { isStructureDrawn } from '../components/anatomy/AnatomyViewer';
 
-describe('Kulcscsont alatti izom – Anatomy Lab adatok', () => {
+describe('Kulcscsont alatti izom – anatómiai adatok', () => {
   const m = muscleById('muscle-subclavius')!;
 
   it('elérhető, és minden hivatkozott struktúra, ideg, ízület, mozgás és forrás létezik', () => {
@@ -40,5 +40,40 @@ describe('Kulcscsont alatti izom – Anatomy Lab adatok', () => {
       const avgY = (pts: { y: number }[]) => pts.reduce((s, p) => s + p.y, 0) / pts.length;
       expect(avgY(i.points), v).toBeLessThan(avgY(o.points));
     });
+  });
+});
+
+describe('Kulcscsont alatti izom – tudományos pontosítás', () => {
+  const m = muscleById('muscle-subclavius')!;
+  const allClaims = [...m.innervation, ...m.functions, ...m.stabilization, ...m.notes];
+
+  it('minden új állítás forrása létezik, és az izom forráslistáján szerepel', () => {
+    allClaims.flatMap((c) => c.sourceIds).forEach((id) => {
+      expect(sourceById(id), id).toBeDefined();
+      expect(m.sourceIds, id).toContain(id);
+    });
+  });
+
+  it('az ízületi érintettség közvetlen (szegycsont-kulcscsonti) és közvetett (vállcsúcs-kulcscsonti) jelölésű', () => {
+    expect(m.jointNotes?.['joint-sternoclavicular']).toMatch(/Közvetlen/);
+    expect(m.jointNotes?.['joint-acromioclavicular']).toMatch(/Közvetett/);
+  });
+
+  it('a védőhatás és az izometria nem jelenik meg igazolt vagy „leggyakoribb” állításként', async () => {
+    const { subclaviusMotions } = await import('../data/motions/subclaviusMotions');
+    const texts = [m.summary, ...allClaims.map((c) => c.text), ...subclaviusMotions.flatMap((mo) => [mo.contraction.concentric.detail, mo.contraction.eccentric.detail, mo.contraction.isometric.detail])];
+    texts.forEach((t) => {
+      expect(t).not.toMatch(/leggyakoribb/);
+      expect(t).not.toMatch(/meghaladja a külső ellenállást/);
+    });
+    expect(m.summary).toMatch(/lehetséges anatómiai védőréteg/);
+  });
+
+  it('a két süllyesztési animáció ugyanannak az iránynak két tartományát mutatja', async () => {
+    const { subClavicularDepression, subGirdleDepression } = await import('../data/motions/subclaviusMotions');
+    expect(subClavicularDepression.startPose.clavicleElevation).toBe(subGirdleDepression.startPose.clavicleElevation! + 14);
+    expect(subClavicularDepression.endPose.clavicleElevation).toBe(subGirdleDepression.startPose.clavicleElevation);
+    expect(subClavicularDepression.description).toMatch(/első tartománya/);
+    expect(subGirdleDepression.description).toMatch(/második tartománya/);
   });
 });

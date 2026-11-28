@@ -66,7 +66,7 @@ describe('Animációs állapotkezelés', () => {
   });
 });
 
-describe('Izomműködési típusok (Biomechanics Lab)', () => {
+describe('Izomműködési típusok (Biomechanika)', () => {
   it('koncentrikus: megnyúlt → rövidült helyzet; excentrikus: fordítva; izometriás: állandó', () => {
     const start = pmAdduction.startPose.shoulderAbduction!;
     const end = pmAdduction.endPose.shoulderAbduction!;

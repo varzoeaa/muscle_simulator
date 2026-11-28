@@ -75,7 +75,7 @@ export function ExerciseLab() {
   return (
     <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
       {/* A kulcs miatt gyakorlatváltáskor a lejátszás és a paraméterek alaphelyzetbe kerülnek. */}
-      <ExerciseView key={exercise.id} exercise={exercise} initialAngle={params.has('pad') && Number.isFinite(padParam) ? padParam : undefined} onSelect={select} />
+      <ExerciseView key={exercise.id} exercise={exercise} focusMuscleId={muscle.id} initialAngle={params.has('pad') && Number.isFinite(padParam) ? padParam : undefined} onSelect={select} />
 
       <aside className="flex flex-col gap-3 xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)] xl:self-start xl:overflow-y-auto">
         <Panel title="Gyakorlatok" subtitle={`${muscle.name.hu} – gyakorlatkönyvtár`}>
@@ -108,7 +108,18 @@ export function ExerciseLab() {
   );
 }
 
-function ExerciseView({ exercise, initialAngle, onSelect }: { exercise: Exercise; initialAngle?: number; onSelect: (id: string, benchAngle?: number) => void }) {
+function ExerciseView({
+  exercise,
+  focusMuscleId,
+  initialAngle,
+  onSelect
+}: {
+  exercise: Exercise;
+  /** Az izom, amelynek az oldalán a gyakorlatot nézzük (egy gyakorlat több izomnál is szerepelhet). */
+  focusMuscleId: string;
+  initialAngle?: number;
+  onSelect: (id: string, benchAngle?: number) => void;
+}) {
   const reduced = useReducedMotion();
   const player = useAnimationPlayer(exercise.cycleDurationMs, { loop: true });
   const p = exercise.parameters;
@@ -151,7 +162,9 @@ function ExerciseView({ exercise, initialAngle, onSelect }: { exercise: Exercise
   const drawn = (id: string) =>
     anim.kind === 'transverse' ? isStructureDrawn(superiorView, id) : anim.kind === 'girdle' ? isStructureDrawn(viewGeometries[anim.viewId]!, id) : sagittalMuscles.includes(id);
   // A gyakorlat célizma (pl. nagy vagy kis mellizom) – a fejléc-címke ennek a szerepét mutatja.
-  const target = exercise.muscleIds[0] ?? 'muscle-pectoralis-major';
+  const target = Object.values(exercise.phaseRoles ?? {}).some((rs) => rs.some((r) => r.structureIds.includes(focusMuscleId)))
+    ? focusMuscleId
+    : (exercise.muscleIds[0] ?? 'muscle-pectoralis-major');
   const sceneLabels = sceneMuscleLabels(roles);
   const roleMap = useMemo(() => transverseRoleMap(roles), [roles]);
   const pecRole = roles.find((r) => r.structureIds.includes(target));
@@ -163,8 +176,8 @@ function ExerciseView({ exercise, initialAngle, onSelect }: { exercise: Exercise
   return (
     <div className="flex min-w-0 flex-col gap-3">
       <div>
-        <h1 className="font-serif text-2xl text-ink">Exercise Lab</h1>
-        <p className="text-xs text-ink-2">Edzőtermi gyakorlatok – interaktív végrehajtási animáció</p>
+        <h1 className="font-serif text-2xl text-ink">Gyakorlatok</h1>
+        <p className="text-xs text-ink-2">Edzőtermi gyakorlatok interaktív végrehajtási animációval</p>
       </div>
 
       <div className="relative h-[52vh] min-h-[320px] overflow-hidden rounded-2xl bg-canvas md:h-[60vh]">
@@ -218,7 +231,7 @@ function ExerciseView({ exercise, initialAngle, onSelect }: { exercise: Exercise
           <span className="rounded-lg bg-surface/90 px-2 py-1 font-medium text-ink ring-1 ring-line">{phase.name}</span>
           {pecRole && (
             <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface/90 px-2 py-1 text-ink ring-1 ring-line">
-              {lengthText[pecRole.lengthChange].icon} {structureName(target).hu}: {pecRole.role === 'stretched' ? 'passzív, ' : 'aktív, '}
+              {lengthText[pecRole.lengthChange].icon} {structureName(target).hu}: {pecRole.role === 'stretched' ? 'passzív, ' : pecRole.role === 'antagonist' ? 'antagonista, ' : 'aktív, '}
               {lengthText[pecRole.lengthChange].text}
             </span>
           )}

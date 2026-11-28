@@ -82,7 +82,7 @@ export const flyMachineRows: ComparisonRow[] = [
     aspect: 'Az ellenállás iránya',
     values: {
       dumbbell: 'A gravitáció: mindig függőlegesen lefelé hat, a kar helyzetétől függetlenül.',
-      machine: 'A gép karja (kábel, bütyök) adja: a kar mozgásirányával szemben, a mozgás síkjában hat.'
+      machine: 'A gép (kábelvezetés, bütyök, kar) adja; iránya és nagysága a gép geometriájától és beállításától függ.'
     },
     evidence: 'educational-model',
     sourceIds: KIN_TECH
@@ -90,8 +90,8 @@ export const flyMachineRows: ComparisonRow[] = [
   {
     aspect: 'Terhelés a mozgás során',
     values: {
-      dumbbell: 'Nyitott karnál a legnagyobb (a súlyzó messze van a vállízület függőlegesétől), zárt karnál a mellkas fölött közel nulla.',
-      machine: 'A mozgás teljes tartományában jelen van, zárt helyzetben is; a pontos profilt a gép kialakítása határozza meg.'
+      dumbbell: 'A külső nyomaték a súly függőleges hatásvonalának a vállízülettől vett vízszintes távolságával arányos: nyitott karnál ez a távolság a legnagyobb, a mellkas fölött közel nulla.',
+      machine: 'Az ellenállásgörbe gép- és geometriafüggő (kábelirány, bütyökprofil, a kar forgástengelye); sok gépen zárt helyzetben is van ellenállás.'
     },
     evidence: 'educational-model',
     sourceIds: KIN_TECH

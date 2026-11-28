@@ -3,7 +3,7 @@ import type { Muscle } from '../../types';
 /**
  * Kis mellizom (musculus pectoralis minor). Az anatómiai adatok (eredés, tapadás, beidegzés,
  * működés, változatok, klinikai vonatkozások) a StatPearls „Pectoral Muscles” fejezete és az
- * OpenStax Anatomy and Physiology 2e 11.5 fejezete alapján (online ellenőrizve: 2026-11-27),
+ * OpenStax Anatomy and Physiology 11.5 alfejezete alapján (online ellenőrizve: 2026-11-27),
  * valamint standard tankönyvek (Moore, Gray's) alapján szerepelnek. A lapockamozgásokban
  * betöltött szerepek Neumann (2017) kineziológiai leírását követik.
  */
@@ -71,8 +71,8 @@ export const pectoralisMinor: Muscle = {
       movementId: 'scapular-depression',
       role: 'synergist',
       structureIds: ['muscle-subclavius'],
-      note: 'A kulcscsont alatti izom a kulcscsontot süllyeszti és rögzíti.',
-      evidence: 'anatomical-fact',
+      note: 'A kulcscsont alatti izom közvetlenül a kulcscsontra hat (süllyeszti és rögzíti), a kis mellizom a lapockára, a széles hátizom a felkarcsontra. A szinergista besorolás a szemléltetett helyzetre vonatkozik.',
+      evidence: 'educational-model',
       sourceIds: ['openstax-ap2e', 'neumann-kinesiology']
     },
     {
@@ -87,7 +87,7 @@ export const pectoralisMinor: Muscle = {
       movementId: 'scapular-protraction',
       role: 'agonist',
       structureIds: ['muscle-serratus-anterior'],
-      note: 'A protrakció fő mozgatója az elülső fűrészizom.',
+      note: 'A protrakció egyik fő mozgatója az elülső fűrészizom.',
       evidence: 'anatomical-fact',
       sourceIds: KIN
     },
@@ -117,7 +117,7 @@ export const pectoralisMinor: Muscle = {
       movementId: 'scapular-downward-rotation',
       role: 'antagonist',
       structureIds: ['muscle-serratus-anterior', 'muscle-trapezius'],
-      note: 'A felfelé rotációt az elülső fűrészizom és a csuklyásizom (felső és alsó része) végzi.',
+      note: 'Az elülső fűrészizom és a csuklyásizom (felső és alsó része) felfelé rotáló nyomatékot fejt ki; az antagonista címke ezt a nyomatékirányt jelöli. Hogy egy ereszkedő mozgásban aktívak-e, abból önmagában nem állapítható meg.',
       evidence: 'anatomical-fact',
       sourceIds: ['neumann-kinesiology']
     },
@@ -132,7 +132,7 @@ export const pectoralisMinor: Muscle = {
       movementId: 'scapular-anterior-tilt',
       role: 'antagonist',
       structureIds: ['muscle-serratus-anterior', 'muscle-trapezius'],
-      note: 'A hátrabillentésben az elülső fűrészizom és a csuklyásizom alsó része vesz részt.',
+      note: 'A karemelés közben bemutatott hátrabillentéshez az elülső fűrészizom és a csuklyásizom alsó része hozzájárulhat (oktatási modell).',
       evidence: 'educational-model',
       sourceIds: ['neumann-kinesiology']
     },

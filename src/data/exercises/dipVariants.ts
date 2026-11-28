@@ -6,7 +6,7 @@ import type { ComparisonRow } from './benchVariants';
  * Tolódzkodás-változatok: pad, párhuzamos korlát, gyűrű; törzsdőlés és mélység; fáradás;
  * könnyítés és nehezítés. A mért eredmények McKenzie és mtsai (2022) két vizsgálatából
  * származnak, minőségileg (EMG-értéket nem jelenítünk meg). A törzsdőlés hatására mérést nem
- * találtunk (2026-11-26); ez anatómiai levezetés.
+ * találtunk (2026-11-26); a törzsdőlésből számított vállszög a sematikus modell geometriai eredménye.
  */
 const VAR = ['mckenzie-2022-variants'];
 const FATIGUE = ['mckenzie-2022-fatigue'];
@@ -21,11 +21,11 @@ export const dipVariantNames: Record<DipVariant, string> = {
 /** A három változat összehasonlítása (13 tapasztalt férfi, 3D mozgáselemzés és felszíni EMG). */
 export const dipVariantRows: ComparisonRow[] = [
   {
-    aspect: 'Vállfeszítés (az egyéni maximum %-ában)',
+    aspect: 'Csúcs vállfeszítés (egy külön mozgástartomány-tesztben mért egyéni referenciaérték %-ában; csoportátlag)',
     values: {
-      bench: 'A legnagyobb: átlagosan kb. 101% – a résztvevők a saját maximális vállfeszítésüket is meghaladták.',
-      bar: 'Kb. 88%.',
-      ring: 'A legkisebb: kb. 69%.'
+      bench: 'A legnagyobb: átlagosan kb. 101% – a csoportátlag elérte, illetve kissé meghaladta a külön tesztben mért egyéni referenciaértéket.',
+      bar: 'Átlagosan kb. 88%.',
+      ring: 'A legkisebb: átlagosan kb. 69%.'
     },
     evidence: 'documented-observation',
     sourceIds: VAR
@@ -54,8 +54,8 @@ export const dipVariantRows: ComparisonRow[] = [
     aspect: 'Izomaktivitás (EMG-csúcs)',
     values: {
       bench: 'A legtöbb izomé kisebb, mint korláton; a háromfejű karizom aktivitása a többi izomhoz képest viszonylag nagy.',
-      bar: 'Hat izomé (nagy mellizom, deltaizom elülső része, háromfejű karizom, csuklyásizom felső része, elülső fűrészizom, széles hátizom) nagyobb, mint padon.',
-      ring: 'A korláthoz hasonló; a nagy mellizom, a széles hátizom és a kétfejű karizom aktivitása itt volt a legnagyobb.'
+      bar: 'Hat izomé (nagy mellizom, deltaizom elülső része, háromfejű karizom, csuklyásizom felső része, elülső fűrészizom, széles hátizom) nagyobb, mint padon. Az elülső fűrészizomnál ez a csúcs-EMG-re vonatkozik; a kontrakció típusát vagy a felső rostcsoport külön terhelését nem igazolja.',
+      ring: 'A korláthoz hasonló; ebben a vizsgálatban a nagy mellizom, a széles hátizom és a kétfejű karizom EMG-csúcsa itt volt a legnagyobb. Ebből önmagában nem következik nagyobb izomnövekedés vagy általános sérülésveszély.'
     },
     evidence: 'documented-observation',
     sourceIds: VAR
@@ -65,33 +65,26 @@ export const dipVariantRows: ComparisonRow[] = [
     values: {
       bench: 'Rendszeres edzésbe és rehabilitációba nem javasolják, mert terhelés alatt a vállfeszítés végtartományát igényli.',
       bar: 'A padhoz képest kedvezőbb testhelyzet; megfelelő továbblépés. Könnyítő változatokkal és derékra akasztott súllyal fokozatosan terhelhető.',
-      ring: 'A mellizom célzására a legjobb változat lehet; esésveszély (kezdőknél, fáradtan) esetén a korlát javasolt helyette.'
+      ring: 'A szerzők szerint (a mért EMG-csúcsok alapján) a mellizom célzására a legjobb változat lehet; esésveszély (kezdőknél, fáradtan) esetén a korlát javasolt helyette.'
     },
     evidence: 'documented-observation',
     sourceIds: VAR
   }
 ];
 
-/** A törzs előredőlésének hatása (oktatási modell). */
+/**
+ * A törzs előredőlésének hatása (oktatási modell). Fiziológiai küszöb nincs: a szöveg minden
+ * törzsdőlésnél ugyanaz, csak a modellből számított érték változik.
+ */
 export function dipLeanClaims(lean: number): Claim[] {
-  const base: Claim = {
-    text: 'A vállfeszítés a felkar és a törzs szögéből adódik: ha a törzs előre dől, a felkar a törzshöz képest kevésbé kerül hátra, így ugyanakkora ereszkedésnél kisebb a vállfeszítés.',
-    evidence: 'educational-model',
-    sourceIds: KIN
-  };
-  if (lean >= 25)
-    return [
-      base,
-      {
-        text: 'Előredőlt törzsnél a vállízület mozgásában a hajlítás és a közelítés iránya kerül előtérbe, ezért a nagy mellizom szerepe nagyobb lehet. Ezt a törzsdőlés szerint közvetlenül nem mérték.',
-        evidence: 'educational-model',
-        sourceIds: KIN
-      }
-    ];
   return [
-    base,
     {
-      text: 'Közel függőleges törzsnél a vállízület nagyobb feszítésbe kerül, a mozgás jobban a könyökfeszítésre (háromfejű karizom) épül. Ezt a törzsdőlés szerint közvetlenül nem mérték; a padon végzett változatnál – ahol a törzs a legfüggőlegesebb – a háromfejű karizom aktivitása viszonylag nagy volt.',
+      text: `A modellben a vállfeszítés a felkar függőlegestől mért szögéből és a törzs előredőléséből (most ${lean}°) adódik: előredőlt törzsnél ugyanakkora ereszkedésnél kisebb vállfeszítés jön ki. Ez a sematikus modell geometriai eredménye, nem mért adat.`,
+      evidence: 'educational-model',
+      sourceIds: KIN
+    },
+    {
+      text: 'Hogy a törzs előredöntése önmagában növeli-e a mellizom terhelését, vagy a függőleges törzs a háromfejű karizomra helyezi-e azt, közvetlen mérés híján nem tudjuk. A változatok közötti EMG-különbségek (fenti táblázat) több tényező együttes hatását tükrözik, nem csak a törzsdőlését.',
       evidence: 'educational-model',
       sourceIds: [...KIN, ...VAR]
     }
@@ -100,7 +93,12 @@ export function dipLeanClaims(lean: number): Claim[] {
 
 export const dipFatigueFindings: Claim[] = [
   {
-    text: 'Korláton végzett, kimerülésig tartó sorozatban a fáradás nem változtatta meg a legnagyobb ízületi szögeket, de nőtt az ismétlés ideje, és nőtt a nagy mellizom, a háromfejű karizom és három stabilizáló izom aktivitása (15 egészséges férfi).',
+    text: 'Korláton végzett, kimerülésig tartó sorozatban (15 egészséges férfi) a fáradás nem változtatta meg a csúcs ízületi szögeket, de nőtt az ismétlés ideje, és nőtt a nagy mellizom, a háromfejű karizom és három stabilizáló izom EMG-csúcsa.',
+    evidence: 'documented-observation',
+    sourceIds: FATIGUE
+  },
+  {
+    text: 'Ugyanebben a vizsgálatban a medence függőleges elmozdulása fáradtan kisebb lett – a szerzők szerint főként a felső helyzet magassága csökkent, nem a mélység –, és a kezdő- és véghelyzetben nagyobb volt a vállfeszítés. Ezek a kezdő/véghelyzeti szögek mások, mint a változatlan csúcsszögek.',
     evidence: 'documented-observation',
     sourceIds: FATIGUE
   }

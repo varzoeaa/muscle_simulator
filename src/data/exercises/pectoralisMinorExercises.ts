@@ -31,7 +31,7 @@ const depressionRoles = (c: LengthChange): ExercisePhaseRole[] => {
   const brake = c === 'lengthening';
   return [
     role('agonist', brake ? 'Lapocka – az emelkedés fékezése' : 'Lapocka – süllyesztés', [M, 'muscle-trapezius', 'muscle-latissimus-dorsi'], c, brake ? 'educational-model' : 'anatomical-fact', KIN, brake ? 'Ugyanazok a süllyesztők dolgoznak: hosszabbodva fékezik, hogy a testsúly a vállakat a fül felé tolja.' : 'A csuklyásizomnak az alsó része süllyeszt; a széles hátizom a felkarcsonton keresztül húzza lefelé a vállövet.'),
-    role('synergist', 'Kulcscsont – süllyesztés és rögzítés', ['muscle-subclavius'], c, 'educational-model', ['openstax-ap2e', 'neumann-kinesiology']),
+    role('synergist', 'Kulcscsont – süllyesztés és rögzítés', ['muscle-subclavius'], c, 'educational-model', ['openstax-ap2e', 'neumann-kinesiology'], 'Közvetlenül a kulcscsontra hat (a kis mellizom a lapockára, a széles hátizom a felkarcsontra). Támaszban az aktivitását nem mérték: a hosszváltozás és a szerep a modell feltételezett terhelési helyzetén alapul.'),
     role('antagonist', 'Lapocka – emelők', ['muscle-levator-scapulae', 'muscle-rhomboids'], opposite(c), brake ? 'educational-model' : 'anatomical-fact', KIN, 'A csuklyásizom felső része is a lapocka emelője.'),
     role('stabilizer', 'Könyök és vállízület – a nyújtott kar megtartása', ['muscle-triceps-brachii', 'muscle-rotator-cuff'], 'constant', 'educational-model', KIN_TECH, 'A könyök végig nyújtott: a mozgás csak a vállövben történik.')
   ];
@@ -101,8 +101,8 @@ export const scapularDepressionDip: Exercise = {
 const protractionRoles = (c: LengthChange): ExercisePhaseRole[] => {
   const brake = c === 'lengthening';
   return [
-    role('agonist', brake ? 'Lapocka – a retrakció fékezése' : 'Lapocka – protrakció', ['muscle-serratus-anterior'], c, brake ? 'educational-model' : 'anatomical-fact', ['neumann-kinesiology', 'ludewig-2004'], 'A protrakció fő mozgatója az elülső fűrészizom.'),
-    role('synergist', brake ? 'Lapocka – a retrakció fékezésének segítése' : 'Lapocka – a protrakció segítése', [M], c, 'anatomical-fact', KIN),
+    role('agonist', brake ? 'Lapocka – a retrakció fékezése (modell)' : 'Lapocka – protrakció', ['muscle-serratus-anterior'], c, 'educational-model', ['neumann-kinesiology'], 'A protrakció egyik fő mozgatója az elülső fűrészizom (tankönyvi tény). A hosszváltozás – koncentrikus, excentrikus, izometriás – a bemutatott mechanikai modell feltevése: Ludewigék EMG-vizsgálata az izomhosszt nem mérte.'),
+    role('synergist', brake ? 'Lapocka – a retrakció fékezésének segítése (modell)' : 'Lapocka – a protrakció segítése', [M], c, 'educational-model', KIN),
     role('antagonist', 'Lapocka – retraktorok', ['muscle-rhomboids', 'muscle-trapezius'], opposite(c), brake ? 'educational-model' : 'anatomical-fact', KIN, brake ? 'A leengedést a testsúly hozza létre; a retraktorok rövidülnek, de nem ők mozgatnak.' : 'A csuklyásizomnak főként a középső része retraktor.'),
     role('stabilizer', 'Könyök és vállízület – a nyújtott kar megtartása', ['muscle-triceps-brachii', 'muscle-rotator-cuff'], 'constant', 'educational-model', KIN_TECH),
     role('stabilizer', 'Törzs – egyenes testtartás', ['muscle-rectus-abdominis', 'muscle-external-oblique'], 'constant', 'educational-model', TECH)
@@ -121,7 +121,7 @@ export const pushUpPlus: Exercise = {
     endPose: { scapularProtraction: -8, shoulderHorizontalAbduction: 12 },
     bodyweight: true,
     viewNote:
-      'A törzs vízszintes metszete (a fej felől nézve): a karok a talaj felé mutatnak. A „plusz” szakaszban a könyök már nyújtott, csak a lapocka mozog: előre (protrakció) a test megemelésekor, hátra (retrakció), amikor a mellkas a lapockák közé süllyed.'
+      'A törzs vízszintes metszete (a fej felől nézve): a karok a talaj felé mutatnak. A „plusz” szakaszban a könyök közel nyújtott. Az ábra a vállöv mozgásának egyik összetevőjét emeli ki: a lapocka a mellkasfal mentén előre (protrakció) mozog a test megemelésekor, és hátra (retrakció), amikor a mellkas a lapockák közé süllyed. A valóságban a lapocka közben forog és billen is, ezt az ábra nem mutatja.'
   },
   romText: 'a lapockák az út {rom}%-áig közelednek egymáshoz',
   startPosition: [
@@ -130,8 +130,8 @@ export const pushUpPlus: Exercise = {
   ],
   execution: [
     'Leengedés: a könyök nyújtott marad, a mellkas kontrolláltan a lapockák közé süllyed (retrakció).',
-    'A „plusz”: a talajt tovább tolva a lapockák előre csúsznak a mellkasfalon (protrakció), a felső hát kissé domborodik.',
-    'A mozgás csak a vállövben történik; a törzs egyenes marad.'
+    'A „plusz”: a talajt tovább tolva a lapockák a mellkasfal mentén előre mozognak (protrakció), a felső hát kissé domborodik.',
+    'A könyök közel nyújtott marad, a mozgás fő része a vállövben történik; a törzs egyenes marad.'
   ],
   primaryMovers: ['muscle-serratus-anterior'],
   secondaryMovers: [M],
@@ -143,22 +143,32 @@ export const pushUpPlus: Exercise = {
     'A „plusz” kimarad: a lapocka nem csúszik előre.'
   ],
   phases: [
-    { type: 'eccentric', name: 'Excentrikus szakasz – a mellkas a lapockák közé süllyed', from: 0, to: 0.45, description: 'A testsúly hátrafelé tolja a lapockákat; a protraktorok hosszabbodva fékeznek.' },
-    { type: 'isometric', name: 'Izometriás szakasz – megtartás', from: 0.45, to: 0.55, description: 'Retrahált lapockával a protraktorok aktívak, a helyzet közel változatlan.' },
-    { type: 'concentric', name: 'Koncentrikus szakasz – „plusz”: protrakció', from: 0.55, to: 1, description: 'Az elülső fűrészizom (és segítőként a kis mellizom) a lapockát előre vezeti; a test megemelkedik.' }
+    { type: 'eccentric', name: 'Excentrikus szakasz – a mellkas a lapockák közé süllyed', from: 0, to: 0.45, description: 'A testsúly hátrafelé tolja a lapockákat. A modell feltevése szerint a protraktorok aktívak, és hosszabbodva fékeznek (az izomhosszt nem mérték).' },
+    { type: 'isometric', name: 'Izometriás szakasz – megtartás', from: 0.45, to: 0.55, description: 'Retrahált lapockával a helyzet közel változatlan; a modell feltevése szerint a protraktorok aktívak.' },
+    { type: 'concentric', name: 'Koncentrikus szakasz – „plusz”: protrakció', from: 0.55, to: 1, description: 'Az elülső fűrészizom (és segítőként a kis mellizom) a lapockát előre vezeti; a test megemelkedik. A rövidülés a modell feltevése.' }
   ],
   phaseRoles: {
     eccentric: protractionRoles('lengthening'),
     concentric: protractionRoles('shortening')
   },
   anatomyExplanation: [
-    { text: 'A „plusz” szakasz a lapocka protrakciója: fő mozgatója az elülső fűrészizom, a kis mellizom segíti.', evidence: 'anatomical-fact', sourceIds: KIN },
+    { text: 'A „plusz” szakasz a lapocka protrakciója: egyik fő mozgatója az elülső fűrészizom, a kis mellizom segíti.', evidence: 'anatomical-fact', sourceIds: KIN },
     {
-      text: 'A hagyományos fekvőtámasz plusz a „plusz” szakaszban az elülső fűrészizom legnagyobb aktivitását és a csuklyásizom felső része / elülső fűrészizom legkisebb arányát adta a vizsgált változatok (könyökön, térden, falnál) közül.',
+      text: 'A vizsgált négy változat (hagyományos, könyökön, térden és falnál végzett fekvőtámasz plusz; 30 fő) közül a hagyományos, talajon végzett változat „plusz” szakaszában volt a legmagasabb a mért elülsőfűrészizom-EMG, és a legalacsonyabb a felső csuklyásizom / elülső fűrészizom EMG-aránya. A vizsgálat csak ezt a két izmot mérte: teljes izomaktivitási rangsor nem következik belőle, a felső fűrészizomkötegek külön aktivitásáról sem szól, és az izomhosszt sem mérte.',
       evidence: 'documented-observation',
       sourceIds: ['ludewig-2004']
     },
-    { text: 'A kis mellizom a lapockát előre és lefelé is húzza, ezért a protrakcióban segítő, de nem fő mozgató.', evidence: 'educational-model', sourceIds: KIN }
+    {
+      text: 'A mozgás térben összetett: egy külön vizsgálat a falnál végzett fekvőtámasz plusznál (12 fő, csontba rögzített szenzorok) a „plusz” helyzet felé a lapocka belső rotációjának növekedését és a felfelé rotáció csökkenését (lefelé rotációt) mérte. Ez a fali változatra vonatkozik; a talajon végzett változatra nem vihető át automatikusan.',
+      evidence: 'documented-observation',
+      sourceIds: ['lunden-2010']
+    },
+    { text: 'A kis mellizom a lapockát előre és lefelé is húzza, ezért a protrakcióban segítő, de nem fő mozgató.', evidence: 'educational-model', sourceIds: KIN },
+    {
+      text: 'A módosított fekvőtámasz plusz falnál és térden végezve az elülső fűrészizmot és a kis mellizmot hasonló mértékben aktiválta; a térdelő változat mindkettőt jobban, mint a fali.',
+      evidence: 'documented-observation',
+      sourceIds: ['castelein-2016']
+    }
   ],
   coachingNotes: [
     { text: 'A „plusz” végén told el magad a talajtól, mintha a lapockáid közötti teret akarnád kitágítani.', evidence: 'educational-model', sourceIds: TECH },
@@ -166,7 +176,7 @@ export const pushUpPlus: Exercise = {
   ],
   parameters: { rangeOfMotion: { min: 0.3, max: 1, default: 1 } },
   cycleDurationMs: 3200,
-  sourceIds: ['neumann-kinesiology', 'ludewig-2004', 'nsca-essentials']
+  sourceIds: ['neumann-kinesiology', 'ludewig-2004', 'lunden-2010', 'castelein-2016', 'nsca-essentials']
 };
 
 /* ------------------------------------------------------------------ */

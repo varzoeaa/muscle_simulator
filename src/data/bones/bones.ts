@@ -20,7 +20,10 @@ export const bones: Bone[] = [
     name: { hu: 'Lapocka', en: 'Scapula', la: 'Scapula' },
     landmarks: [
       { id: 'bone-scapula-coracoid', kind: 'bone-landmark', name: { hu: 'Hollócsőrnyúlvány', en: 'Coracoid process', la: 'Processus coracoideus' } },
-      { id: 'bone-scapula-acromion', kind: 'bone-landmark', name: { hu: 'Vállcsúcs', en: 'Acromion', la: 'Acromion' } }
+      { id: 'bone-scapula-acromion', kind: 'bone-landmark', name: { hu: 'Vállcsúcs', en: 'Acromion', la: 'Acromion' } },
+      { id: 'bone-scapula-medial-border', kind: 'bone-landmark', name: { hu: 'A lapocka belső széle', en: 'Medial border of scapula', la: 'Margo medialis scapulae' } },
+      { id: 'bone-scapula-superior-angle', kind: 'bone-landmark', name: { hu: 'A lapocka felső szöge', en: 'Superior angle of scapula', la: 'Angulus superior scapulae' } },
+      { id: 'bone-scapula-inferior-angle', kind: 'bone-landmark', name: { hu: 'A lapocka alsó szöge', en: 'Inferior angle of scapula', la: 'Angulus inferior scapulae' } }
     ]
   },
   {

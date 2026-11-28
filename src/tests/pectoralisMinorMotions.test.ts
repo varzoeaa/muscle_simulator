@@ -23,7 +23,7 @@ function length(motion: MotionDefinition, t: number) {
 }
 
 describe('A kis mellizom mozgásanimációi', () => {
-  it('az Anatomy Labban felsorolt minden lapockamozgáshoz és a belégzéshez tartozik animáció', () => {
+  it('az Anatómia modulban felsorolt minden lapockamozgáshoz és a belégzéshez tartozik animáció', () => {
     const covered = new Set(pectoralisMinor.motionIds.map((id) => motionById(id)?.movementId));
     new Set(pectoralisMinor.roles.map((r) => r.movementId)).forEach((m) => expect(covered.has(m), m).toBe(true));
   });

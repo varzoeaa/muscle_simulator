@@ -2,6 +2,7 @@ import type { AnatomicalViewId, FrameDefinition, FramedPoint, MuscleShapeGeometr
 import { anteriorView } from './anteriorView';
 import { superiorView } from './superiorView';
 import { lateralView } from './lateralView';
+import { posteriorView } from './posteriorView';
 
 /**
  * Mozgó vállöv – a nézetek olyan változatai, amelyekben a kulcscsont és a lapocka saját frame-en
@@ -36,6 +37,10 @@ const all =
   () =>
     frame;
 
+/** Szabály egy struktúrához; egy izom szabálya a részeire (pl. `…-superior`) is érvényes. */
+const ruleFor = (rules: Record<string, Rule>, id: string, suffix = ''): Rule | undefined =>
+  rules[id + suffix] ?? Object.entries(rules).find(([k]) => k.endsWith(suffix) && id.startsWith(`${k.slice(0, k.length - suffix.length)}-`))?.[1];
+
 const move = (p: FramedPoint, rule?: Rule): FramedPoint => {
   if (!rule || p.frame !== 'world') return p;
   const f = rule(p);
@@ -44,7 +49,7 @@ const move = (p: FramedPoint, rule?: Rule): FramedPoint => {
 
 function reframe({ viewId, base, frames, bones, muscles, attachments, joints = {} }: Reframe): ViewGeometry {
   const muscle = (m: MuscleShapeGeometry): MuscleShapeGeometry => {
-    const rule = muscles[m.structureId];
+    const rule = ruleFor(muscles, m.structureId);
     if (!rule) return m;
     return {
       ...m,
@@ -61,7 +66,7 @@ function reframe({ viewId, base, frames, bones, muscles, attachments, joints = {
     bones: base.bones.map((b) => (bones[b.structureId] && b.frame === 'world' ? { ...b, frame: bones[b.structureId]! } : b)),
     muscles: base.muscles.map(muscle),
     attachments: base.attachments.map((a) => {
-      const rule = attachments[`${a.structureId}:${a.type}`];
+      const rule = ruleFor(attachments, a.structureId, `:${a.type}`);
       return rule ? { ...a, points: a.points.map((p) => move(p, rule)) } : a;
     }),
     joints: base.joints.map((j) => (joints[j.structureId] ? { ...j, at: move(j.at, all(joints[j.structureId]!)) } : j))
@@ -145,7 +150,8 @@ export const superiorGirdleView: ViewGeometry = reframe({
   },
   attachments: {
     'muscle-pectoralis-minor:insertion': all('scapula'),
-    'muscle-pectoralis-major-clavicular:origin': all('clavicle')
+    'muscle-pectoralis-major-clavicular:origin': all('clavicle'),
+    'muscle-serratus-anterior:insertion': all('scapula')
   },
   joints: { 'joint-acromioclavicular': 'clavicle' }
 });
@@ -177,6 +183,48 @@ export const lateralGirdleView: ViewGeometry = reframe({
     'muscle-deltoid-middle': all('scapula')
   },
   attachments: {
-    'muscle-pectoralis-minor:insertion': all('scapula')
+    'muscle-pectoralis-minor:insertion': all('scapula'),
+    'muscle-serratus-anterior:insertion': all('scapula')
   }
+});
+
+/* ------------------------------------------------------------------ */
+/* Hátulnézet: felfelé és lefelé rotáció                               */
+/* ------------------------------------------------------------------ */
+
+/** A vállcsúcs-kulcscsonti ízület hátulnézetben (a hátulnézet tükrözött: a vizsgált oldal jobbra). */
+const P_AC = { x: 440, y: 100 };
+const humerusP = posteriorView.frames.find((f) => f.id === 'humerus')!;
+const forearmP = posteriorView.frames.find((f) => f.id === 'forearm')!;
+/** A lapockához kötött izompontok: a tükrözött nézetben a gerinctől (x = 300) jobbra, a lapocka felett. */
+const onScapulaP: Rule = (p) => (p.x >= 330 ? 'scapula' : undefined);
+
+export const posteriorGirdleView: ViewGeometry = reframe({
+  viewId: 'posterior-girdle',
+  base: posteriorView,
+  frames: [
+    // Pozitív `scapularUpwardRotation`: az alsó szög oldalra, az ízületi árok felfelé fordul (tükrözött nézet: −1).
+    { id: 'scapula', parent: 'world', pivot: P_AC, localOrigin: P_AC, angleKey: 'scapularUpwardRotation', angleScale: -1 },
+    { ...humerusP, parent: 'scapula' },
+    forearmP
+  ],
+  bones: { 'bone-scapula': 'scapula' },
+  muscles: {
+    // Az elülső fűrészizom lapockai (belső széli) vége mozog, a bordai eredése nem.
+    'muscle-serratus-anterior': (p) => (p.x <= 372 ? 'scapula' : undefined),
+    'muscle-rhomboids': onScapulaP,
+    // A csuklyásizom lapockatövisi és vállcsúcsi tapadása mozog; a kulcscsonti része és a gerinci eredése nem.
+    'muscle-trapezius': (p) => (p.x >= 340 && p.y >= 95 ? 'scapula' : undefined),
+    'muscle-teres-major': all('scapula'),
+    'muscle-infraspinatus': all('scapula'),
+    'muscle-supraspinatus': all('scapula'),
+    'muscle-teres-minor': all('scapula'),
+    'muscle-deltoid-posterior': all('scapula'),
+    'muscle-deltoid-middle': all('scapula'),
+    'muscle-triceps-long-head': all('scapula')
+  },
+  attachments: {
+    'muscle-serratus-anterior:insertion': all('scapula')
+  },
+  joints: { 'joint-glenohumeral': 'scapula' }
 });

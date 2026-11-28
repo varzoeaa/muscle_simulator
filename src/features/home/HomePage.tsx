@@ -4,7 +4,7 @@ import { muscles, slugForMuscle } from '../../data/muscles';
 import { AnatomyViewer, ALL_LAYERS } from '../../components/anatomy/AnatomyViewer';
 import { anteriorView } from '../../data/geometry/anteriorView';
 import { restPoses } from '../../data/geometry';
-import { modules } from '../../app/modules';
+import { modules, tools } from '../../app/modules';
 import { Disclaimer } from '../../components/ui';
 
 const deep = new Set(['muscle-pectoralis-minor', 'muscle-subclavius']);
@@ -25,7 +25,7 @@ export function HomePage() {
       </section>
 
       <section aria-labelledby="muscles-title">
-        <h2 id="muscles-title" className="sr-only">
+        <h2 id="muscles-title" className="mb-3 font-serif text-xl text-ink">
           Izmok
         </h2>
         <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -88,6 +88,28 @@ export function HomePage() {
               </li>
             );
           })}
+        </ul>
+      </section>
+
+      <section aria-labelledby="tools-title">
+        <h2 id="tools-title" className="mb-3 font-serif text-xl text-ink">
+          Tanulási eszközök
+        </h2>
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {tools.map((t) => (
+            <li key={t.id}>
+              <Link to={t.path} className="group flex h-full flex-col gap-2 rounded-2xl border border-line bg-surface p-4 transition hover:border-accent-2">
+                <div className="flex items-start justify-between gap-2">
+                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent/20 text-accent-2">
+                    <t.icon size={20} aria-hidden="true" />
+                  </span>
+                  <ArrowRight size={18} className="mt-1 text-accent-2 transition group-hover:translate-x-0.5" />
+                </div>
+                <h3 className="font-serif text-lg text-ink">{t.name}</h3>
+                <p className="text-sm leading-relaxed text-ink-2">{t.description}</p>
+              </Link>
+            </li>
+          ))}
         </ul>
       </section>
     </div>

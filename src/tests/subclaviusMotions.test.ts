@@ -23,7 +23,7 @@ function length(motion: MotionDefinition, t: number) {
 }
 
 describe('A kulcscsont alatti izom mozgásanimációi', () => {
-  it('az Anatomy Labban felsorolt minden mozgáshoz tartozik animáció', () => {
+  it('az Anatómia modulban felsorolt minden mozgáshoz tartozik animáció', () => {
     const covered = new Set(subclavius.motionIds.map((id) => motionById(id)?.movementId));
     new Set(subclavius.roles.map((r) => r.movementId)).forEach((m) => expect(covered.has(m), m).toBe(true));
   });
