@@ -11,7 +11,8 @@ export interface StorageAdapter {
 export const STORAGE_PREFIX = 'musclelab:';
 export const STORAGE_KEYS = {
   settings: `${STORAGE_PREFIX}settings`,
-  study: `${STORAGE_PREFIX}study`
+  study: `${STORAGE_PREFIX}study`,
+  glossary: `${STORAGE_PREFIX}glossary`
 } as const;
 
 /** Memóriabeli tároló – akkor használjuk, ha a LocalStorage nem érhető el (pl. privát mód, tiltott sütik). */

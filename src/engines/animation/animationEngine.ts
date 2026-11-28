@@ -64,7 +64,7 @@ export const setRange = (s: AnimationState, range: [number, number]): AnimationS
 /** Kiinduló helyzet visszaállítása: megáll, előre irány, a tartomány eleje. */
 export const reset = (s: AnimationState): AnimationState => ({ ...s, playing: false, direction: 1, progress: s.range[0] });
 
-/* ---------------- Biomechanics Lab: izomműködési típusok ---------------- */
+/* ---------------- Biomechanika: izomműködési típusok ---------------- */
 
 /**
  * A mozgás póza adott idő és izomműködési típus esetén.
@@ -88,7 +88,7 @@ export function lengthChange(type: ContractionType, playing: boolean): 'shorteni
 
 export const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
 
-/* ---------------- Exercise Lab: ciklus és szakaszok ---------------- */
+/* ---------------- Gyakorlatok: ciklus és szakaszok ---------------- */
 
 export function phaseAt(phases: ExercisePhase[], t: number): ExercisePhase | undefined {
   // Félig nyitott intervallum: a határon már a következő szakasz kezdődik (különben egy szakasz

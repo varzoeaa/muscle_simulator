@@ -48,7 +48,7 @@ src/
 
 ## Animációs motor
 
-`engines/animation/animationEngine.ts` tiszta függvényekből áll (`tick`, `play`, `pause`, `rewind`, `reset`, `seek`, `setSpeed`, `setRange`), így teljesen egységtesztelt. A `useAnimationPlayer` hook köti `requestAnimationFrame`-hez; a ciklus csak lejátszás közben fut. Az Exercise Lab ugyanezt a motort használja ismétlődő lejátszással és szakasz-tartománnyal (`range`).
+`engines/animation/animationEngine.ts` tiszta függvényekből áll (`tick`, `play`, `pause`, `rewind`, `reset`, `seek`, `setSpeed`, `setRange`), így teljesen egységtesztelt. A `useAnimationPlayer` hook köti `requestAnimationFrame`-hez; a ciklus csak lejátszás közben fut. A Gyakorlatok modul ugyanezt a motort használja ismétlődő lejátszással és szakasz-tartománnyal (`range`).
 
 ## Állapot és tárolás
 

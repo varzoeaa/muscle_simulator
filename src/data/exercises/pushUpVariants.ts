@@ -50,12 +50,12 @@ export const loadLevelText: Record<LoadLevel, string> = {
 
 export const supportFindings: Claim[] = [
   {
-    text: 'Hat változatot összehasonlítva a lábemelés (30 és 61 cm) nagyobb, a kézemelés (30 és 61 cm) és a térdelő fekvőtámasz kisebb csúcs-talajreakcióerőt adott a kézen, mint a többi változat. Nemek között nem volt különbség.',
+    text: 'Hat változatot összehasonlítva (23 fő, erőplató a kéz alatt) a lábemelés (30 és 61 cm) nagyobb, a kézemelés (30 és 61 cm) és a térdelő fekvőtámasz kisebb csúcs függőleges talajreakció-erőt adott a kézen, mint a többi változat. Ez a kézen mért külső erő; az egyes izmok terhelését vagy aktivitását nem mérték.',
     evidence: 'documented-observation',
     sourceIds: EBBEN
   },
   {
-    text: 'Hagyományos és térdelő fekvőtámasznál is az alsó helyzetben jutott több testtömeg a kézre, mint a felsőben; a felső és az alsó helyzet közti különbség a térdelő változatnál volt nagyobb. A szerzők ezt a kéz és a talajjal érintkező pont (láb vagy térd) eltérő erőkarjával magyarázták.',
+    text: 'Négy statikus helyzetben (hagyományos és térdelő fekvőtámasz felső és alsó helyzete; 28 edzett férfi) mérve mindkét változatnál az alsó helyzetben jutott több testtömeg a kézre, mint a felsőben; a felső és az alsó helyzet közti különbség a térdelő változatnál volt nagyobb. A szerzők ezt a kéz és a talajjal érintkező pont (láb vagy térd) eltérő erőkarjával magyarázták. Mozgás közbeni erőt és izomaktivitást nem mértek.',
     evidence: 'documented-observation',
     sourceIds: SUPRAK
   }
@@ -72,7 +72,7 @@ export function tiltExplanation(o: PushUpOptions): Claim[] {
   if (higher)
     return [
       {
-        text: 'Lábemelésnél a test feje lejjebb kerül, a kar a törzshöz képest inkább a fej felé nyom – a ferde padon végzett fekvenyomáshoz hasonlóan. A vállízület hajlítóinak (kulcscsonti rész, deltaizom elülső része) szerepe ezért nagyobb lehet.',
+        text: 'Lábemelésnél a test feje lejjebb kerül, a kar a törzshöz képest inkább a fej felé nyom – a ferde padon végzett fekvenyomáshoz hasonlóan. Ebből oktatási hipotézisként következik, hogy a vállízület hajlítóinak (kulcscsonti rész, deltaizom elülső része) szerepe nagyobb lehet; ezt nem mérték.',
         evidence: 'educational-model',
         sourceIds: KIN
       }
@@ -80,7 +80,7 @@ export function tiltExplanation(o: PushUpOptions): Claim[] {
   if (lower && !o.knees)
     return [
       {
-        text: 'Kézemelésnél a test feje feljebb kerül, a kar a törzshöz képest inkább a láb felé nyom – a negatív padon végzett fekvenyomáshoz hasonlóan. A szegycsonti-bordai rész szerepe ezért nagyobb lehet, a kézre jutó terhelés kisebb.',
+        text: 'Kézemelésnél a test feje feljebb kerül, a kar a törzshöz képest inkább a láb felé nyom – a negatív padon végzett fekvenyomáshoz hasonlóan. Oktatási hipotézis, hogy a szegycsonti-bordai rész szerepe nagyobb lehet (nem mérték); a kézen mért erő kisebb.',
         evidence: 'educational-model',
         sourceIds: KIN
       }
@@ -88,7 +88,7 @@ export function tiltExplanation(o: PushUpOptions): Claim[] {
   if (o.knees)
     return [
       {
-        text: 'Térdelő változatnál a test rövidebb: a térd és a kéz közötti szakasz meredekebb, a kézre jutó terhelés kisebb. A vállízület mozgása az alapváltozatéhoz hasonló.',
+        text: 'Térdelő változatnál a test rövidebb: a térd és a kéz közötti szakasz meredekebb, a kézen mért erő kisebb. A vállízület mozgása az alapváltozatéhoz hasonló.',
         evidence: 'educational-model',
         sourceIds: KIN
       }
@@ -108,10 +108,10 @@ export const handWidths: { id: HandWidth; name: string; description: string; fin
   {
     id: 'narrow',
     name: 'Keskeny',
-    description: 'A kezek a váll szélességénél közelebb; a könyök a törzs mellett hajlik, a könyökhajlítás mértéke nagyobb.',
+    description: 'A kezek a váll szélességénél közelebb; a könyök jellemzően a törzshöz közelebb mozog. A könyökszög és a könyök mozgástartománya nem a kéztávolságból következik.',
     findings: [
       {
-        text: 'Keskeny kéztartásnál a nagy mellizom és a háromfejű karizom EMG-aktivitása is nagyobb volt, mint széles kéztartásnál (40 fő).',
+        text: 'Egy vizsgálatban (40 fő, egy-egy ismétlés, domináns oldal) keskeny kéztartásnál a nagy mellizom és a háromfejű karizom EMG-aktivitása is nagyobb volt, mint széles kéztartásnál.',
         evidence: 'documented-observation',
         sourceIds: COGLEY
       }
@@ -120,10 +120,10 @@ export const handWidths: { id: HandWidth; name: string; description: string; fin
   {
     id: 'shoulder',
     name: 'Vállszéles',
-    description: 'A kezek a váll alatt vagy kissé szélesebben; a könyök kb. 45°-ban távolodik a törzstől. Ez az alapváltozat.',
+    description: 'A kezek a váll alatt vagy kissé szélesebben. Ez az alapváltozat.',
     findings: [
       {
-        text: 'A vizsgálat a keskeny és a széles kéztartás között talált különbséget; a vállszéles tartás az összehasonlítás kiindulópontja volt.',
+        text: 'A vizsgálat a vállszéles tartást is mérte, de az absztrakt csak a keskeny–széles összehasonlítás különbségét jelzi.',
         evidence: 'documented-observation',
         sourceIds: COGLEY
       }
@@ -132,10 +132,10 @@ export const handWidths: { id: HandWidth; name: string; description: string; fin
   {
     id: 'wide',
     name: 'Széles',
-    description: 'A kezek a vállnál jóval szélesebben; a könyök oldalra nyílik, a felkar a törzstől távolabb mozog, a könyökhajlítás mértéke kisebb.',
+    description: 'A kezek a vállnál jóval szélesebben; a könyök jellemzően oldalra nyílik, a felkar a törzstől távolabb mozog.',
     findings: [
       {
-        text: 'Széles kéztartásnál a nagy mellizom és a háromfejű karizom EMG-aktivitása kisebb volt, mint keskeny kéztartásnál.',
+        text: 'Ugyanebben a vizsgálatban széles kéztartásnál a nagy mellizom és a háromfejű karizom EMG-aktivitása kisebb volt, mint keskeny kéztartásnál.',
         evidence: 'documented-observation',
         sourceIds: COGLEY
       },
@@ -150,12 +150,12 @@ export const handWidths: { id: HandWidth; name: string; description: string; fin
 
 export const pushUpPlusFindings: Claim[] = [
   {
-    text: 'Fekvőtámasz plusz: a felső helyzetben a kezek tovább nyomják a talajt, a lapocka előre csúszik a mellkasfalon (protrakció). Ezt az elülső fűrészizom végzi.',
+    text: 'Fekvőtámasz plusz: a felső helyzetben, közel nyújtott könyökkel a kezek tovább nyomják a talajt, a lapocka a mellkasfal mentén előre mozog (protrakció). Ennek egyik fő mozgatója az elülső fűrészizom.',
     evidence: 'anatomical-fact',
     sourceIds: KIN
   },
   {
-    text: 'A hagyományos fekvőtámasz plusz a „plusz” szakaszban az elülső fűrészizom legnagyobb aktivitását és a csuklyásizom felső része / elülső fűrészizom legkisebb arányát adta a vizsgált változatok (könyökön, térden, falnál) közül; egészséges és enyhe vállpanaszos csoportban is.',
+    text: 'A vizsgált négy változat (hagyományos, könyökön, térden és falnál végzett fekvőtámasz plusz; 30 fő) közül a hagyományos, talajon végzett változat „plusz” szakaszában volt a legmagasabb a mért elülsőfűrészizom-EMG, és a legalacsonyabb a felső csuklyásizom / elülső fűrészizom EMG-aránya. A vizsgálat csak ezt a két izmot mérte: teljes izomaktivitási rangsor nem következik belőle, a felső fűrészizomkötegek külön aktivitásáról sem szól, és az izomhosszt sem mérte.',
     evidence: 'documented-observation',
     sourceIds: LUDEWIG
   }

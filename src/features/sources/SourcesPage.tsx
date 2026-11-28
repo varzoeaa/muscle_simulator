@@ -7,9 +7,9 @@ export function SourcesPage() {
     <div className="mx-auto flex max-w-4xl flex-col gap-4">
       <h1 className="font-serif text-3xl text-ink">Források és névjegy</h1>
       <Disclaimer />
-      <Panel title="A MuscleLab-ról">
+      <Panel title="A Myóról">
         <p className="text-sm leading-relaxed text-ink-2">
-          A MuscleLab ingyenes, regisztráció nélküli oktatási alkalmazás fitnessinstruktor-tanulóknak, személyi edzőknek, sporttudományi hallgatóknak és minden anatómia iránt
+          A Myo ingyenes, regisztráció nélküli oktatási alkalmazás fitnessinstruktor-tanulóknak, személyi edzőknek, sporttudományi hallgatóknak és minden anatómia iránt
           érdeklődőnek. Minden tananyag helyben, a böngészőben érhető el; az alkalmazás telepíthető (PWA) és internetkapcsolat nélkül is működik. Nem gyűjt személyes adatot, és nem
           használ külső API-t.
         </p>

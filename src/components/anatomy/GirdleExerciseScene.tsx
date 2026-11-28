@@ -32,7 +32,7 @@ export function GirdleExerciseScene({ animation, depth, roleMap, activeIds, show
       hideLabels={!showLabels}
       ariaLabel={ariaLabel}
       // Felülnézetben a kar messze oldalra (vagy előre) nyúlik: szélesebb kivágás, hogy végig látsszon.
-      viewBoxOverride={animation.viewId === 'superior-girdle' ? [-350, 40, 1300, 700] : undefined}
+      viewBoxOverride={animation.viewBox ?? (animation.viewId === 'superior-girdle' ? [-350, 40, 1300, 700] : undefined)}
     />
   );
 }

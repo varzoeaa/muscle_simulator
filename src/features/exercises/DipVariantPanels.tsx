@@ -14,7 +14,7 @@ export function DipVariantComparison({ options, onVariant }: { options: DipOptio
       rows={dipVariantRows}
       onSwitch={(k) => onVariant(k as DipVariant)}
       switchLabel="Mutasd az animáción"
-      footnote="Egy 13 fős, tapasztalt férfiakkal végzett vizsgálat eredményei; az EMG az izom elektromos aktivitását méri, nem az izomerőt vagy a hipertrófiás hatást. Az animáció a változatok sorrendjét szemlélteti (vállfeszítés: pad > korlát > gyűrű), az ízületi szögek nem a mért értékek."
+      footnote="Egy tapasztalt férfiakkal végzett vizsgálat eredményei (csoportátlagok). A vállfeszítés %-a a külön mozgástartomány-tesztben mért egyéni referenciaértékhez viszonyított érték. Az EMG az izom elektromos aktivitását méri, nem az izomerőt, a hipertrófiás hatást vagy a sérülésveszélyt. Az animáció a változatok sorrendjét szemlélteti (vállfeszítés: pad > korlát > gyűrű), az ízületi szögek nem a mért értékek."
     />
   );
 }
@@ -61,7 +61,7 @@ export function DipLeanComparison({ options, rom, onLean }: { options: DipOption
             <p className="text-sm text-ink">
               {dipVariantNames[options.variant]}, {options.lean}° törzsdőlés, {Math.round(rom * 100)}% mozgástartomány: a felkar a törzshöz képest kb. <b>{Math.round(ext)}°</b>-kal kerül hátra.
             </p>
-            <p className="text-[11px] text-ink-2">A sematikus modellből számított érték: a felkar függőlegestől mért szöge mínusz a törzs előredőlése. Nem mért adat; a mért értékek a fenti táblázatban vannak.</p>
+            <p className="text-[11px] text-ink-2">A sematikus modell geometriai eredménye: a felkar függőlegestől mért szöge mínusz a törzs előredőlése. Nem mért adat, és nincs fiziológiai küszöbe; a mért értékek a fenti táblázatban vannak.</p>
           </div>
           <div className="flex flex-col gap-2">
             <ClaimList claims={dipLeanClaims(options.lean)} />

@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useOutletContext, useParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, RefreshCcw, RotateCw, Trash2 } from 'lucide-react';
+import { ChevronRight, RefreshCcw, Trash2 } from 'lucide-react';
 import type { ExamResult, Muscle, QuestionTopic, StudyAnswer, StudyQuestion } from '../../types';
 import { flashcardsForMuscle, questionsForMuscle, topicLabels } from '../../data/questions';
 import { buildExam, evaluation, gradeAnswer, score, wrongQuestions } from '../../engines/study/studyEngine';
 import { useStudyStore } from '../../stores/studyStore';
 import { Button, ModulePending, Panel, Segmented, SourceRefs } from '../../components/ui';
 import { QuestionView, correctAnswerText } from './QuestionView';
+import { FlashcardDeck } from '../../components/study/FlashcardDeck';
 import { isPersistentStorageAvailable } from '../../services/storage';
 
 type Tab = 'cards' | 'practice' | 'exam' | 'results';
@@ -35,8 +36,8 @@ function StudyModeContent({ muscle }: { muscle: Muscle }) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-serif text-2xl text-ink">Study Mode</h1>
-          <p className="text-xs text-ink-2">Tanulás és vizsgafelkészítés – ellenőrzött, előre elkészített kérdésekből</p>
+          <h1 className="font-serif text-2xl text-ink">Tanulás</h1>
+          <p className="text-xs text-ink-2">Kártyák, gyakorlás és vizsga ellenőrzött, előre elkészített kérdésekből</p>
         </div>
         <Segmented<Tab>
           label="Tanulási mód"
@@ -63,49 +64,15 @@ function StudyModeContent({ muscle }: { muscle: Muscle }) {
 
 function Flashcards({ muscleId }: { muscleId: string }) {
   const cards = flashcardsForMuscle(muscleId);
-  const [i, setI] = useState(0);
-  const [flipped, setFlipped] = useState(false);
   const mark = useStudyStore((s) => s.markFlashcardSeen);
   const seen = useStudyStore((s) => s.progress.flashcardsSeen);
-  const card = cards[i];
-  if (!card) return <p className="text-sm text-ink-2">Nincs tanulókártya.</p>;
-  const go = (d: number) => {
-    setFlipped(false);
-    setI((x) => (x + d + cards.length) % cards.length);
-  };
-  const flip = () => {
-    if (!flipped) mark(card.id);
-    setFlipped((f) => !f);
-  };
+  if (!cards.length) return <p className="text-sm text-ink-2">Nincs tanulókártya.</p>;
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-3">
-      <button
-        type="button"
-        onClick={flip}
-        aria-label={flipped ? 'Kártya előlapjának megjelenítése' : 'Kártya megfordítása – válasz megjelenítése'}
-        className="flex min-h-56 flex-col justify-between rounded-2xl border border-line bg-surface p-6 text-left transition hover:border-accent-2"
-      >
-        <span className="text-[11px] uppercase tracking-wider text-accent-2">
-          {topicLabels[card.topic]} · {flipped ? 'Válasz' : 'Kérdés'}
-        </span>
-        <span className={`my-4 ${flipped ? 'text-base leading-relaxed' : 'font-serif text-xl'} text-ink`}>{flipped ? card.back : card.front}</span>
-        <span className="flex items-center justify-between text-xs text-ink-2">
-          <span>{flipped ? <SourceRefs ids={card.sourceIds} /> : 'Kattints vagy nyomj Entert a megfordításhoz'}</span>
-          <RotateCw size={14} />
-        </span>
-      </button>
-      <div className="flex items-center justify-between">
-        <Button variant="outline" onClick={() => go(-1)}>
-          <ChevronLeft size={16} /> Előző
-        </Button>
-        <span className="text-xs text-ink-2">
-          {i + 1} / {cards.length} · megtekintve: {Object.keys(seen).filter((k) => cards.some((c) => c.id === k)).length}
-        </span>
-        <Button variant="outline" onClick={() => go(1)}>
-          Következő <ChevronRight size={16} />
-        </Button>
-      </div>
-    </div>
+    <FlashcardDeck
+      cards={cards.map((c) => ({ id: c.id, label: topicLabels[c.topic], front: c.front, back: c.back, footer: <SourceRefs ids={c.sourceIds} /> }))}
+      onFlip={mark}
+      counterExtra={` · megtekintve: ${Object.keys(seen).filter((k) => cards.some((c) => c.id === k)).length}`}
+    />
   );
 }
 

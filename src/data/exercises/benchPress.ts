@@ -55,10 +55,10 @@ export const benchPress: Exercise = {
       },
       {
         role: 'synergist',
-        joint: 'Vállízület – a fékezés segítése',
+        joint: 'Vállízület – lehetséges segítés a fékezésben',
         structureIds: ['muscle-coracobrachialis', 'muscle-biceps-brachii'],
         lengthChange: 'lengthening',
-        note: 'A kétfejű karizom a vállízületen segít, a könyökízületen viszont a háromfejű karizom antagonistája.',
+        note: 'Két ízületet kell külön nézni. A könyökön a kétfejű karizom hajlító nyomatéka a háromfejű karizom ellen hat. A vállízületen a karhelyzettől függően segítheti a hajlítást – fekvenyomásban ezt a szerepet nem mérték; a nagyobb bicepsz-EMG (pl. kézisúlyzóval) önmagában nem bizonyít ízületi funkciót.',
         evidence: 'educational-model',
         sourceIds: ['neumann-kinesiology']
       },
@@ -81,10 +81,19 @@ export const benchPress: Exercise = {
       },
       {
         role: 'stabilizer',
-        joint: 'Vállízület és lapocka – helyzet megtartása',
-        structureIds: ['muscle-rotator-cuff', 'muscle-rhomboids', 'muscle-trapezius', 'muscle-serratus-anterior'],
+        joint: 'Vállízület – a felkarcsontfej centrálása',
+        structureIds: ['muscle-rotator-cuff'],
         lengthChange: 'constant',
-        note: 'A rotátorköpeny a felkarcsontfejet az ízületi árokban tartja; a lapockaizmok a hátra-lehúzott lapockahelyzetet rögzítik.',
+        note: 'A rotátorköpeny a felkarcsontfejet az ízületi árokban centrálja (a vállízületre hat).',
+        evidence: 'educational-model',
+        sourceIds: ['nsca-essentials', 'neumann-kinesiology']
+      },
+      {
+        role: 'stabilizer',
+        joint: 'Lapocka – a hátra-lehúzott helyzet megtartása',
+        structureIds: ['muscle-rhomboids', 'muscle-trapezius', 'muscle-serratus-anterior'],
+        lengthChange: 'constant',
+        note: 'A lapockaizmok a lapockára hatnak, nem a felkarcsontfejre; az elülső fűrészizom a lapockát a mellkasfal közelében tartja.',
         evidence: 'educational-model',
         sourceIds: ['nsca-essentials', 'neumann-kinesiology']
       }
@@ -108,10 +117,10 @@ export const benchPress: Exercise = {
       },
       {
         role: 'synergist',
-        joint: 'Vállízület – a közelítés és hajlítás segítése',
+        joint: 'Vállízület – lehetséges segítés a közelítésben és hajlításban',
         structureIds: ['muscle-coracobrachialis', 'muscle-biceps-brachii'],
         lengthChange: 'shortening',
-        note: 'A kétfejű karizom a vállízületen segít, a könyökízületen viszont a háromfejű karizom antagonistája.',
+        note: 'Két ízületet kell külön nézni. A könyökön a kétfejű karizom hajlító nyomatéka a háromfejű karizom ellen hat. A vállízületen a karhelyzettől függően segítheti a hajlítást – fekvenyomásban ezt a szerepet nem mérték; a nagyobb bicepsz-EMG (pl. kézisúlyzóval) önmagában nem bizonyít ízületi funkciót.',
         evidence: 'educational-model',
         sourceIds: ['neumann-kinesiology']
       },
@@ -133,10 +142,19 @@ export const benchPress: Exercise = {
       },
       {
         role: 'stabilizer',
-        joint: 'Vállízület és lapocka – helyzet megtartása',
-        structureIds: ['muscle-rotator-cuff', 'muscle-rhomboids', 'muscle-trapezius', 'muscle-serratus-anterior'],
+        joint: 'Vállízület – a felkarcsontfej centrálása',
+        structureIds: ['muscle-rotator-cuff'],
         lengthChange: 'constant',
-        note: 'A rotátorköpeny a felkarcsontfejet az ízületi árokban tartja; a lapockaizmok a hátra-lehúzott lapockahelyzetet rögzítik.',
+        note: 'A rotátorköpeny a felkarcsontfejet az ízületi árokban centrálja (a vállízületre hat).',
+        evidence: 'educational-model',
+        sourceIds: ['nsca-essentials', 'neumann-kinesiology']
+      },
+      {
+        role: 'stabilizer',
+        joint: 'Lapocka – a hátra-lehúzott helyzet megtartása',
+        structureIds: ['muscle-rhomboids', 'muscle-trapezius', 'muscle-serratus-anterior'],
+        lengthChange: 'constant',
+        note: 'A lapockaizmok a lapockára hatnak, nem a felkarcsontfejre; az elülső fűrészizom a lapockát a mellkasfal közelében tartja.',
         evidence: 'educational-model',
         sourceIds: ['nsca-essentials', 'neumann-kinesiology']
       }
@@ -150,11 +168,11 @@ export const benchPress: Exercise = {
     },
     {
       text: 'A pad dőlésszöge megváltoztatja a kar és a törzs viszonyát: ferde padon a mozgás a vállízületi hajlítás felé tolódik, ezért a kulcscsonti rész és a deltaizom elülső része nagyobb szerepet kaphat.',
-      evidence: 'documented-observation',
-      sourceIds: ['rodriguez-ridao-2020', 'lauver-2016']
+      evidence: 'educational-model',
+      sourceIds: ['neumann-kinesiology', 'rodriguez-ridao-2020', 'lauver-2016']
     },
     {
-      text: 'Egy EMG-vizsgálatban a felső mellizomrész aktivitása 30°-nál, a középső és alsó részé vízszintes padon volt a legnagyobb; 45° feletti dőlésnél a deltaizom elülső részének aktivitása nőtt jelentősen. (Az EMG-értékek nem egyenlők az izomerővel vagy a hipertrófiás hatással.)',
+      text: 'Egy rudas EMG-vizsgálatban (0°, 15°, 30°, 45°, 60°; 60% 1RM) a felső mellizomrész átlagos EMG-je 30°-nál volt a legnagyobb, de a vízszintes padhoz képest ez a különbség nem volt statisztikailag jelentős; a középső és alsó rész EMG-je vízszintes padon volt a legnagyobb. A 45°-os és 60°-os beállításnál a deltaizom elülső részének EMG-je jelentősen nagyobb volt a többi mért izoménál. (Az EMG nem egyenlő az izomerővel, a külső terheléssel vagy a hipertrófiás hatással.)',
       evidence: 'documented-observation',
       sourceIds: ['rodriguez-ridao-2020']
     }

@@ -8,6 +8,7 @@ import { BiomechanicsLab } from '../features/biomechanics/BiomechanicsLab';
 import { ExerciseLab } from '../features/exercises/ExerciseLab';
 import { StudyMode } from '../features/study/StudyMode';
 import { SourcesPage } from '../features/sources/SourcesPage';
+import { GlossaryPage } from '../features/glossary/GlossaryPage';
 import { isModuleId } from './modules';
 
 function ModuleSwitch() {
@@ -56,6 +57,7 @@ export function App() {
           <Route element={<AppShell />}>
             <Route index element={<HomePage />} />
             <Route path="forrasok" element={<SourcesPage />} />
+            <Route path="fogalomtar" element={<GlossaryPage />} />
             <Route path="izom/:slug" element={<Navigate to="anatomia" replace />} />
             <Route path="izom/:slug/:module/*" element={<MuscleLayout />}>
               <Route path="*" element={<ModuleSwitch />} />

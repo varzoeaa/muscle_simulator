@@ -13,18 +13,24 @@ const BOX_GIRDLE: [number, number, number, number] = [70, 20, 460, 300];
 
 const rolesFor = (movementId: MotionDefinition['movementId']) => subclavius.roles.filter((r) => r.movementId === movementId);
 
+/**
+ * A modell három működési módja: az aktív izom rövidül, hosszabbodik vagy közel azonos hosszú marad.
+ * Hogy a kulcscsont merre mozdul, azt a szegycsont-kulcscsonti ízület körüli eredő nyomaték
+ * határozza meg (a többi izom, a külső terhelés és a mozgás állapota együtt), nem egyetlen izom
+ * ereje; ezért a szöveg a hosszváltozást írja le, és a szemléltetett terhelést feltevésként jelöli.
+ */
 const contraction = (shortText: string, example: string): MotionDefinition['contraction'] => ({
   concentric: {
     summary: `Az aktív izom rövidül – ${shortText}.`,
-    detail: `A kulcscsont alatti izom húzóereje meghaladja a külső ellenállást, ezért a tapadás (a kulcscsont alsó felszíne) az eredés (1. borda) felé közeledik. ${example}`
+    detail: `A tapadás (a kulcscsont alsó felszíne) az eredés (1. borda) felé közeledik, az izom rövidebb lesz. A kulcscsont mozgása a szegycsont-kulcscsonti ízület körüli eredő nyomatéktól függ: ehhez a többi izom, a külső terhelés és a mozgás állapota is hozzájárul. ${example}`
   },
   eccentric: {
-    summary: 'Az aktív izom terhelés alatt hosszabbodik – a kulcscsont fékezetten emelkedik.',
-    detail: 'A külső ellenállás nagyobb, mint az izom ereje, ezért a kulcscsont laterális vége emelkedik, de az izom aktív marad és fékez. Az eredés és a tapadás távolodik.'
+    summary: 'Az aktív izom hosszabbodik – a kulcscsont laterális vége emelkedik.',
+    detail: 'Az eredés és a tapadás távolodik, az izom hosszabb lesz, miközben a modell aktívnak tekinti. Ez akkor jön létre, ha a kulcscsontra ható eredő nyomaték emelő irányú. Az izom aktivitását ebben a szakaszban nem mérték – a szemléltetés feltevés.'
   },
   isometric: {
-    summary: 'Az izom aktív, a kulcscsont helyzete közel változatlan.',
-    detail: 'Az izom a kulcscsontot az 1. borda felé húzva rögzíti, elmozdulás nélkül – ez stabilizáló működésének leggyakoribb formája.'
+    summary: 'Az izom aktív, a hossza és a kulcscsont helyzete közel változatlan.',
+    detail: 'Lehetséges stabilizáló működés: az izom a kulcscsontot az 1. borda felé húzva, elmozdulás nélkül rögzítheti. Hogy ez milyen gyakori, arra nincs közvetlen mérés.'
   }
 });
 
@@ -39,17 +45,27 @@ export const subClavicularDepression: MotionDefinition = {
   endPose: { clavicleElevation: 0, scapularUpwardRotation: 0, shoulderAbduction: 12 },
   durationMs: 2800,
   description:
-    'A felhúzott (emelt) helyzetű kulcscsont visszatér: a laterális vége lefelé fordul a szegycsont-kulcscsonti ízület körül. A kulcscsont alatti izom az 1. bordától a kulcscsont alsó felszínéig fut, ezért rövidülésével a kulcscsontot lefelé, az 1. borda felé húzza.',
+    'A süllyesztés első tartománya: az emelt helyzetű kulcscsont (+14°) visszatér a semleges helyzetig (0°); a laterális vége lefelé fordul a szegycsont-kulcscsonti ízület körül. (A második animáció ugyanezt az irányt a semleges helyzet alatt mutatja.) A kulcscsont alatti izom az 1. bordától a kulcscsont alsó felszínéig fut, ezért rövidülésével a kulcscsontot lefelé, az 1. borda felé húzhatja. A szögek szemléltető modellértékek.',
   resistance:
-    'Szemléltetett ellenállás: a vállövet felfelé húzó erő – például vállvonogatás (felhúzott vállak) után, vagy amikor a kar emelésekor a vállöv megemelkedik. A süllyesztők ezzel szemben dolgoznak.',
-  contraction: contraction('a kulcscsont laterális vége lefelé mozdul', 'Példa: a felhúzott vállak kontrollált leengedése és lent tartása.'),
+    'Feltételezett terhelési helyzet: egy, a vállövet felfelé húzó erő, amellyel szemben a süllyesztők dolgoznak. Magából a mozdulatból – például a felhúzott vállak leengedéséből – nem következik, hogy az izom aktívan rövidül: a leengedést a gravitáció is létrehozhatja.',
+  contraction: contraction('a kulcscsont laterális vége lefelé mozdul', 'Szemléltetett példa (a fenti terhelési feltevéssel): a felhúzott vállak lehúzása és lent tartása.'),
   roles: rolesFor('clavicular-depression'),
   regionNotes: [],
   claims: [
     { text: 'A kulcscsont alatti izom a kulcscsontot süllyeszti és rögzíti, így mozgás közben stabilizálja.', evidence: 'anatomical-fact', sourceIds: ['openstax-ap2e', 'moore-coa'] },
     { text: 'A vállöv süllyesztői (kis mellizom, csuklyásizom alsó része, széles hátizom) a kulcscsontot is lefelé viszik.', evidence: 'educational-model', sourceIds: ['neumann-kinesiology'] },
     {
-      text: 'Az animáció a kulcscsontot merev testként, a szegycsont-kulcscsonti ízület körüli fordulással mutatja; a lapocka vele együtt mozog. A kulcscsont saját tengelye körüli forgása nincs ábrázolva.',
+      text: 'Az animáció a kulcscsontot merev testként, 2D-ben, a szegycsont-kulcscsonti ízület körüli fordulással mutatja; a lapocka vele együtt mozog, saját mozgása (a vállcsúcs-kulcscsonti ízületben) nincs ábrázolva. A kulcscsont saját tengelye körüli forgása – amely karemeléskor a szegycsont-kulcscsonti ízület jelentős mozgása – sem látszik.',
+      evidence: 'educational-model',
+      sourceIds: ['ludewig-2009']
+    },
+    {
+      text: 'Egy 12 fős EMG-vizsgálat a kulcscsont alatti izom szegycsont-kulcscsonti ízületet stabilizáló szerepét támogatja (az absztrakt alapján).',
+      evidence: 'documented-observation',
+      sourceIds: ['reis-1979']
+    },
+    {
+      text: 'A kulcscsont alatti izom hosszváltozása az animációban a geometriából adódik; az izom aktivitását a bemutatott helyzetben nem mérték.',
       evidence: 'educational-model',
       sourceIds: []
     }
@@ -67,16 +83,17 @@ export const subGirdleDepression: MotionDefinition = {
   endPose: { clavicleElevation: -10, scapularUpwardRotation: 0, shoulderAbduction: 12 },
   durationMs: 2800,
   description:
-    'A vállöv az alaphelyzet alá süllyed: a kulcscsont és vele a lapocka lefelé mozdul. A fő mozgatók a kis mellizom, a csuklyásizom alsó része és a széles hátizom; a kulcscsont alatti izom a kulcscsont süllyesztésével és rögzítésével segít.',
+    'A süllyesztés második tartománya: a semleges helyzetből (0°) az alá (−10°); a kulcscsont és vele a lapocka lefelé mozdul. Az első animáció ugyanezt az irányt az emelt helyzetből a semlegesig mutatja. A szemléltetett helyzetben a kis mellizom és a csuklyásizom alsó része a lapockára, a széles hátizom a felkarcsontra hat; a kulcscsont alatti izom közvetlenül a kulcscsontra, annak süllyesztésével és rögzítésével segíthet. A szögek szemléltető modellértékek.',
   resistance:
-    'Szemléltetett ellenállás: a vállövet felfelé toló erő – például támaszhelyzetben (tolódzkodás, támasz a korláton) a testsúly a vállakat a fül felé tolja.',
-  contraction: contraction('a vállöv lefelé mozdul', 'Példa: támaszban a vállak aktív lehúzása.'),
+    'Feltételezett terhelési helyzet: a vállövet felfelé toló erő – például támaszban a testsúly a vállakat a fül felé tolja. Magából a korlátos támaszból nem következik, hogy a kulcscsont alatti izom aktívan rövidül vagy hosszabbodik; a modell ezt a terhelési feltevés alapján mutatja.',
+  contraction: contraction('a vállöv lefelé mozdul', 'Szemléltetett példa (a fenti terhelési feltevéssel): támaszban a vállak lehúzása.'),
   roles: rolesFor('scapular-depression'),
   regionNotes: [],
   claims: [
     { text: 'A kulcscsont alatti izom a vállat (vállövet) süllyeszti.', evidence: 'anatomical-fact', sourceIds: ['statpearls-pectoral'] },
-    { text: 'A vállöv süllyesztésében szinergista: a fő mozgatók a kis mellizom, a csuklyásizom alsó része és a széles hátizom.', evidence: 'anatomical-fact', sourceIds: ['neumann-kinesiology', 'openstax-ap2e'] },
-    { text: 'Az animáció a süllyesztést a kulcscsont szegycsont-kulcscsonti ízület körüli fordulásaként mutatja; a lapocka mellkasfalon való csúszása nincs ábrázolva.', evidence: 'educational-model', sourceIds: [] }
+    { text: 'A vállöv süllyesztői más-más csontra hatnak: a kis mellizom a lapockára, a széles hátizom a felkarcsontra, a kulcscsont alatti izom a kulcscsontra.', evidence: 'anatomical-fact', sourceIds: ['neumann-kinesiology', 'openstax-ap2e', 'statpearls-pectoral'] },
+    { text: 'A szemléltetett helyzetben a kulcscsont alatti izmot szinergistaként, a kis mellizmot, a csuklyásizom alsó részét és a széles hátizmot agonistaként mutatjuk; ez a sorrend erre a helyzetre vonatkozó oktatási modell.', evidence: 'educational-model', sourceIds: ['neumann-kinesiology'] },
+    { text: 'Az animáció a süllyesztést a kulcscsont merev, 2D-s, szegycsont-kulcscsonti ízület körüli fordulásaként mutatja; a kulcscsont saját tengely körüli forgása és a lapocka mellkasfalon való csúszása nincs ábrázolva.', evidence: 'educational-model', sourceIds: ['ludewig-2009'] }
   ]
 };
 
@@ -92,13 +109,13 @@ export const subAccessoryInspiration: MotionDefinition = {
   durationMs: 3000,
   contractionTypes: ['concentric'],
   description:
-    'Ha a kulcscsont és a vállöv rögzített, a kulcscsont alatti izom „fordítva” működhet: a kulcscsont nem mozdul, az izom az 1. bordát emeli a kulcscsont felé.',
+    'Ha a kulcscsont és a vállöv rögzített, a kulcscsont alatti izom „fordítva” működhet: a kulcscsont nem mozdul, az izom az 1. bordát emelheti a kulcscsont felé. Ez tankönyvi mechanizmus; az izom aktív rövidülése és a vállövet rögzítő izmok részvétele a bemutatott modell feltétele.',
   resistance:
     'Külső teher nincs. A nyugodt belégzést a fő belégzőizmok (rekeszizom, külső bordaközi izmok) végzik; ezek az ábrán nem szerepelnek.',
   contraction: {
     concentric: {
-      summary: 'Az izom aktív és rövidül – az 1. borda a rögzített kulcscsont felé emelkedik.',
-      detail: 'Az eredés (1. borda) mozog a tapadás (kulcscsont) felé; a kulcscsont helyzete nem változik.'
+      summary: 'A modell feltétele: az izom aktív és rövidül – az 1. borda a rögzített kulcscsont felé emelkedik.',
+      detail: 'Az eredés (1. borda) mozog a tapadás (kulcscsont) felé; a kulcscsont helyzete nem változik. A belégzés közbeni fázisonkénti izomaktivitást nem mérték.'
     },
     eccentric: { summary: 'Ennél a funkciónál nem szemléltetjük.', detail: '' },
     isometric: { summary: 'Ennél a funkciónál nem szemléltetjük.', detail: '' }
@@ -106,9 +123,9 @@ export const subAccessoryInspiration: MotionDefinition = {
   roles: rolesFor('accessory-inspiration'),
   regionNotes: [],
   claims: [
-    { text: 'A kulcscsont alatti izom az 1. borda emelésében is részt vesz.', evidence: 'anatomical-fact', sourceIds: ['statpearls-pectoral'] },
+    { text: 'Rögzített kulcscsont mellett a kulcscsont alatti izom az 1. borda emelésében részt vehet (tankönyvi mechanizmus).', evidence: 'anatomical-fact', sourceIds: ['statpearls-pectoral'] },
     {
-      text: 'Az ábra a bordák emelkedését egyszerű függőleges eltolással szemlélteti (az egész mellkas emelkedik). A valódi bordamozgás összetettebb: a bordák forognak, és a mellkas oldalra és előre is tágul.',
+      text: 'Az ábra az 1. borda emelkedését 2D-ben, az egész mellkas függőleges eltolásával szemlélteti. A valódi bordamozgás forgást és térbeli mellkastágulást (oldalra és előre) is tartalmaz.',
       evidence: 'educational-model',
       sourceIds: []
     }

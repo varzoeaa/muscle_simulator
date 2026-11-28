@@ -43,10 +43,10 @@ function ArmPositionSketch({ p, supine }: { p: StretchPosition; supine: boolean 
   );
 }
 
-/** Karhelyzet és a nagy mellizom régiói: melyik rész nyúlt jobban a vizsgálatban. */
+/** Karhelyzet és a nagy mellizom régiói: melyik részben mértek nagyobb nyírási modulust. */
 export function StretchPositionPanel({ p, onChange, supine }: { p: StretchPosition; onChange: (p: StretchPosition) => void; supine: boolean }) {
   return (
-    <Panel title="Különbségek: karhelyzet – melyik mellizomrész nyúlik jobban" subtitle="A kar magassága, a külső rotáció és a törzs elfordítása szerint (a felülnézeti animáción a kiemelt részek pulzálnak)">
+    <Panel title="Különbségek: karhelyzet – melyik mellizomrészben nagyobb a nyírási modulus" subtitle="A kar magassága, a külső rotáció és a törzs elfordítása szerint (a felülnézeti animáción a kiemelt részek pulzálnak)">
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
           <div className="flex items-center gap-2">
@@ -63,14 +63,22 @@ export function StretchPositionPanel({ p, onChange, supine }: { p: StretchPositi
               ]}
             />
           </div>
-          <Toggle label="Külső rotáció (tenyér előre/felfelé)" checked={p.externalRotation} onChange={(externalRotation) => onChange({ ...p, externalRotation })} />
+          <Toggle label="A felkar külső rotációja" checked={p.externalRotation} onChange={(externalRotation) => onChange({ ...p, externalRotation })} />
           {!supine && <Toggle label="Törzs (medence) elfordítása" checked={p.trunkRotation} onChange={(trunkRotation) => onChange({ ...p, trunkRotation })} />}
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
           <div className="flex flex-col gap-2 rounded-xl bg-bg-2/50 p-2.5">
             <ArmPositionSketch p={p} supine={supine} />
-            {supine && <p className="text-[11px] text-ink-2">Fekve a medence nem fordul el; a vizsgálat medence-elfordításos helyzetei itt nem érvényesek.</p>}
+            <p className="text-[11px] text-ink-2">
+              Külső rotáció: a felkar kifelé fordul a saját hossztengelye körül (a könyökhajlat előre-felfelé néz). A tenyér iránya ezt csak jelzi – az alkar forgatásával a tenyér a felkar
+              helyzetétől függetlenül is megfordulhat.
+            </p>
+            {supine && (
+              <p className="text-[11px] text-ink-2">
+                Fekve a medence nem fordul el; a vizsgálat medence-elfordításos helyzetei itt nem érvényesek. A vizsgálat testhelyzeteinek átvitele a hengeren fekvő nyújtásra oktatási közelítés.
+              </p>
+            )}
           </div>
           <div className="flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-ink">
@@ -84,10 +92,16 @@ export function StretchPositionPanel({ p, onChange, supine }: { p: StretchPositi
                   <li key={r.regionId} className={`rounded-lg p-2 text-sm ${match ? 'bg-accent/20 ring-1 ring-accent-2' : 'bg-surface/60'}`}>
                     <div className="flex items-center gap-1.5 font-medium text-ink">
                       {match ? <Check size={14} aria-hidden="true" /> : partial ? <CircleHelp size={14} aria-hidden="true" /> : <Minus size={14} aria-hidden="true" />}
-                      {r.name}:{' '}
-                      <span className="font-normal">
-                        {match ? 'ebben a helyzetben nyúlt jobban' : partial ? 'lehetséges – a vizsgálat ezt a helyzetet nem pontosan adja meg' : 'nem a kiemelt helyzetek egyike'}
-                      </span>
+                      {r.name}
+                    </div>
+                    <div className="mt-0.5 text-ink">
+                      {match
+                        ? supine
+                          ? 'Ebben a karhelyzetben mértek magasabb nyírási modulust (átvitel fekvő helyzetre: közelítés).'
+                          : 'Ebben a helyzetben mértek magasabb nyírási modulust.'
+                        : partial
+                          ? `Bizonytalan – ${r.partialNote ?? 'a vizsgálat ezt a kombinációt nem írja le pontosan'}.`
+                          : 'Nem a kiemelt helyzetek egyike.'}
                     </div>
                     <div className="mt-0.5 text-[11px] text-ink-2">Kiemelt helyzetek: {r.studyPositions}.</div>
                   </li>
@@ -98,7 +112,7 @@ export function StretchPositionPanel({ p, onChange, supine }: { p: StretchPositi
         </div>
         <ClaimList claims={regionFindings} />
         <p className="text-xs text-ink-2">
-          A nyírási modulus az izom „feszességét” jelzi, és közvetve utal a megnyúlásra; nem a nyújtás hosszú távú hatását méri. A hasi rész felülnézetből nem látható, ezért az animáción nem
+          A vizsgálat a nyírási modulust (az izom merevségét) mérte; a megnyúlásra ebből közvetve, becsléssel következtetnek – a nyúlás mértékét közvetlenül nem mérték, és a nyújtás hosszú távú hatását sem. Biztos kiemelést (✓, pulzálás) csak az absztraktban pontosan leírt kombináció kap. A hasi rész felülnézetből nem látható, ezért az animáción nem
           jelenik meg.
         </p>
       </div>

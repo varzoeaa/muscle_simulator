@@ -4,10 +4,10 @@
 |---|---|---|
 | Phase 0 – Technikai kutatás | API-k és nyílt források, licencek, geometria- és animációterv | ✅ kész (DATA_LICENSES.md) |
 | Phase 1 – Alapok | Vite + React + TS, könyvtárstruktúra, design tokenek, világos/sötét mód, izomközpontú navigáció, helyi tárolás, PWA | ✅ kész |
-| Phase 2 – Anatomy Lab | Nagy mellizom adatmodell, interaktív SVG (elülső + felülnézet), eredés/tapadás, beidegzés, izomrészek, funkciók, szerepek | ✅ kész a nagy mellizomhoz · ⏳ további három izom |
-| Phase 3 – Biomechanics Lab | Animációs motor, közelítés és horizontális közelítés, koncentrikus/excentrikus/izometriás működés, szerepkör-megjelenítés, vezérlők | ✅ kész a nagy mellizomhoz (7 mozgás: minden felsorolt funkció, oldalnézettel és zárt lánccal) |
-| Phase 4 – Exercise Lab | Nagy mellizom-gyakorlatok (ROM, paddőlés, súly, szakaszonkénti izomszerepek) | ✅ 9 gyakorlat · ⏳ a többi izom gyakorlatai, push-up plus |
-| Phase 5 – Study Mode | Kártyák, feleletválasztós, ábrás, párosítós, hiányos szöveg; gyakorlás, vizsga, hibás kérdések | ✅ kész a nagy mellizomhoz (18 kérdés, 11 kártya) |
+| Phase 2 – Anatómia | Nagy mellizom adatmodell, interaktív SVG (elülső + felülnézet), eredés/tapadás, beidegzés, izomrészek, funkciók, szerepek | ✅ kész a nagy mellizomhoz · ⏳ további három izom |
+| Phase 3 – Biomechanika | Animációs motor, közelítés és horizontális közelítés, koncentrikus/excentrikus/izometriás működés, szerepkör-megjelenítés, vezérlők | ✅ kész a nagy mellizomhoz (7 mozgás: minden felsorolt funkció, oldalnézettel és zárt lánccal) |
+| Phase 4 – Gyakorlatok | Nagy mellizom-gyakorlatok (ROM, paddőlés, súly, szakaszonkénti izomszerepek) | ✅ 9 gyakorlat · ⏳ a többi izom gyakorlatai, push-up plus |
+| Phase 5 – Tanulás | Kártyák, feleletválasztós, ábrás, párosítós, hiányos szöveg; gyakorlás, vizsga, hibás kérdések | ✅ kész a nagy mellizomhoz (18 kérdés, 11 kártya) |
 | Phase 6 – Véglegesítés | Tudományos lektorálás, funkcionális és mobil tesztelés, teljesítmény, telepítési doksi | 🔶 részben (egységtesztek, build, PWA-ellenőrzés kész) |
 
 ## Következő lépések (javasolt sorrend)
@@ -16,6 +16,6 @@
 2. A lapocka együttmozgásának (scapulohumerális ritmus) szemléltetése a karemelő mozgásokban.
 3. Kis mellizom integrálása (a geometria már szerepel kontextusként): lapocka-frame bevezetése (protrakció, depresszió, lefelé rotáció, előrebillenés).
 4. Kulcscsont alatti izom és elülső fűrészizom (rostcsoportok külön kontúrral).
-5. Exercise Lab bővítése (kézisúlyzós változatok, tárogatás, gépes gyakorlatok, fekvőtámasz, push-up plus).
+5. Gyakorlatok bővítése (kézisúlyzós változatok, tárogatás, gépes gyakorlatok, fekvőtámasz, push-up plus).
 
 A későbbi irányok (fizikai motor, oktatási szintek, fiókok stb.) a PRODUCT_SPEC.md szerint az első verzión kívül esnek.

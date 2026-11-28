@@ -134,7 +134,7 @@ export function SourceList({ ids }: { ids: string[] }) {
                 </a>
               )}
               {s.license && <span>Licenc: {s.license}</span>}
-              <span>{s.verification === 'verified-online' ? `Bibliográfiai adatok online ellenőrizve (${s.checkedAt})` : 'Standard referenciamű – kiadási adatok nyomtatott példány alapján ellenőrizendők'}</span>
+              <span>{s.verification === 'verified-online' ? `Bibliográfiai adatok online ellenőrizve (${s.checkedAt}) – ez nem jelenti, hogy minden hozzárendelt állítást a teljes szövegből ellenőriztünk` : 'Standard referenciamű – kiadási adatok nyomtatott példány alapján ellenőrizendők'}</span>
             </div>
             {s.note && <div className="mt-1 opacity-80">{s.note}</div>}
           </li>
@@ -256,7 +256,7 @@ export function ModulePending({ name, what }: { name: string; what: string }) {
   return (
     <Panel>
       <p className="text-sm text-ink-2">
-        A(z) {name.toLowerCase()} {what} még fejlesztés alatt állnak. Az izom anatómiája az Anatomy Labban már elérhető.
+        A(z) {name.toLowerCase()} {what} még fejlesztés alatt állnak. Az izom anatómiája az Anatómia modulban már elérhető.
       </p>
     </Panel>
   );

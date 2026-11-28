@@ -42,7 +42,8 @@ export const pmiDepression: MotionDefinition = {
   regionNotes: [],
   claims: [
     { text: 'A kis mellizom a lapockát lefelé és előre, a mellkasfalhoz húzza.', evidence: 'anatomical-fact', sourceIds: ['statpearls-pectoral', 'moore-coa'] },
-    { text: 'A lapocka süllyesztői: a kis mellizom, a csuklyásizom alsó része, a széles hátizom (a felkarcsonton keresztül) és a kulcscsont alatti izom.', evidence: 'anatomical-fact', sourceIds: ['neumann-kinesiology', 'openstax-ap2e'] },
+    { text: 'A vállöv süllyesztői más-más csontra hatnak: a kis mellizom és a csuklyásizom alsó része a lapockára, a széles hátizom a felkarcsontra, a kulcscsont alatti izom a kulcscsontra.', evidence: 'anatomical-fact', sourceIds: ['neumann-kinesiology', 'openstax-ap2e'] },
+    { text: 'A kulcscsont alatti izom szinergistaként, a kulcscsont süllyesztésével segítheti a mozgást; az agonista–szinergista sorrend a szemléltetett helyzetre vonatkozó oktatási modell.', evidence: 'educational-model', sourceIds: ['neumann-kinesiology'] },
     {
       text: 'Az animáció a süllyesztést a kulcscsont szegycsont-kulcscsonti ízület körüli fordulásaként mutatja; a valódi mozgásban a lapocka a mellkasfalon is csúszik.',
       evidence: 'educational-model',
@@ -69,7 +70,7 @@ export const pmiDownwardRotation: MotionDefinition = {
   regionNotes: [],
   claims: [
     { text: 'A lapocka lefelé rotálói: a rombuszizmok, a lapockaemelő izom és a kis mellizom.', evidence: 'anatomical-fact', sourceIds: ['neumann-kinesiology'] },
-    { text: 'A felfelé rotációt az elülső fűrészizom és a csuklyásizom végzi – ők a lefelé rotáció antagonistái.', evidence: 'anatomical-fact', sourceIds: ['neumann-kinesiology'] },
+    { text: 'Az elülső fűrészizom és a csuklyásizom felfelé rotáló nyomatékot fejt ki, ezért a lefelé rotáció antagonistáiként jelöljük. A címke a nyomaték irányát jelöli; hogy egy ereszkedő mozgásban aktívak-e, abból nem következik.', evidence: 'anatomical-fact', sourceIds: ['neumann-kinesiology'] },
     {
       text: 'Az animáció a lefelé rotációt a felfelé rotált, emelt helyzetből való visszatérésként mutatja (a kulcscsont is süllyed). A lapocka egyszerűsítve a vállcsúcs-kulcscsonti ízület körül fordul; a valódi forgástengely a mozgás során vándorol.',
       evidence: 'educational-model',
@@ -95,7 +96,7 @@ export const pmiProtraction: MotionDefinition = {
   roles: rolesFor('scapular-protraction'),
   regionNotes: [],
   claims: [
-    { text: 'A protrakció fő mozgatója az elülső fűrészizom; a kis mellizom segíti.', evidence: 'anatomical-fact', sourceIds: ['neumann-kinesiology', 'moore-coa'] },
+    { text: 'A protrakció egyik fő mozgatója az elülső fűrészizom; a kis mellizom segíti.', evidence: 'anatomical-fact', sourceIds: ['neumann-kinesiology', 'moore-coa'] },
     { text: 'A protrakció antagonistái a retraktorok: a rombuszizmok és a csuklyásizom középső része.', evidence: 'anatomical-fact', sourceIds: ['neumann-kinesiology'] },
     {
       text: 'Az animáció a protrakciót a kulcscsont szegycsont-kulcscsonti ízület körüli előre fordulásaként mutatja; a lapocka valójában a mellkas ívét követve csúszik és el is fordul.',

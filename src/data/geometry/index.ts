@@ -5,7 +5,7 @@ import { lateralView } from './lateralView';
 import { superiorArmAtSideView } from './superiorArmAtSideView';
 import { anteriorClosedChainView, anteriorRespirationView, solveClosedChain } from './anteriorVariants';
 import { posteriorClosedChainView, posteriorView } from './posteriorView';
-import { anteriorGirdleView, lateralGirdleView, superiorGirdleView } from './girdleVariants';
+import { anteriorGirdleView, lateralGirdleView, posteriorGirdleView, superiorGirdleView } from './girdleVariants';
 
 export const views: AnatomicalView[] = [
   { id: 'anterior', atlas: true, name: { hu: 'Elülső nézet', en: 'Anterior view', la: 'Facies anterior' }, description: 'A mellkas és a váll elölről, anatómiai alaphelyzetben.' },
@@ -23,6 +23,7 @@ export const views: AnatomicalView[] = [
   { id: 'lateral-bench', name: { hu: 'Oldalnézet (fekvenyomás)', en: 'Lateral view (bench press)' }, description: 'A gyakorlat szagittális síkú vetülete.' },
   { id: 'anterior-girdle', name: { hu: 'Elülső nézet – mozgó vállöv', en: 'Anterior view – moving shoulder girdle' }, description: 'A kulcscsont és a lapocka a frontális síkban mozog (emelés–süllyesztés, felfelé–lefelé rotáció).' },
   { id: 'superior-girdle', name: { hu: 'Felülnézet – mozgó vállöv', en: 'Superior view – moving shoulder girdle' }, description: 'A kulcscsont és a lapocka a vízszintes síkban mozog (protrakció–retrakció).' },
+  { id: 'posterior-girdle', name: { hu: 'Hátulnézet – mozgó lapocka', en: 'Posterior view – moving scapula' }, description: 'A lapocka a frontális síkban fordul (felfelé–lefelé rotáció), hátulról nézve.' },
   { id: 'lateral-girdle', name: { hu: 'Oldalnézet – billenő lapocka', en: 'Lateral view – tilting scapula' }, description: 'A lapocka előre–hátra billen a mellkasfalon.' }
 ];
 
@@ -37,10 +38,11 @@ export const viewGeometries: Partial<Record<AnatomicalViewId, ViewGeometry>> = {
   'posterior-closed-chain': posteriorClosedChainView,
   'anterior-girdle': anteriorGirdleView,
   'superior-girdle': superiorGirdleView,
-  'lateral-girdle': lateralGirdleView
+  'lateral-girdle': lateralGirdleView,
+  'posterior-girdle': posteriorGirdleView
 };
 
-/** Az egyes nézetek alaphelyzete (pl. Anatomy Lab statikus megjelenítéséhez). */
+/** Az egyes nézetek alaphelyzete (pl. Anatómia statikus megjelenítéséhez). */
 export const restPoses: Record<AnatomicalViewId, Pose> = {
   anterior: { shoulderAbduction: 12 },
   superior: { shoulderHorizontalAbduction: 60 },
@@ -53,7 +55,8 @@ export const restPoses: Record<AnatomicalViewId, Pose> = {
   'lateral-bench': {},
   'anterior-girdle': { shoulderAbduction: 12 },
   'superior-girdle': { shoulderHorizontalAbduction: 60 },
-  'lateral-girdle': { shoulderFlexion: 0 }
+  'lateral-girdle': { shoulderFlexion: 0 },
+  'posterior-girdle': { shoulderAbduction: 12 }
 };
 
 export const viewById = (id: AnatomicalViewId) => views.find((v) => v.id === id);

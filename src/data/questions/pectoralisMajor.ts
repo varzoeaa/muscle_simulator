@@ -6,14 +6,14 @@ const ANAT = ['moore-coa', 'openstax-ap2e', 'statpearls-pectoral'];
 export const pmFlashcards: Flashcard[] = [
   { id: 'fc-pm-name', muscleId: M, topic: 'name', front: 'Nagy mellizom – angol és latin név?', back: 'Pectoralis major – Musculus pectoralis major', sourceIds: ['fipat-ta2'] },
   { id: 'fc-pm-origin', muscleId: M, topic: 'origin', front: 'Hol ered a nagy mellizom?', back: 'Kulcscsonti rész: a kulcscsont mediális fele. Szegycsonti-bordai rész: a szegycsont elülső felszíne és az 1–6. bordaporc. Hasi rész: a külső ferde hasizom bőnye.', sourceIds: ANAT },
-  { id: 'fc-pm-insertion', muscleId: M, topic: 'insertion', front: 'Hol tapad a nagy mellizom?', back: 'A felkarcsont bicepsbarázdájának külső peremén (crista tuberculi majoris), kétlemezes, csavarodott ínnal.', sourceIds: ANAT },
-  { id: 'fc-pm-innervation', muscleId: M, topic: 'innervation', front: 'Mi idegzi be a nagy mellizmot?', back: 'A külső mellizomideg (n. pectoralis lateralis, C5–C7) és a belső mellizomideg (n. pectoralis medialis, C8–T1).', sourceIds: ['moore-coa', 'statpearls-pectoral'] },
+  { id: 'fc-pm-insertion', muscleId: M, topic: 'insertion', front: 'Hol tapad a nagy mellizom?', back: 'A felkarcsont bicepsbarázdájának laterális ajkán (a nagy gumó taraján, crista tuberculi majoris). A klasszikus leírás kétlemezes, U alakban csavarodó ínt említ; a boncolásos vizsgálatok a rétegekről és a csavarodásról eltérő eredményt adtak.', sourceIds: ANAT },
+  { id: 'fc-pm-innervation', muscleId: M, topic: 'innervation', front: 'Mi idegzi be a nagy mellizmot?', back: 'A külső mellizomideg (n. pectoralis lateralis; tipikusan C5–C7) és a belső mellizomideg (n. pectoralis medialis; tipikusan C8–T1). A gyökök eredete egyénenként változhat.', sourceIds: ['moore-coa', 'statpearls-pectoral', 'lee-2007'] },
   { id: 'fc-pm-function', muscleId: M, topic: 'function', front: 'Melyek a nagy mellizom fő funkciói?', back: 'Közelítés, befelé forgatás és horizontális közelítés a vállízületben; a kulcscsonti rész hajlít, a szegycsonti-bordai rész hajlított helyzetből feszít.', sourceIds: ['moore-coa', 'neumann-kinesiology'] },
   { id: 'fc-pm-joints', muscleId: M, topic: 'joints', front: 'Mely ízület(ek)en hat a nagy mellizom?', back: 'A vállízületen (articulatio humeri / glenohumeralis ízület).', sourceIds: ANAT },
   { id: 'fc-pm-regions', muscleId: M, topic: 'regions', front: 'Melyek a nagy mellizom részei?', back: 'Pars clavicularis (kulcscsonti), pars sternocostalis (szegycsonti-bordai), pars abdominalis (hasi rész).', sourceIds: ['fipat-ta2', 'grays-anatomy'] },
   { id: 'fc-pm-agonists', muscleId: M, topic: 'roles', front: 'Horizontális közelítés: melyik izom a nagy mellizom fő társ-agonistája?', back: 'A deltaizom elülső (kulcscsonti) része.', sourceIds: ['neumann-kinesiology'] },
   { id: 'fc-pm-antagonists', muscleId: M, topic: 'roles', front: 'Horizontális közelítés: melyek az antagonisták?', back: 'A deltaizom hátsó része, a tövis alatti izom és a kis görgetegizom (horizontális távolítók).', sourceIds: ['neumann-kinesiology'] },
-  { id: 'fc-pm-synergists', muscleId: M, topic: 'roles', front: 'Vállízületi közelítés: melyik izmok agonisták/szinergisták a nagy mellizom mellett?', back: 'Agonisták: széles hátizom, nagy görgetegizom. Szinergisták: pl. a háromfejű karizom hosszú feje, hollócsőr-karizom.', sourceIds: ['neumann-kinesiology'] },
+  { id: 'fc-pm-synergists', muscleId: M, topic: 'roles', front: 'Vállízületi közelítés: melyik izmok agonisták/szinergisták a nagy mellizom mellett?', back: 'Agonisták: széles hátizom, nagy görgetegizom. Szinergisták (oktatási modell, a karhelyzettől és a terheléstől függően): pl. a háromfejű karizom hosszú feje, hollócsőr-karizom.', sourceIds: ['neumann-kinesiology'] },
   { id: 'fc-pm-stabilization', muscleId: M, topic: 'stabilization', front: 'Milyen stabilizáló szerepe van a nagy mellizomnak?', back: 'Dinamikusan támogatja a vállízület elülső oldalát, és támaszhelyzetekben (pl. fekvőtámasz, tolódzkodás) a kart a törzshöz rögzíti.', sourceIds: ['neumann-kinesiology'] }
 ];
 
@@ -65,7 +65,7 @@ export const pmQuestions: StudyQuestion[] = [
       { id: 'd', text: 'N. thoracodorsalis' }
     ],
     correctOptionId: 'c',
-    explanation: 'A külső mellizomideg (C5–C7) főként a kulcscsonti részt, a belső mellizomideg (C8–T1) főként az alsóbb részeket idegzi be. A n. thoracicus longus az elülső fűrészizmot, a n. thoracodorsalis a széles hátizmot látja el.',
+    explanation: 'A tipikus leírás szerint a külső mellizomideg (C5–C7) főként a kulcscsonti részt, a belső mellizomideg (C8–T1) főként az alsóbb részeket idegzi be; a pontos szegmentális eloszlás forrásfüggő. A n. thoracicus longus az elülső fűrészizmot, a n. thoracodorsalis a széles hátizmot látja el.',
     sourceIds: ['moore-coa', 'statpearls-pectoral'],
     relatedPath: 'anatomia'
   },
@@ -105,10 +105,10 @@ export const pmQuestions: StudyQuestion[] = [
     topic: 'origin',
     type: 'fill-blank',
     prompt: 'Egészítsd ki a mondatot!',
-    text: 'A szegycsonti-bordai rész a szegycsontról és a felső ___ bordaporcról ered.',
+    text: 'A Moore-tankönyv leírása szerint a szegycsonti-bordai rész a szegycsontról és a felső ___ bordaporcról ered.',
     options: ['hat', 'két', 'tizenkét', 'egy'],
     answer: 'hat',
-    explanation: 'A tankönyvek az 1–6. bordaporcot adják meg eredésként (egyes leírások az 1–7. bordaporcot említik).',
+    explanation: 'A Moore-tankönyv az 1–6. bordaporcot adja meg; az OpenStax „1–6. vagy 1–7.” bordaporcot ír. Az alkalmazás az 1–6. bordaporcot tanítja, és jelzi az eltérést.',
     sourceIds: ANAT,
     relatedPath: 'anatomia'
   },
@@ -123,7 +123,7 @@ export const pmQuestions: StudyQuestion[] = [
       { id: 'p2', left: 'Pars sternocostalis', right: 'Szegycsont és 1–6. bordaporc' },
       { id: 'p3', left: 'Pars abdominalis', right: 'A külső ferde hasizom bőnye' }
     ],
-    explanation: 'Az izomrészek neve az eredésükre utal.',
+    explanation: 'Az izomrészek neve az eredésükre utal. Az 1–6. bordaporc tankönyvi leírás (egyes források 1–7.); a hasi részt egyes felosztások a szegycsonti-bordai fejhez sorolják.',
     sourceIds: ANAT,
     relatedPath: 'anatomia'
   },
@@ -132,13 +132,13 @@ export const pmQuestions: StudyQuestion[] = [
     muscleId: M,
     topic: 'innervation',
     type: 'matching',
-    prompt: 'Párosítsd az ideget a gerincvelői szegmentumaival!',
+    prompt: 'Párosítsd az ideget a tipikus gerincvelői gyöktartományával!',
     pairs: [
       { id: 'p1', left: 'N. pectoralis lateralis', right: 'C5–C7' },
       { id: 'p2', left: 'N. pectoralis medialis', right: 'C8–T1' }
     ],
-    explanation: 'A külső mellizomideg a plexus brachialis külső kötegéből, a belső a belső kötegéből ered.',
-    sourceIds: ['moore-coa'],
+    explanation: 'A külső mellizomideg a plexus brachialis külső kötegéből, a belső a belső kötegéből ered. A gyöktartományok tipikus értékek; egyénenként eltérhetnek (pl. a külső mellizomideg csak C6–C7-ből).',
+    sourceIds: ['moore-coa', 'lee-2007'],
     relatedPath: 'anatomia'
   },
   {
@@ -226,7 +226,7 @@ export const pmQuestions: StudyQuestion[] = [
       { id: 'd', text: 'Nem aktív, a gravitáció végzi a mozgást' }
     ],
     correctOptionId: 'b',
-    explanation: 'Az izom aktív és fékezi a rudat, miközben hossza nő – ez excentrikus működés. Ha az izom nem lenne aktív, a rúd szabadon esne.',
+    explanation: 'A rudat a gravitáció húzza lefelé; a kontrollált leengedésnél a nagy mellizom aktív, fékezi az ereszkedést, miközben hossza nő – ez excentrikus működés. (A fékezésben más izmok, pl. a deltaizom elülső része és a háromfejű karizom is részt vesznek.)',
     sourceIds: ['nsca-essentials'],
     relatedPath: 'gyakorlatok'
   },
@@ -284,7 +284,7 @@ export const pmQuestions: StudyQuestion[] = [
     muscleId: M,
     topic: 'exercise',
     type: 'multiple-choice',
-    prompt: 'Az idézett EMG-vizsgálat szerint melyik paddőlésszögnél volt a legnagyobb a felső (kulcscsonti) mellizomrész aktivitása?',
+    prompt: 'Rodríguez-Ridao és mtsai (2020) rudas vizsgálatában az öt vizsgált dőlésszög közül melyiknél volt a legnagyobb a felső (kulcscsonti) mellizomrész mért EMG-jének átlaga?',
     options: [
       { id: 'a', text: '0° (vízszintes pad)' },
       { id: 'b', text: 'kb. 30°' },
@@ -292,7 +292,7 @@ export const pmQuestions: StudyQuestion[] = [
       { id: 'd', text: '−15° (negatív pad)' }
     ],
     correctOptionId: 'b',
-    explanation: 'Rodríguez-Ridao és mtsai. (2020) vizsgálatában a felső rész aktivitása 30°-nál volt maximális, 45° felett a deltaizom elülső részének aktivitása nőtt. Az EMG-aktivitás nem azonos az izomerővel vagy a növekedési hatással.',
+    explanation: 'Ebben a vizsgálatban (0°, 15°, 30°, 45°, 60°) a felső rész átlagos EMG-je 30°-nál volt a legnagyobb, de a vízszintes padhoz képest a különbség nem volt statisztikailag jelentős – ez egy minta eredménye, nem általános „optimális” szög. Az EMG nem azonos az izomerővel vagy a növekedési hatással.',
     sourceIds: ['rodriguez-ridao-2020'],
     relatedPath: 'gyakorlatok'
   },

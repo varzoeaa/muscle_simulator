@@ -24,7 +24,10 @@ const opposite = (c: LengthChange): LengthChange => (c === 'shortening' ? 'lengt
 
 const SAME_MUSCLES = 'Ugyanazok az izmok dolgoznak mindkét irányban: felfelé rövidülve mozgatnak, lefelé hosszabbodva fékeznek – az agonista szerep nem cserélődik meg.';
 const BICEPS_NOTE = 'A kétfejű karizom a vállízületen segít, a könyökízületen viszont a háromfejű karizom antagonistája.';
-const CUFF_NOTE = 'A rotátorköpeny a felkarcsontfejet az ízületi árokban tartja; a lapockaizmok a lapocka helyzetét rögzítik.';
+const CUFF_NOTE = 'A rotátorköpeny a felkarcsontfejet az ízületi árokban centrálja (a vállízületre hat).';
+const SCAPULA_NOTE = 'A lapockaizmok a lapockára hatnak, nem a felkarcsontfejre: a rombuszizmok és a csuklyásizom a lapocka helyzetét szabályozzák, az elülső fűrészizom mozgás közben a mellkasfal közelében tartja – ez nem mozdulatlanság.';
+const cuffStabilizer = (c: LengthChange = 'constant') =>
+  role('stabilizer', 'Vállízület – a felkarcsontfej centrálása', ['muscle-rotator-cuff'], c, 'educational-model', KIN_TECH, CUFF_NOTE);
 
 /**
  * Nyomó mozgás (vállízületi horizontális közelítés + hajlítás, könyökfeszítés) szerepei.
@@ -55,7 +58,8 @@ function flyRoles(c: LengthChange, stabilizers: ExercisePhaseRole[]): ExercisePh
 }
 
 const shoulderStabilizers = (c: LengthChange = 'constant') => [
-  role('stabilizer', 'Vállízület és lapocka – helyzet megtartása', ['muscle-rotator-cuff', 'muscle-rhomboids', 'muscle-trapezius', 'muscle-serratus-anterior'], c, 'educational-model', KIN_TECH, CUFF_NOTE)
+  cuffStabilizer(c),
+  role('stabilizer', 'Lapocka – a helyzet szabályozása a mellkasfalon', ['muscle-rhomboids', 'muscle-trapezius', 'muscle-serratus-anterior'], c, 'educational-model', KIN_TECH, SCAPULA_NOTE)
 ];
 
 const pushUpStabilizers = [
@@ -233,7 +237,7 @@ export const machineChestPress: Exercise = {
   },
   anatomyExplanation: [
     { text: 'A vállízületben horizontális közelítés és hajlítás, a könyökben feszítés történik – a fekvenyomással azonos ízületi mozgások, ülő testhelyzetben.', evidence: 'anatomical-fact', sourceIds: KIN_TECH },
-    { text: 'A gép megszabja a mozgáspályát, ezért a stabilizáló izmok kevésbé terheltek, mint a szabad súlyos változatnál.', evidence: 'educational-model', sourceIds: TECH }
+    { text: 'A gép megszabja a mozgáspályát, ezért a stabilizáló izmok igénye várhatóan kisebb, mint szabad súllyal. Ülő mellnyomógépen ezt nem mérték; a vezetett rudas (Smith-gépes) fekvenyomás mérései nem vihetők át az ülő mellnyomógépekre.', evidence: 'educational-model', sourceIds: TECH }
   ],
   coachingNotes: [
     { text: 'Az ülésmagasságot a gyakorlat előtt állítsd be: a fogantyúk a mellkas közepének magasságában legyenek.', evidence: 'educational-model', sourceIds: TECH },
@@ -410,7 +414,7 @@ export const pushUp: Exercise = {
   },
   anatomyExplanation: [
     { text: 'A fekvőtámasz zárt kinetikai láncú nyomó mozgás: a kéz rögzített, a törzs mozog a kéz felé, illetve attól el. Az ízületi mozgások a fekvenyomáséval azonos irányúak.', evidence: 'anatomical-fact', sourceIds: KIN },
-    { text: 'Az elülső fűrészizom a lapockát a mellkasfalhoz rögzíti és előre vezeti; a felső helyzetben ez a szerepe különösen fontos.', evidence: 'anatomical-fact', sourceIds: KIN },
+    { text: 'Az elülső fűrészizom a lapockát mozgás közben a mellkasfal közelében tartja, és a protrakció egyik fő mozgatója.', evidence: 'anatomical-fact', sourceIds: KIN },
     { text: 'A test egyenes tartását a hasfal izmai biztosítják, ezért a fekvőtámasz a törzs stabilizációját is igényli.', evidence: 'educational-model', sourceIds: TECH }
   ],
   coachingNotes: [
@@ -466,7 +470,8 @@ export const dips: Exercise = {
       role('synergist', 'Vállízület – segítés', ['muscle-coracobrachialis'], 'lengthening', 'educational-model', KIN),
       role('antagonist', 'Vállízület – feszítők', ['muscle-latissimus-dorsi', 'muscle-teres-major', 'muscle-deltoid-posterior'], 'shortening', 'educational-model', KIN, 'A leengedést a testsúly hozza létre; hosszuk csökken, de nem ők a fő mozgatók.'),
       role('antagonist', 'Könyökízület – hajlítók', ['muscle-biceps-brachii'], 'shortening', 'educational-model', KIN),
-      role('stabilizer', 'Vállöv – a váll lent tartása, a felkarcsontfej rögzítése', ['muscle-rotator-cuff', 'muscle-trapezius', 'muscle-serratus-anterior'], 'constant', 'educational-model', KIN_TECH, CUFF_NOTE)
+      cuffStabilizer(),
+      role('stabilizer', 'Lapocka – a helyzet szabályozása a mellkasfalon', ['muscle-trapezius', 'muscle-serratus-anterior'], 'constant', 'educational-model', KIN_TECH, 'A lapockára hatnak, nem a felkarcsontfejre. Az elülső fűrészizom a lapockát a mellkasfal közelében tartja; közvetlen felkarcsontfej-rögzítést vagy bizonyított vállsüllyesztést nem tulajdonítunk neki. A korláton mért nagyobb fűrészizom-EMG-csúcs (McKenzie 2022) a kontrakció típusát nem igazolja.')
     ],
     concentric: [
       role('agonist', 'Vállízület – hajlítás a hátrafeszített helyzetből', ['muscle-pectoralis-major', 'muscle-deltoid-anterior'], 'shortening', 'educational-model', KIN_TECH, 'A szegycsonti-bordai rész szerepe a vállízület helyzetétől függ; a modell ezt nem részletezi.'),
@@ -474,7 +479,8 @@ export const dips: Exercise = {
       role('synergist', 'Vállízület – segítés', ['muscle-coracobrachialis'], 'shortening', 'educational-model', KIN),
       role('antagonist', 'Vállízület – feszítők', ['muscle-latissimus-dorsi', 'muscle-teres-major', 'muscle-deltoid-posterior'], 'lengthening', 'anatomical-fact', KIN),
       role('antagonist', 'Könyökízület – hajlítók', ['muscle-biceps-brachii'], 'lengthening', 'anatomical-fact', KIN),
-      role('stabilizer', 'Vállöv – a váll lent tartása, a felkarcsontfej rögzítése', ['muscle-rotator-cuff', 'muscle-trapezius', 'muscle-serratus-anterior'], 'constant', 'educational-model', KIN_TECH, CUFF_NOTE)
+      cuffStabilizer(),
+      role('stabilizer', 'Lapocka – a helyzet szabályozása a mellkasfalon', ['muscle-trapezius', 'muscle-serratus-anterior'], 'constant', 'educational-model', KIN_TECH, 'A lapockára hatnak, nem a felkarcsontfejre. Az elülső fűrészizom a lapockát a mellkasfal közelében tartja; közvetlen felkarcsontfej-rögzítést vagy bizonyított vállsüllyesztést nem tulajdonítunk neki. A korláton mért nagyobb fűrészizom-EMG-csúcs (McKenzie 2022) a kontrakció típusát nem igazolja.')
     ]
   },
   anatomyExplanation: [
@@ -571,7 +577,7 @@ export const supinePectoralStretch: Exercise = {
   romText: 'a karok a teljes tartomány {rom}%-áig ereszkednek',
   startPosition: [
     'Hanyattfekvés a hengeren úgy, hogy a fej és a medence is rajta legyen; a talp a talajon, a térd hajlított.',
-    'A karok oldalt, a választott magasságban (pl. vállmagasság alatt, vállmagasságban vagy fölötte), a tenyér felfelé néz.'
+    'A karok oldalt, a választott magasságban (pl. vállmagasság alatt, vállmagasságban vagy fölötte), a felkar kifelé forgatva (a könyökhajlat és a tenyér felfelé néz).'
   ],
   execution: [
     'A karok ellazulnak, és a saját súlyuk viszi őket a talaj felé, amíg a mellkas elején enyhe-közepes húzás érezhető.',
@@ -608,7 +614,8 @@ export const supinePectoralStretch: Exercise = {
   },
   anatomyExplanation: [
     { text: 'A karok oldalra-lefelé ereszkedése a vállízületben horizontális távolítás – a nagy mellizom közelítő működésével ellentétes irány, ezért nyújtja.', evidence: 'anatomical-fact', sourceIds: KIN },
-    { text: 'A henger miatt a lapockák szabadon mozoghatnak hátrafelé; a nyújtás nagyságát a karok súlya és a karhelyzet határozza meg, nem aktív erőkifejtés.', evidence: 'educational-model', sourceIds: KIN }
+    { text: 'A henger miatt a lapockák szabadon mozoghatnak hátrafelé; a nyújtás nagyságát a karok súlya és a karhelyzet határozza meg, nem aktív erőkifejtés.', evidence: 'educational-model', sourceIds: KIN },
+    { text: 'A regionális nyújtási eredmények (Umehara és mtsai 2021) más testhelyzetben készültek; átvitelük a hengeren fekvő változatra oktatási közelítés. A felfelé néző tenyér a felkar külső rotációját csak jelzi – a tenyér iránya az alkar forgatásától is változhat.', evidence: 'educational-model', sourceIds: ['umehara-2021', ...KIN] }
   ],
   coachingNotes: [
     { text: 'Engedd el a karokat, ne nyomd őket lefelé; a nyújtás legyen fájdalommentes.', evidence: 'educational-model', sourceIds: TECH },

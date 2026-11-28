@@ -3,9 +3,31 @@ import { Link } from 'react-router-dom';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import type { StudyAnswer, StudyQuestion } from '../../types';
 import { gradeAnswer, shuffle } from '../../engines/study/studyEngine';
-import { AnatomyViewer, ALL_LAYERS } from '../../components/anatomy/AnatomyViewer';
+import { AnatomyViewer, ALL_LAYERS, matchesStructure } from '../../components/anatomy/AnatomyViewer';
 import { restPoses, viewGeometries } from '../../data/geometry';
-import { structureName } from '../../data/muscles';
+import { muscleById, structureById, structureName } from '../../data/muscles';
+
+/** Izomrésznél a teljes izom azonosítója. */
+const parentMuscleId = (id: string): string | undefined => {
+  const s = structureById(id) as { kind?: string; muscleId?: string } | undefined;
+  return s?.kind === 'muscle-region' ? s.muscleId : undefined;
+};
+
+/** Ábrás feladatnál a kattintott elem neve; izomrésznél az izom nevével együtt (pl. „Elülső fűrészizom – alsó rész”). */
+export function diagramName(id: string): string {
+  const parent = parentMuscleId(id);
+  const s = structureById(id);
+  if (parent && s) return `${structureName(parent).hu} – ${s.name.hu.charAt(0).toLowerCase()}${s.name.hu.slice(1)}`;
+  return structureName(id).hu;
+}
+
+/** A helyes válasz(ok) neve; ha egy izom minden része elfogadott, csak az izom neve. */
+function diagramAnswerText(ids: string[]): string {
+  const parents = new Set(ids.map(parentMuscleId));
+  const parent = parents.size === 1 ? [...parents][0] : undefined;
+  if (parent && muscleById(parent)?.regions.every((r) => ids.includes(r.id))) return structureName(parent).hu;
+  return ids.map(diagramName).join(' vagy ');
+}
 import { Button, SourceRefs } from '../../components/ui';
 import { topicLabels } from '../../data/questions';
 
@@ -75,7 +97,7 @@ export function correctAnswerText(q: StudyQuestion): string {
     case 'matching':
       return q.pairs.map((p) => `${p.left} → ${p.right}`).join('; ');
     case 'diagram-identify':
-      return q.correctStructureIds.map((id) => structureName(id).hu).join(' vagy ');
+      return diagramAnswerText(q.correctStructureIds);
   }
 }
 
@@ -189,6 +211,9 @@ function Diagram({ q, submitted, feedback, onSubmit }: Sub<Extract<StudyQuestion
   const geometry = viewGeometries[q.viewId]!;
   // Mély izomra kérdező feladat: a mély réteg látszik, a felületes izmok áttetszők.
   const deepTask = !boneTask && q.selectableStructureIds.some((id) => geometry.muscles.some((m) => m.layer === 'deep-muscles' && m.structureId === id));
+  // Más izmok által takart izom (pl. elülső fűrészizom): a fölötte fekvő izmok áttetszők, maga felülre kerül.
+  const revealShape = !boneTask && !deepTask ? geometry.muscles.find((m) => m.revealOnSelect && q.selectableStructureIds.some((id) => matchesStructure(m.structureId, id))) : undefined;
+  const revealId = revealShape ? (parentMuscleId(revealShape.structureId) ?? revealShape.structureId) : undefined;
   return (
     <div className="flex flex-col gap-2">
       <div className="h-[42vh] min-h-[280px]">
@@ -201,12 +226,13 @@ function Diagram({ q, submitted, feedback, onSubmit }: Sub<Extract<StudyQuestion
           selectableIds={q.selectableStructureIds}
           layers={{ ...ALL_LAYERS, labels: false, attachments: false, 'superficial-muscles': !boneTask, 'deep-muscles': deepTask }}
           ghostSuperficial={deepTask}
+          revealId={revealId}
           markedIds={done && feedback ? { correct: q.correctStructureIds, wrong: shown && !q.correctStructureIds.includes(shown) ? [shown] : [] } : undefined}
           ariaLabel="Tesztfeladat ábrája – kattints a megfelelő struktúrára"
         />
       </div>
       <div className="flex flex-wrap items-center gap-3 text-sm">
-        <span className="text-ink-2">Kijelölve: <b className="text-ink">{shown ? structureName(shown).hu : '–'}</b></span>
+        <span className="text-ink-2">Kijelölve: <b className="text-ink">{shown ? diagramName(shown) : '–'}</b></span>
         {!done && (
           <Button disabled={!picked} onClick={() => picked && onSubmit({ type: 'diagram-identify', structureId: picked })}>
             Válasz rögzítése
@@ -214,6 +240,7 @@ function Diagram({ q, submitted, feedback, onSubmit }: Sub<Extract<StudyQuestion
         )}
       </div>
       {boneTask && <p className="text-xs text-ink-2">Ennél a feladatnál az izmok rejtve vannak, hogy a csontok jól láthatók legyenek.</p>}
+      {revealId && <p className="text-xs text-ink-2">Ennél a feladatnál a takaró izmok áttetszők, hogy a(z) {structureName(revealId).hu.toLowerCase()} is látható legyen.</p>}
       {deepTask && <p className="text-xs text-ink-2">Ennél a feladatnál a felületes izmok áttetszők, hogy a mélyebb réteg is látható legyen.</p>}
     </div>
   );

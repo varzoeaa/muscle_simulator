@@ -56,3 +56,32 @@ describe('Kis mellizom – feladatbank', () => {
     expect(flashcards.filter((f) => f.muscleId === 'muscle-pectoralis-minor').length).toBeGreaterThanOrEqual(15);
   });
 });
+
+describe('Kulcscsont alatti izom – feladatbank', () => {
+  it('minden témakörben legalább négy feladat van, összesen legalább 50, és legalább 12 tanulókártya', () => {
+    const pool = questions.filter((q) => q.muscleId === 'muscle-subclavius');
+    expect(pool.length).toBeGreaterThanOrEqual(50);
+    (Object.keys(topicLabels) as QuestionTopic[]).forEach((t) => expect(pool.filter((q) => q.topic === t).length, t).toBeGreaterThanOrEqual(4));
+    expect(flashcards.filter((f) => f.muscleId === 'muscle-subclavius').length).toBeGreaterThanOrEqual(12);
+  });
+});
+
+describe('Elülső fűrészizom – feladatbank', () => {
+  it('minden témakörben legalább négy feladat van, összesen legalább 50, és legalább 12 tanulókártya', () => {
+    const pool = questions.filter((q) => q.muscleId === 'muscle-serratus-anterior');
+    expect(pool.length).toBeGreaterThanOrEqual(50);
+    (Object.keys(topicLabels) as QuestionTopic[]).forEach((t) => expect(pool.filter((q) => q.topic === t).length, t).toBeGreaterThanOrEqual(4));
+    expect(flashcards.filter((f) => f.muscleId === 'muscle-serratus-anterior').length).toBeGreaterThanOrEqual(12);
+  });
+
+  it('az ábrás feladatoknál a helyes válasz kattintható, és az izom bármely része elfogadott', () => {
+    const q = questions.find((x) => x.id === 'q-sa-diagram-anterior') as Extract<StudyQuestion, { type: 'diagram-identify' }>;
+    ['muscle-serratus-anterior-superior', 'muscle-serratus-anterior-intermediate', 'muscle-serratus-anterior-inferior'].forEach((id) =>
+      expect(gradeAnswer(q, { type: 'diagram-identify', structureId: id }), id).toBe(true)
+    );
+    expect(gradeAnswer(q, { type: 'diagram-identify', structureId: 'muscle-latissimus-dorsi' })).toBe(false);
+    questions
+      .filter((x): x is Extract<StudyQuestion, { type: 'diagram-identify' }> => x.type === 'diagram-identify' && x.muscleId === 'muscle-serratus-anterior')
+      .forEach((x) => x.correctStructureIds.forEach((id) => expect(x.selectableStructureIds, x.id).toContain(id)));
+  });
+});

@@ -2,6 +2,7 @@ import type { AnatomicalStructure, Muscle, Term } from '../../types';
 import { pectoralisMajor } from './pectoralisMajor';
 import { pectoralisMinor } from './pectoralisMinor';
 import { subclavius } from './subclavius';
+import { serratusAnterior } from './serratusAnterior';
 import { contextMuscles } from './contextMuscles';
 import { bones } from '../bones/bones';
 import { joints } from '../joints/joints';
@@ -11,7 +12,7 @@ import { nerves } from '../nerves/nerves';
  * Tervezett (még nem elérhető) izmok. Csak a nevük szerepel – önálló oktatási
  * moduljuk a nagy mellizom prototípusa után készül el.
  */
-const planned = (id: string, name: Term, summary: string): Muscle => ({
+export const planned = (id: string, name: Term, summary: string): Muscle => ({
   id,
   kind: 'muscle',
   status: 'planned',
@@ -37,7 +38,7 @@ export const muscles: Muscle[] = [
   pectoralisMajor,
   pectoralisMinor,
   subclavius,
-  planned('muscle-serratus-anterior', { hu: 'Elülső fűrészizom', en: 'Serratus anterior', la: 'Musculus serratus anterior' }, 'A mellkas oldalfalán fekvő, fűrészfogszerű eredésű izom; a lapocka belső széléhez tapad.')
+  serratusAnterior
 ];
 
 export const muscleById = (id: string | undefined): Muscle | undefined => muscles.find((m) => m.id === id);

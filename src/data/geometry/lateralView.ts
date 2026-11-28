@@ -29,6 +29,13 @@ const pmiInsertion = [W(314, 136), W(322, 142)];
 const subOrigin = [W(364, 162), W(372, 164)];
 const subInsertion = [W(334, 108), W(352, 111)];
 
+/** Elülső fűrészizom: eredés a bordai nyúlványokon (elöl), tapadás a lapocka belső szélén (hátul). */
+const saSupOrigin = [W(336, 160), W(344, 188)];
+const saSupInsertion = [W(249, 130), W(250, 164)];
+const saIntOrigin = [W(346, 194), W(352, 220)];
+const saIntInsertion = [W(250, 168), W(247, 214)];
+const saInfOrigin = [W(354, 228), W(364, 252), W(370, 282), W(372, 312), W(366, 342)];
+const saInfInsertion = [W(246, 222), W(237, 286)];
 /** Bordák oldalnézetben: hátul magasabban erednek, előre-lefelé futnak. */
 const ribs: BoneShapeGeometry[] = Array.from({ length: 9 }, (_, i) => {
   const y0 = 132 + i * 26;
@@ -81,12 +88,32 @@ export const lateralView: ViewGeometry = {
     { structureId: 'bone-ulna', frame: 'forearm', front: true, d: 'M-20,4 L-14,196 L-4,198 L-6,8 Z' }
   ],
   muscles: [
+    // Elülső fűrészizom három része: felső (1–2. borda → felső szög), középső (2–3. → belső szél),
+    // alsó (4–9. → alsó szög). A lapocka belső széle hátul (balra), a bordai nyúlványok elöl.
     {
-      structureId: 'muscle-serratus-anterior',
+      structureId: 'muscle-serratus-anterior-superior',
       layer: 'superficial-muscles',
+      revealOnSelect: true,
       z: -3,
-      outline: [W(250, 160), W(300, 186), W(352, 226), W(372, 270), W(362, 312), W(330, 322), W(272, 300), W(244, 250)],
-      fibers: fan([W(252, 170), W(246, 250)], [W(340, 214), W(356, 306)], 5)
+      outline: [W(248, 128), W(300, 146), W(336, 158), W(344, 190), W(300, 178), W(250, 166)],
+      fibers: fan(saSupInsertion, saSupOrigin, 3)
+    },
+    {
+      structureId: 'muscle-serratus-anterior-intermediate',
+      layer: 'superficial-muscles',
+      revealOnSelect: true,
+      z: -3,
+      outline: [W(250, 166), W(300, 178), W(344, 190), W(352, 222), W(300, 214), W(247, 216)],
+      fibers: fan(saIntInsertion, saIntOrigin, 3)
+    },
+    {
+      structureId: 'muscle-serratus-anterior-inferior',
+      layer: 'superficial-muscles',
+      revealOnSelect: true,
+      z: -3,
+      outline: [W(247, 216), W(300, 214), W(354, 226), W(364, 252), W(358, 262), W(370, 282), W(362, 292), W(372, 312), W(360, 322), W(366, 342), W(346, 350), W(300, 328), W(262, 306), W(236, 288)],
+      fibers: fan(saInfInsertion, saInfOrigin, 7),
+      label: { at: W(318, 300), text: 'Elülső fűrészizom' }
     },
     {
       structureId: 'muscle-latissimus-dorsi',
@@ -197,7 +224,13 @@ export const lateralView: ViewGeometry = {
     { structureId: 'muscle-pectoralis-minor', type: 'origin', extent: 'line', points: pmiOrigin },
     { structureId: 'muscle-pectoralis-minor', type: 'insertion', extent: 'line', points: pmiInsertion },
     { structureId: 'muscle-subclavius', type: 'origin', extent: 'line', points: subOrigin },
-    { structureId: 'muscle-subclavius', type: 'insertion', extent: 'line', points: subInsertion }
+    { structureId: 'muscle-subclavius', type: 'insertion', extent: 'line', points: subInsertion },
+    { structureId: 'muscle-serratus-anterior-superior', type: 'origin', extent: 'line', points: saSupOrigin },
+    { structureId: 'muscle-serratus-anterior-superior', type: 'insertion', extent: 'line', points: saSupInsertion },
+    { structureId: 'muscle-serratus-anterior-intermediate', type: 'origin', extent: 'line', points: saIntOrigin },
+    { structureId: 'muscle-serratus-anterior-intermediate', type: 'insertion', extent: 'line', points: saIntInsertion },
+    { structureId: 'muscle-serratus-anterior-inferior', type: 'origin', extent: 'line', points: saInfOrigin },
+    { structureId: 'muscle-serratus-anterior-inferior', type: 'insertion', extent: 'line', points: saInfInsertion }
   ],
   joints: [
     { structureId: 'joint-glenohumeral', at: H(0, 0) },

@@ -236,6 +236,31 @@ describe('Mellizomnyújtás: karhelyzet és adagolás', () => {
     regionResults.forEach((r) => expect(structureById(r.regionId), r.regionId).toBeDefined());
   });
 
+  it('biztos kiemelést csak az absztraktban pontosan leírt kombináció kap (regresszió)', async () => {
+    const { regionResults } = await import('../data/exercises/stretchVariants');
+    const { emphasizedRegionIds } = await import('../features/exercises/StretchPanels');
+    const status = (abduction: 45 | 90 | 135, externalRotation: boolean, trunkRotation: boolean) => {
+      const p = { abduction, externalRotation, trunkRotation };
+      return Object.fromEntries(regionResults.map((r) => [r.regionId.replace('muscle-pectoralis-major-', ''), r.matches(p) ? 'match' : r.partial?.(p) ? 'partial' : 'none']));
+    };
+    // 90° + medence-elfordítás: egyik 90°-os kulcscsonti helyzet sem ilyen → nem biztos egyezés.
+    expect(status(90, false, true)).toEqual({ clavicular: 'partial', sternocostal: 'none', abdominal: 'none' });
+    expect(status(90, true, true)).toEqual({ clavicular: 'partial', sternocostal: 'partial', abdominal: 'none' });
+    // A szegycsonti „medence-elfordítás + külső rotáció” szöge ismeretlen: semmilyen szögnél nem biztos.
+    expect(status(45, true, true)).toEqual({ clavicular: 'match', sternocostal: 'partial', abdominal: 'none' });
+    expect(status(135, true, true)).toEqual({ clavicular: 'none', sternocostal: 'partial', abdominal: 'match' });
+    // Külső rotáció vagy medence-elfordítás nélkül a 45° és a 135° nem kiemelt helyzet.
+    expect(status(45, false, true).clavicular).toBe('none');
+    expect(status(45, true, false).clavicular).toBe('none');
+    expect(status(135, true, false).abdominal).toBe('none');
+    // Az animáció kiemelése csak a biztos egyezéseket kapja.
+    expect(emphasizedRegionIds({ abduction: 90, externalRotation: true, trunkRotation: true })).toEqual([]);
+    expect(emphasizedRegionIds({ abduction: 90, externalRotation: true, trunkRotation: false })).toEqual([
+      'muscle-pectoralis-major-clavicular',
+      'muscle-pectoralis-major-sternocostal'
+    ]);
+  });
+
   it('a két nyújtó gyakorlat minden nyújtási állításának forrása létezik és a gyakorlat forráslistáján van', async () => {
     const v = await import('../data/exercises/stretchVariants');
     const claims = [...v.regionFindings, ...v.dosageFindings, ...v.stretchComparisonRows];
@@ -274,6 +299,83 @@ describe('Kis mellizom-gyakorlatok', () => {
         const tr = computeFrameTransforms(g.frames, lerpPose(a.startPose, a.endPose, d));
         const c = (type: 'origin' | 'insertion') => {
           const pts = g.attachments.find((x) => x.structureId === 'muscle-pectoralis-minor' && x.type === type)!.points.map((p) => toWorld(p, tr));
+          return { x: pts.reduce((s, p) => s + p.x, 0) / pts.length, y: pts.reduce((s, p) => s + p.y, 0) / pts.length };
+        };
+        const o = c('origin');
+        const i = c('insertion');
+        return Math.hypot(o.x - i.x, o.y - i.y);
+      };
+      expect(len(1), id).toBeGreaterThan(len(0) + 2);
+    });
+  });
+});
+
+describe('Kulcscsont alatti izom – gyakorlatok', () => {
+  it('mindhárom gyakorlat elérhető, a vállöv-nézetben animál, és mindegyikben szerepel a kulcscsont alatti izom', async () => {
+    const { subclavius } = await import('../data/muscles/subclavius');
+    expect(subclavius.exerciseIds).toHaveLength(3);
+    subclavius.exerciseIds.forEach((id) => {
+      const e = exercises.find((x) => x.id === id)!;
+      expect(e, id).toBeDefined();
+      expect(e.animation.kind, id).toBe('girdle');
+      expect(Object.values(e.phaseRoles ?? {}).flat().some((r) => r.structureIds.includes('muscle-subclavius')), id).toBe(true);
+    });
+  });
+
+  it('lehúzáskor (koncentrikus) rövidül, vállvonogatáskor (koncentrikus emelés) hosszabbodik a kulcscsont alatti izom', async () => {
+    const { viewGeometries } = await import('../data/geometry');
+    const { computeFrameTransforms, lerpPose, toWorld } = await import('../utils/geometry');
+    const { cycleDepth } = await import('../engines/animation/animationEngine');
+    const len = (id: string, t: number) => {
+      const e = exercises.find((x) => x.id === id)!;
+      if (e.animation.kind !== 'girdle') throw new Error(id);
+      const a = e.animation;
+      const g = viewGeometries[a.viewId]!;
+      const tr = computeFrameTransforms(g.frames, lerpPose(a.startPose, a.endPose, cycleDepth(e.phases, t)));
+      const c = (type: 'origin' | 'insertion') => {
+        const pts = g.attachments.find((x) => x.structureId === 'muscle-subclavius' && x.type === type)!.points.map((p) => toWorld(p, tr));
+        return { x: pts.reduce((s, p) => s + p.x, 0) / pts.length, y: pts.reduce((s, p) => s + p.y, 0) / pts.length };
+      };
+      const o = c('origin');
+      const i = c('insertion');
+      return Math.hypot(o.x - i.x, o.y - i.y);
+    };
+    // A koncentrikus szakasz vége (0,4) a szakasz elejéhez (0) képest.
+    expect(len('scapular-pulldown', 0.4)).toBeLessThan(len('scapular-pulldown', 0) - 1);
+    expect(len('shoulder-shrug', 0.4)).toBeGreaterThan(len('shoulder-shrug', 0) + 1);
+    // A szerepadatok is ezt mondják.
+    const role = (id: string) => exercises.find((x) => x.id === id)!.phaseRoles!.concentric!.find((r) => r.structureIds.includes('muscle-subclavius'))!;
+    expect(role('scapular-pulldown').lengthChange).toBe('shortening');
+    expect(role('shoulder-shrug')).toMatchObject({ role: 'antagonist', lengthChange: 'lengthening' });
+  });
+});
+
+describe('Elülső fűrészizom – gyakorlatok', () => {
+  it('mindhárom gyakorlat elérhető, a vállöv-nézetben animál, és mindegyikben agonista az elülső fűrészizom', async () => {
+    const { serratusAnterior } = await import('../data/muscles/serratusAnterior');
+    expect(serratusAnterior.exerciseIds).toEqual(['serratus-punch', 'push-up-plus', 'scaption-overhead']);
+    serratusAnterior.exerciseIds.forEach((id) => {
+      const e = exercises.find((x) => x.id === id)!;
+      expect(e, id).toBeDefined();
+      expect(e.animation.kind, id).toBe('girdle');
+      expect(e.phaseRoles!.concentric!.find((r) => r.structureIds.includes('muscle-serratus-anterior'))?.role, id).toBe('agonist');
+    });
+  });
+
+  it('az 1-es mélységnél (kinyúlt helyzet) hosszabb az elülső fűrészizom, mint a 0-snál', async () => {
+    const { viewGeometries } = await import('../data/geometry');
+    const { computeFrameTransforms, lerpPose, toWorld } = await import('../utils/geometry');
+    ['serratus-punch', 'push-up-plus', 'scaption-overhead'].forEach((id) => {
+      const e = exercises.find((x) => x.id === id)!;
+      if (e.animation.kind !== 'girdle') throw new Error(id);
+      const a = e.animation;
+      const g = viewGeometries[a.viewId]!;
+      // Ahol a részek külön szerepelnek, az alsó részt (az alsó szöghöz tapad) mérjük.
+      const part = g.attachments.some((x) => x.structureId === 'muscle-serratus-anterior-inferior') ? 'muscle-serratus-anterior-inferior' : 'muscle-serratus-anterior';
+      const len = (d: number) => {
+        const tr = computeFrameTransforms(g.frames, lerpPose(a.startPose, a.endPose, d));
+        const c = (type: 'origin' | 'insertion') => {
+          const pts = g.attachments.filter((x) => x.structureId === part && x.type === type).flatMap((x) => x.points.map((p) => toWorld(p, tr)));
           return { x: pts.reduce((s, p) => s + p.x, 0) / pts.length, y: pts.reduce((s, p) => s + p.y, 0) / pts.length };
         };
         const o = c('origin');

@@ -22,6 +22,9 @@ const sternoInsertion = [H(12, 86), H(12, 44)];
 /** Kis mellizom: a hollócsőrnyúlványtól előre-befelé a 3–5. borda elülső felszínéig (a nagy mellizom alatt). */
 const pmiOrigin = [W(250, 362), W(234, 356)];
 const pmiInsertion = [W(154, 287), W(161, 293)];
+/** Elülső fűrészizom: a lapocka belső szélétől (hátul) a mellkas oldalfala mentén előre a bordákig. */
+const saOrigin = [W(156, 286), W(160, 302)];
+const saInsertion = [W(240, 178), W(246, 186)];
 
 export const superiorView: ViewGeometry = {
   viewId: 'superior',
@@ -53,6 +56,7 @@ export const superiorView: ViewGeometry = {
     {
       structureId: 'muscle-serratus-anterior',
       layer: 'superficial-muscles',
+      revealOnSelect: true,
       z: 1,
       outline: [W(240, 177), W(186, 214), W(155, 262), W(158, 302), W(168, 300), W(168, 262), W(198, 222), W(246, 186)],
       fibers: fan([W(240, 180), W(200, 210)], [W(160, 300), W(158, 268)], 4),
@@ -143,7 +147,9 @@ export const superiorView: ViewGeometry = {
     { structureId: 'muscle-pectoralis-major-clavicular', type: 'insertion', extent: 'line', points: [H(15, 70), H(15, 100)] },
     { structureId: 'muscle-pectoralis-major-sternocostal', type: 'insertion', extent: 'line', points: [H(11, 46), H(11, 84)] },
     { structureId: 'muscle-pectoralis-minor', type: 'origin', extent: 'line', points: pmiOrigin },
-    { structureId: 'muscle-pectoralis-minor', type: 'insertion', extent: 'line', points: pmiInsertion }
+    { structureId: 'muscle-pectoralis-minor', type: 'insertion', extent: 'line', points: pmiInsertion },
+    { structureId: 'muscle-serratus-anterior', type: 'origin', extent: 'line', points: saOrigin },
+    { structureId: 'muscle-serratus-anterior', type: 'insertion', extent: 'line', points: saInsertion }
   ],
   joints: [
     { structureId: 'joint-glenohumeral', at: H(0, 0) },

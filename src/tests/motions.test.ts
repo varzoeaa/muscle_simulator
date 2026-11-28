@@ -23,7 +23,7 @@ function originInsertionDistance(motion: MotionDefinition, structureId: string, 
 }
 
 describe('A nagy mellizom funkcióinak animációi', () => {
-  it('az Anatomy Labban felsorolt minden funkcióhoz tartozik mozgás', () => {
+  it('az Anatómia modulban felsorolt minden funkcióhoz tartozik mozgás', () => {
     const covered = new Set(pectoralisMajor.motionIds.map((id) => motionById(id)?.movementId));
     ['shoulder-adduction', 'shoulder-internal-rotation', 'shoulder-horizontal-adduction', 'shoulder-flexion', 'shoulder-extension', 'accessory-inspiration'].forEach((m) =>
       expect(covered.has(m as MotionDefinition['movementId']), m).toBe(true)

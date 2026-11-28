@@ -169,7 +169,7 @@ export function ComparisonTable({
   );
 }
 
-const EMG_NOTE = 'Az EMG az izom elektromos aktivitását méri, nem az izomerőt vagy a hipertrófiás hatást.';
+const EMG_NOTE = 'Az EMG az izom elektromos aktivitását méri – nem a külső terhelést, az izomerőt vagy a hipertrófiás hatást. Egy-egy vizsgálat eredménye nem általános szabály.';
 
 /* ------------------------------------------------------------------ */
 /* Fekvenyomás                                                         */
@@ -181,10 +181,10 @@ export function BenchAngleComparison({ angle, onAngle, implement }: { angle: num
       zones={angleZones}
       angle={angle}
       onAngle={onAngle}
-      findingsTitle="Mit mértek a vizsgálatok (EMG)"
+      findingsTitle="Mit mértek a vizsgálatok (EMG, rudas fekvenyomás)"
       extraFindings={[angleCommonFinding]}
       illustration={<p className="text-xs text-ink-2">Az ábrán: a mellkasi érintési pont és a terhelés pályája a dőlésszöggel együtt változik.</p>}
-      footnote={`${EMG_NOTE} A vizsgálatok edzett felnőttekkel, rúddal készültek${implement === 'dumbbell' ? '; kézisúlyzóra az eredményeket a modell nem vetíti át közvetlenül' : ''}.`}
+      footnote={`${EMG_NOTE} Mindkét dőlésszöges vizsgálat edzett férfiakkal, szabad rúddal készült${implement === 'dumbbell' ? ' – kézisúlyzós nézetben is rudas eredmények láthatók, a modell nem vetíti át őket a kézisúlyzóra' : ''}.`}
     />
   );
 }
@@ -203,7 +203,7 @@ export function BenchImplementComparison({ implement, onSwitch }: { implement: '
       current={implement}
       rows={implementRows}
       onSwitch={(k) => onSwitch(k as 'barbell' | 'dumbbell')}
-      footnote={`Az EMG-eredmények egy 12 fős, edzett férfiakkal végzett vizsgálatból származnak (maximális terhelésnél); más terhelésnél és csoportban eltérhetnek. ${EMG_NOTE}`}
+      footnote={`A terhelés- és EMG-eredmények egyetlen vizsgálatból származnak (12 edzett férfi; Smith-gép, rúd és kézisúlyzó; az absztrakt alapján az 1-RM-emeléseknél rögzítve); más terhelésnél, eszköznél és csoportban eltérhetnek. Az 1-RM a külső terhelést, az EMG az elektromos aktivitást mutatja – egyik sem az izomerő vagy a hipertrófia közvetlen mértéke. ${EMG_NOTE}`}
     />
   );
 }
@@ -272,7 +272,7 @@ export function FlyAngleComparison({ angle, onAngle }: { angle: number; onAngle:
           </p>
         </>
       }
-      footnote="Tárogatásra vonatkozó, dőlésszögeket összehasonlító EMG-vizsgálatot nem találtunk; a fekvenyomás-vizsgálatok eredményei nem vihetők át közvetlenül a tárogatásra. A fenti különbségek az izomrészek ismert ízületi működéséből levezetett oktatási modell."
+      footnote="Tárogatásra vonatkozó, dőlésszögeket összehasonlító EMG-vizsgálatot nem találtunk; a fekvenyomás-vizsgálatok eredményei nem vihetők át közvetlenül a tárogatásra. A fenti különbségek az izomrészek ismert ízületi működéséből levezetett oktatási hipotézisek, nem mért eredmények."
     />
   );
 }
@@ -321,11 +321,11 @@ function MomentChart({ current, position }: { current: 'dumbbell' | 'machine'; p
       <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-ink-2">
         <span>
           <span className="mr-1 inline-block h-0.5 w-5 align-middle" style={{ background: 'var(--an-agonist)' }} />
-          Kézisúlyzó: a nyomaték az erőkarral (a kar és a függőleges szögének szinuszával) arányos – a pad dőlésétől független.
+          Kézisúlyzó: a nyomaték a súly hatásvonalának a vállízülettől vett vízszintes távolságával (a kar és a függőleges szögének szinuszával) arányos – a pad dőlésétől független.
         </span>
         <span>
           <span className="mr-1 inline-block w-5 border-t-2 border-dashed align-middle" style={{ borderColor: 'var(--an-plate)' }} />
-          Gép: gépfüggő profil; az ábra állandó értéket feltételez.
+          Gép: gép- és geometriafüggő profil; az ábra állandó értéket feltételez.
         </span>
       </div>
     </figure>
@@ -412,7 +412,7 @@ export function PecDeckHeightComparison({ elevation, onElevation }: { elevation:
           <p className="text-xs text-ink-2">Elölnézet: az ülésmagasság dönti el, milyen magasan van a felkar a vállhoz képest. A felülnézeti animáció a vízszintes összetevőt mutatja.</p>
         </>
       }
-      footnote="A gépes tárogatás ülés- vagy karmagasságát összehasonlító EMG-vizsgálatot nem találtunk; a különbségek az izomrészek ismert ízületi működéséből levezetett oktatási modell. A gépek kialakítása eltér: egyes gépeken a kar helyzetét a fogantyú vagy a karpárna magassága is befolyásolja."
+      footnote="A gépes tárogatás ülés- vagy karmagasságát összehasonlító EMG-vizsgálatot nem találtunk; a különbségek az izomrészek ismert ízületi működéséből levezetett oktatási hipotézisek, nem mért eredmények. A gépek kialakítása eltér: egyes gépeken a kar helyzetét a fogantyú vagy a karpárna magassága is befolyásolja."
     />
   );
 }
@@ -492,7 +492,7 @@ export function CablePulleyComparison({ angle, onAngle }: { angle: number; onAng
           </p>
         </>
       }
-      footnote="A csigamagasságot összehasonlító elsődleges EMG-vizsgálatot nem találtunk; a gyakran olvasható „felső csiga – alsó rostok, alsó csiga – felső rostok” szabály edzői gyakorlatból származik. A fenti különbségek az izomrészek ismert ízületi működéséből levezetett oktatási modell."
+      footnote="A csigamagasságot összehasonlító elsődleges EMG-vizsgálatot nem találtunk; a gyakran olvasható „felső csiga – alsó rostok, alsó csiga – felső rostok” szabály edzői gyakorlatból származik. A fenti különbségek az izomrészek ismert ízületi működéséből levezetett oktatási hipotézisek, nem mért eredmények."
     />
   );
 }

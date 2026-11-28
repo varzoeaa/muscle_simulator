@@ -20,6 +20,18 @@ const H = (x: number, y: number): FramedPoint => ({ frame: 'humerus', x: -x, y }
 const worldBone = (structureId: string, d: string, stroke?: number): BoneShapeGeometry => ({ structureId, frame: 'world', d: mirrorPathX(d, AXIS), stroke });
 const localBone = (structureId: string, frame: string, d: string): BoneShapeGeometry => ({ structureId, frame, d: mirrorPathX(d, 0) });
 
+/*
+ * Elülső fűrészizom (mély réteg): a lapocka belső szélének elülső felszínétől a lapocka alatt
+ * oldalra, a bordák oldalsó részéig. Hátulról a lapocka takarja; csak kiválasztva vagy
+ * szerepkörrel jelölve látszik. A bordai eredések a bordák oldalsó végén (a mellkas kontúrján).
+ */
+const saSupInsertion = [W(250, 100), W(255, 134)];
+const saSupOrigin = [W(199, 138), W(201, 164)];
+const saIntInsertion = [W(256, 142), W(252, 194)];
+const saIntOrigin = [W(201, 168), W(203, 192)];
+const saInfInsertion = [W(250, 206), W(234, 290)];
+const saInfOrigin = [W(203, 220), W(198, 250), W(194, 280), W(191, 310), W(192, 340)];
+
 const ribs: BoneShapeGeometry[] = Array.from({ length: 10 }, (_, i) => {
   const y = 112 + i * 27;
   return worldBone('bone-ribs', `M294,${y} Q240,${y - 10} ${198 + i * 2},${y + 26}`, 7);
@@ -49,6 +61,28 @@ export const posteriorView: ViewGeometry = {
     localBone('bone-radius', 'forearm', 'M2,8 L1,198 L12,198 L19,2 Z')
   ],
   muscles: [
+    {
+      structureId: 'muscle-serratus-anterior-superior',
+      layer: 'deep-muscles',
+      z: 0,
+      outline: [W(250, 98), W(256, 138), W(201, 164), W(199, 136), W(214, 118)],
+      fibers: fan(saSupInsertion, saSupOrigin, 3)
+    },
+    {
+      structureId: 'muscle-serratus-anterior-intermediate',
+      layer: 'deep-muscles',
+      z: 0,
+      outline: [W(256, 138), W(252, 196), W(203, 194), W(201, 164)],
+      fibers: fan(saIntInsertion, saIntOrigin, 3)
+    },
+    {
+      structureId: 'muscle-serratus-anterior-inferior',
+      layer: 'deep-muscles',
+      z: 0,
+      outline: [W(252, 196), W(246, 250), W(234, 292), W(218, 322), W(196, 352), W(190, 330), W(191, 300), W(196, 250), W(203, 218), W(203, 194)],
+      fibers: fan(saInfInsertion, saInfOrigin, 6),
+      label: { at: W(214, 300), text: 'Elülső fűrészizom' }
+    },
     {
       structureId: 'muscle-latissimus-dorsi',
       layer: 'superficial-muscles',
@@ -129,7 +163,14 @@ export const posteriorView: ViewGeometry = {
       label: { at: W(196, 150), text: 'Deltaizom hátsó rész' }
     }
   ],
-  attachments: [],
+  attachments: [
+    { structureId: 'muscle-serratus-anterior-superior', type: 'origin', extent: 'line', points: saSupOrigin },
+    { structureId: 'muscle-serratus-anterior-superior', type: 'insertion', extent: 'line', points: saSupInsertion },
+    { structureId: 'muscle-serratus-anterior-intermediate', type: 'origin', extent: 'line', points: saIntOrigin },
+    { structureId: 'muscle-serratus-anterior-intermediate', type: 'insertion', extent: 'line', points: saIntInsertion },
+    { structureId: 'muscle-serratus-anterior-inferior', type: 'origin', extent: 'line', points: saInfOrigin },
+    { structureId: 'muscle-serratus-anterior-inferior', type: 'insertion', extent: 'line', points: saInfInsertion }
+  ],
   joints: [
     { structureId: 'joint-glenohumeral', at: H(0, 0) },
     { structureId: 'joint-acromioclavicular', at: W(160, 100) },

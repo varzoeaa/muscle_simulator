@@ -2,7 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { ArrowDownRight, ArrowUpRight, Equal, Zap } from 'lucide-react';
 import type { ContractionType, Muscle, MuscleRole, MuscleRoleType, RoleDisplayMode } from '../../types';
-import { AnatomyViewer, ALL_LAYERS, isStructureDrawn } from '../../components/anatomy/AnatomyViewer';
+import { AnatomyViewer, ALL_LAYERS, isStructureDrawn, matchesStructure } from '../../components/anatomy/AnatomyViewer';
 import { AnimationControls } from '../../components/animation/AnimationControls';
 import { RoleLegend } from '../../components/anatomy/RoleLegend';
 import { RoleTable } from '../anatomy/AnatomyLab';
@@ -73,7 +73,7 @@ export function BiomechanicsLab() {
     activeIds,
     attachmentsFor: muscle.id,
     // A mély réteg csak akkor látszik, ha maga a vizsgált izom is mély (pl. kis mellizom); egyébként zsúfolná az ábrát.
-    layers: { ...ALL_LAYERS, labels: showLabels, 'deep-muscles': geometry.muscles.some((m) => m.layer === 'deep-muscles' && m.structureId === muscle.id) }
+    layers: { ...ALL_LAYERS, labels: showLabels, 'deep-muscles': geometry.muscles.some((m) => m.layer === 'deep-muscles' && matchesStructure(m.structureId, muscle.id)) }
   };
   const statusBadges = (
     <div className="flex flex-wrap gap-1.5 text-xs" aria-live="polite">
@@ -106,7 +106,7 @@ export function BiomechanicsLab() {
       <div className="flex min-w-0 flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h1 className="font-serif text-2xl text-ink">Biomechanics Lab</h1>
+            <h1 className="font-serif text-2xl text-ink">Biomechanika</h1>
             <p className="text-xs text-ink-2">Izomműködés és mozgásanimációk · nézet: {viewById(motion.viewId)?.name.hu}</p>
           </div>
           <label className="flex items-center gap-2 text-xs text-ink-2">

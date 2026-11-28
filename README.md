@@ -1,4 +1,4 @@
-# MuscleLab – Interactive Anatomy & Biomechanics
+# Myo – interaktív anatómia és biomechanika
 
 Interaktív, magyar nyelvű anatómiai és biomechanikai oktatási webalkalmazás (PWA) fitnessinstruktor-tanulóknak, személyi edzőknek, sporttudományi hallgatóknak és edzőtermi sportolóknak.
 
@@ -6,10 +6,10 @@ Az első verzió (vertikális prototípus) a **nagy mellizomhoz** (m. pectoralis
 
 | Modul | Alcím | Tartalom |
 |---|---|---|
-| Anatomy Lab | Anatómiai ismeretek | interaktív 2D SVG-modell (elülső nézet, felülnézet), izomrészek, eredés/tapadás, beidegzés, funkciók, szerepek mozgásonként, források |
-| Biomechanics Lab | Izomműködés és mozgásanimációk | vállízületi közelítés és horizontális közelítés animációja; koncentrikus / excentrikus / izometriás működés; agonista / antagonista / szinergista megjelenítés |
-| Exercise Lab | Edzőtermi gyakorlatok | fekvenyomás oldalnézeti animációja állítható mozgástartománnyal, paddőlésszöggel és szemléltető súllyal |
-| Study Mode | Tanulás és vizsgafelkészítés | tanulókártyák, gyakorlás azonnali visszajelzéssel, vizsgamód, hibás kérdések ismétlése, helyi eredménytárolás |
+| Anatómia | Izmok, eredés, tapadás, beidegzés | interaktív 2D SVG-modell (elülső nézet, felülnézet), izomrészek, eredés/tapadás, beidegzés, funkciók, szerepek mozgásonként, források |
+| Biomechanika | Izomműködés és mozgásanimációk | vállízületi közelítés és horizontális közelítés animációja; koncentrikus / excentrikus / izometriás működés; agonista / antagonista / szinergista megjelenítés |
+| Gyakorlatok | Edzőtermi mozdulatok szakaszonként | fekvenyomás oldalnézeti animációja állítható mozgástartománnyal, paddőlésszöggel és szemléltető súllyal |
+| Tanulás | Kártyák, gyakorlás, vizsga | tanulókártyák, gyakorlás azonnali visszajelzéssel, vizsgamód, hibás kérdések ismétlése, helyi eredménytárolás |
 
 A kis mellizom, a kulcscsont alatti izom és az elülső fűrészizom kártyái „fejlesztés alatt” jelöléssel szerepelnek; az ábrákon kontextusként már megjelennek.
 
@@ -40,7 +40,7 @@ A `dist/` mappa tartalmát kell a `gh-pages` ágra vagy a Pages forrásmappájá
 ## Offline működés és adatok
 
 - A teljes tananyag a build része; a service worker első betöltés után minden fájlt gyorsítótáraz.
-- A témaválasztás, a tanulási előrehaladás, a vizsgaeredmények és a hibás válaszok a böngésző LocalStorage-ában tárolódnak (`musclelab:settings`, `musclelab:study`). Törlés: Study Mode → Eredmények → Tanulási adatok törlése.
+- A témaválasztás, a tanulási előrehaladás, a vizsgaeredmények és a hibás válaszok a böngésző LocalStorage-ában tárolódnak (`musclelab:settings`, `musclelab:study`). Törlés: Tanulás → Eredmények → Tanulási adatok törlése.
 - Nincs regisztráció, nincs külső API, nincs adatgyűjtés.
 
 ## Dokumentáció

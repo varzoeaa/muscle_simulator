@@ -1,4 +1,4 @@
-# Termékkövetelmények – MuscleLab
+# Termékkövetelmények – Myo
 
 ## Cél
 
@@ -11,7 +11,7 @@ Interaktív 2D vizualizációkkal összekapcsolni az anatómiát, a funkcionáli
 ## Az első verzió tartalma
 
 - Négy felületes mellizom: nagy mellizom (három résszel), kis mellizom, kulcscsont alatti izom, elülső fűrészizom. **Jelenlegi állapot: a nagy mellizom teljes vertikális prototípusa; a másik három „fejlesztés alatt”.**
-- Izomközpontú navigáció: Kezdőoldal → izom → adatlap → modul (Anatomy Lab, Biomechanics Lab, Exercise Lab, Study Mode). Modulváltáskor az izom megmarad.
+- Izomközpontú navigáció: Kezdőoldal → izom → adatlap → modul (Anatómia, Biomechanika, Gyakorlatok, Tanulás). Modulváltáskor az izom megmarad.
 - Asztali elrendezés: bal oldalt izomválasztó és modulnavigáció, középen ábra, jobbra információk és vezérlők, felül logó, aktuális izom, témaváltás. Mobilon: kompakt fejléc, izomválasztó, modulfülek, nagy ábra, alatta információk.
 
 ## Nem funkcionális követelmények

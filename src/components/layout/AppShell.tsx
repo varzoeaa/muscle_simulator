@@ -1,5 +1,5 @@
-import { Link, Outlet, useMatch } from 'react-router-dom';
-import { BookMarked, Moon, Sun, WifiOff } from 'lucide-react';
+import { Link, Outlet, useLocation, useMatch } from 'react-router-dom';
+import { BookMarked, LibraryBig, Moon, Sun, WifiOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { muscleBySlug } from '../../data/muscles';
@@ -10,6 +10,15 @@ export function AppShell() {
   const match = useMatch('/izom/:slug/*');
   const muscle = muscleBySlug(match?.params.slug);
   const online = useOnline();
+  const { pathname } = useLocation();
+  // Oldalváltáskor (pl. a kezdőoldal aljáról a Fogalomtárra) az új oldal tetejéről induljon a nézet.
+  useEffect(() => {
+    try {
+      window.scrollTo(0, 0);
+    } catch {
+      /* tesztkörnyezetben nincs görgetés */
+    }
+  }, [pathname]);
 
   return (
     <div className="min-h-dvh bg-bg text-ink">
@@ -18,11 +27,11 @@ export function AppShell() {
       </a>
       <header className="sticky top-0 z-30 border-b border-line bg-bg/95 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-[1600px] items-center gap-3 px-4">
-          <Link to="/" className="flex items-center gap-2.5" aria-label="MuscleLab – kezdőoldal">
+          <Link to="/" className="flex items-center gap-2.5" aria-label="Myo – kezdőoldal">
             <Logo />
             <span className="leading-tight">
-              <span className="block font-serif text-lg tracking-wide text-ink">MuscleLab</span>
-              <span className="hidden text-[10px] uppercase tracking-[0.18em] text-ink-2 sm:block">Interactive Anatomy &amp; Biomechanics</span>
+              <span className="block font-serif text-lg tracking-wide text-ink">Myo</span>
+              <span className="hidden text-[10px] uppercase tracking-[0.18em] text-ink-2 sm:block">Interaktív anatómia és biomechanika</span>
             </span>
           </Link>
           {muscle && (
@@ -38,6 +47,9 @@ export function AppShell() {
                 <WifiOff size={13} /> Offline
               </span>
             )}
+            <Link to="/fogalomtar" className="inline-flex h-9 items-center gap-1.5 rounded-xl px-2.5 text-sm text-ink-2 hover:bg-bg-2 hover:text-ink">
+              <LibraryBig size={16} /> <span className="hidden sm:inline">Fogalomtár</span>
+            </Link>
             <Link to="/forrasok" className="inline-flex h-9 items-center gap-1.5 rounded-xl px-2.5 text-sm text-ink-2 hover:bg-bg-2 hover:text-ink">
               <BookMarked size={16} /> <span className="hidden sm:inline">Források és névjegy</span>
             </Link>
