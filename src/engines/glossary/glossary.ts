@@ -41,16 +41,20 @@ const MAX_ERRORS = 50;
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const nonEmptyString = (v: unknown): v is string => typeof v === 'string' && v.trim().length > 0;
 
-/** Egy rekord validálása és megtisztítása (csak az ismert mezőket tartjuk meg, a szövegeket levágjuk). */
-function validateTerm(raw: unknown, index: number, errors: GlossaryError[]): GlossaryTerm | null {
-  const item = index + 1;
-  if (!isObject(raw)) {
-    errors.push({ item, message: 'A tétel nem objektum.' });
-    return null;
-  }
-  const id = nonEmptyString(raw.id) ? raw.id.trim() : undefined;
-  const before = errors.length;
-  const err = (field: string, message: string) => errors.push({ item, id, field, message });
+export interface FieldError {
+  /** A hibás mező neve (pl. `name`, `categories[2]`). */
+  field?: string;
+  message: string;
+}
+
+/**
+ * Egy rekord validálása és megtisztítása – ezt használja a JSON-import és a felületi űrlap is.
+ * Csak az ismert mezőket tartja meg, a szövegeket levágja, a tömbökből kiszűri az ismétlést.
+ */
+export function validateTermRecord(raw: unknown): { term: GlossaryTerm | null; errors: FieldError[] } {
+  if (!isObject(raw)) return { term: null, errors: [{ message: 'A tétel nem objektum.' }] };
+  const errors: FieldError[] = [];
+  const err = (field: string, message: string) => errors.push({ field, message });
 
   if (!nonEmptyString(raw.id)) err('id', 'Kötelező, nem üres szöveg.');
   if (!nonEmptyString(raw.name)) err('name', 'Kötelező, nem üres szöveg.');
@@ -65,7 +69,7 @@ function validateTerm(raw: unknown, index: number, errors: GlossaryError[]): Glo
     if (!Array.isArray(raw.aliases)) err('aliases', 'Ha megadod, szöveges tömb legyen.');
     else raw.aliases.forEach((a, i) => !nonEmptyString(a) && err(`aliases[${i}]`, 'A szinonima nem üres szöveg legyen.'));
   }
-  if (errors.length > before) return null;
+  if (errors.length) return { term: null, errors };
 
   const dedupe = (xs: string[]) => [...new Set(xs.map((x) => x.trim()))];
   const term: GlossaryTerm = {
@@ -79,7 +83,35 @@ function validateTerm(raw: unknown, index: number, errors: GlossaryError[]): Glo
     const aliases = dedupe(raw.aliases as string[]);
     if (aliases.length) term.aliases = aliases;
   }
+  return { term, errors: [] };
+}
+
+/** Import: a rekordhibákat a tétel sorszámával és azonosítójával egészíti ki. */
+function validateTerm(raw: unknown, index: number, errors: GlossaryError[]): GlossaryTerm | null {
+  const { term, errors: fieldErrors } = validateTermRecord(raw);
+  const id = isObject(raw) && nonEmptyString(raw.id) ? raw.id.trim() : undefined;
+  fieldErrors.forEach((e) => errors.push({ item: index + 1, id, ...e }));
   return term;
+}
+
+/**
+ * Stabil, egyedi azonosító új, felületen felvett fogalomhoz. A névtől független, ezért a név
+ * későbbi módosítása nem változtatja meg.
+ */
+export function newTermId(existingIds: Iterable<string>): string {
+  const taken = new Set(existingIds);
+  const random = () => {
+    try {
+      if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID().slice(0, 8);
+    } catch {
+      /* nincs crypto */
+    }
+    return Math.random().toString(36).slice(2, 10);
+  };
+  let id: string;
+  do id = `sajat-${Date.now().toString(36)}-${random()}`;
+  while (taken.has(id));
+  return id;
 }
 
 /** Egy már beolvasott (JSON.parse utáni) érték validálása. A teljes fájl vagy érvényes, vagy nem. */

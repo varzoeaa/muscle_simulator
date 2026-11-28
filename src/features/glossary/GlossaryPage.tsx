@@ -1,18 +1,23 @@
-import { useMemo, useRef, useState, type ReactNode } from 'react';
-import { AlertTriangle, CheckCircle2, Download, FileJson, Search, Upload, X } from 'lucide-react';
+import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
+import { AlertTriangle, CheckCircle2, Download, FileJson, Pencil, Plus, Search, Trash2, Upload, X } from 'lucide-react';
 import { Button, Panel, Segmented } from '../../components/ui';
 import { FlashcardDeck } from '../../components/study/FlashcardDeck';
 import { cardsFor, categoriesOf, describeError, exportGlossary, filterTerms, GLOSSARY_SCHEMA_VERSION, type GlossaryTerm } from '../../engines/glossary/glossary';
-import { useGlossaryStore, type ImportOutcome } from '../../stores/glossaryStore';
+import { useGlossaryStore, type ImportOutcome, type TermInput } from '../../stores/glossaryStore';
+import { ConfirmDialog, TermForm } from './TermForm';
 
 type View = 'terms' | 'cards';
 /** Ennél nagyobb fájlt nem olvasunk be (a LocalStorage kapacitása amúgy is néhány MB). */
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 const ALL = '__all__';
 
+type Editor = null | { mode: 'add' } | { mode: 'edit'; id: string };
+type Feedback = { tone: 'ok' | 'warn' | 'error'; text: string } | null;
+
 /**
- * Fogalomtár: JSON-ből importált fogalmak listája és a belőlük előállított tanulókártyák.
- * Minden adat a böngészőben marad (LocalStorage); a modul nem tartalmaz fogalomadatot.
+ * Fogalomtár: JSON-ből importált és a felületen felvett fogalmak egy gyűjteményben, valamint a
+ * belőlük előállított tanulókártyák. Minden adat a böngészőben marad (LocalStorage); a modul nem
+ * tartalmaz fogalomadatot.
  */
 export function GlossaryPage() {
   const terms = useGlossaryStore((s) => s.terms);
@@ -20,9 +25,20 @@ export function GlossaryPage() {
   const lastImport = useGlossaryStore((s) => s.lastImport);
   const importText = useGlossaryStore((s) => s.importText);
   const clearLastImport = useGlossaryStore((s) => s.clearLastImport);
+  const saveTerm = useGlossaryStore((s) => s.saveTerm);
+  const deleteTerm = useGlossaryStore((s) => s.deleteTerm);
   const [view, setView] = useState<View>('terms');
   const [readError, setReadError] = useState<string | null>(null);
+  const [editor, setEditor] = useState<Editor>(null);
+  const [toDelete, setToDelete] = useState<GlossaryTerm | null>(null);
+  const [feedback, setFeedback] = useState<Feedback>(null);
+  // A kereső és a szűrő a lapon él, így mentés és törlés után is megmarad.
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState(ALL);
   const fileInput = useRef<HTMLInputElement>(null);
+  const categories = useMemo(() => categoriesOf(terms), [terms]);
+  const cat = categories.includes(category) ? category : ALL;
+  const editing = editor?.mode === 'edit' ? (terms.find((t) => t.id === editor.id) ?? null) : null;
 
   const onFile = async (file: File | undefined) => {
     setReadError(null);
@@ -50,9 +66,44 @@ export function GlossaryPage() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
+  const openAdd = () => {
+    setView('terms');
+    setFeedback(null);
+    setEditor({ mode: 'add' });
+  };
+
+  const submit = (input: TermInput) => {
+    const outcome = saveTerm(input, editor?.mode === 'edit' ? editor.id : null);
+    if (outcome.kind === 'saved') {
+      setEditor(null);
+      const visible = filterTerms([outcome.term], cat === ALL ? null : cat, query).length > 0;
+      const verb = outcome.mode === 'add' ? 'Hozzáadva' : 'Mentve';
+      setFeedback(
+        visible
+          ? { tone: 'ok', text: `${verb}: „${outcome.term.name}”. A tanulókártyája is ${outcome.mode === 'add' ? 'elkészült' : 'frissült'}.` }
+          : { tone: 'warn', text: `${verb}: „${outcome.term.name}”, de a jelenlegi keresés vagy témakörszűrő miatt nem látszik a listában.` }
+      );
+    }
+    return outcome;
+  };
+
+  const cancelDelete = useCallback(() => setToDelete(null), []);
+  const confirmDelete = () => {
+    if (!toDelete) return;
+    const error = deleteTerm(toDelete.id);
+    setFeedback(error ? { tone: 'error', text: `A törlés nem sikerült: ${error}` } : { tone: 'ok', text: `Törölve: „${toDelete.name}”, a tanulókártyájával együtt.` });
+    if (!error && editor?.mode === 'edit' && editor.id === toDelete.id) setEditor(null);
+    setToDelete(null);
+  };
+
   const importButton = (
     <Button onClick={() => fileInput.current?.click()}>
       <Upload size={15} /> JSON importálása
+    </Button>
+  );
+  const addButton = (
+    <Button variant="outline" onClick={openAdd}>
+      <Plus size={15} /> Új fogalom
     </Button>
   );
 
@@ -73,7 +124,7 @@ export function GlossaryPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-serif text-2xl text-ink">Fogalomtár</h1>
-          <p className="text-xs text-ink-2">JSON-fájlból importált fogalmak és a belőlük készült tanulókártyák – minden adat ebben a böngészőben marad</p>
+          <p className="text-xs text-ink-2">Saját és JSON-fájlból importált fogalmak, és a belőlük készült tanulókártyák – minden adat ebben a böngészőben marad</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {terms.length > 0 && (
@@ -97,20 +148,55 @@ export function GlossaryPage() {
       {loadWarning && <Notice tone="warn">{loadWarning}</Notice>}
       {readError && <Notice tone="error" onClose={() => setReadError(null)}>{readError}</Notice>}
       {lastImport && <ImportReport outcome={lastImport} fileName={lastImport.fileName} onClose={clearLastImport} />}
+      {feedback && (
+        <Notice tone={feedback.tone} onClose={() => setFeedback(null)}>
+          {feedback.text}
+        </Notice>
+      )}
+
+      {editor && (editor.mode === 'add' || editing) && (
+        <TermForm key={editor.mode === 'edit' ? editor.id : 'new'} initial={editing} categories={categories} onSubmit={submit} onCancel={() => setEditor(null)} />
+      )}
 
       {terms.length === 0 ? (
-        <Panel>
-          <div className="flex flex-col items-center gap-3 py-6 text-center">
-            <FileJson size={32} className="text-accent-2" aria-hidden="true" />
-            <h2 className="font-serif text-lg text-ink">A fogalomtár még üres</h2>
-            <p className="max-w-md text-sm text-ink-2">Fogalmakat JSON-fájlból adhatsz hozzá. Minden fogalomból automatikusan tanulókártya is készül.</p>
-            {importButton}
-          </div>
-        </Panel>
+        !editor && (
+          <Panel>
+            <div className="flex flex-col items-center gap-3 py-6 text-center">
+              <FileJson size={32} className="text-accent-2" aria-hidden="true" />
+              <h2 className="font-serif text-lg text-ink">A fogalomtár még üres</h2>
+              <p className="max-w-md text-sm text-ink-2">Fogalmat felvehetsz itt, a felületen, vagy hozzáadhatsz JSON-fájlból. Minden fogalomból automatikusan tanulókártya is készül.</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {addButton}
+                {importButton}
+              </div>
+            </div>
+          </Panel>
+        )
       ) : view === 'terms' ? (
-        <TermsView terms={terms} />
+        <TermsView
+          terms={terms}
+          categories={categories}
+          query={query}
+          onQuery={setQuery}
+          category={cat}
+          onCategory={setCategory}
+          addButton={addButton}
+          onEdit={(t) => {
+            setFeedback(null);
+            setEditor({ mode: 'edit', id: t.id });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onDelete={setToDelete}
+        />
       ) : (
         <CardsView terms={terms} />
+      )}
+
+      {toDelete && (
+        <ConfirmDialog title="Fogalom törlése" confirmLabel="Törlés" onConfirm={confirmDelete} onCancel={cancelDelete}>
+          Biztosan törlöd a(z) <b className="text-ink">„{toDelete.name}”</b> fogalmat? A hozzá tartozó tanulókártya is eltűnik. A művelet nem vonható vissza (ha korábban
+          exportáltad, a fájlból visszaimportálható).
+        </ConfirmDialog>
       )}
 
       <FormatHelp open={terms.length === 0} />
@@ -188,15 +274,31 @@ function CategorySelect({ categories, value, onChange, id }: { categories: strin
   );
 }
 
-function TermsView({ terms }: { terms: GlossaryTerm[] }) {
-  const [query, setQuery] = useState('');
-  const [category, setCategory] = useState(ALL);
-  const categories = useMemo(() => categoriesOf(terms), [terms]);
-  const cat = categories.includes(category) ? category : ALL;
-  const list = useMemo(() => filterTerms(terms, cat === ALL ? null : cat, query), [terms, cat, query]);
+function TermsView({
+  terms,
+  categories,
+  query,
+  onQuery,
+  category,
+  onCategory,
+  addButton,
+  onEdit,
+  onDelete
+}: {
+  terms: GlossaryTerm[];
+  categories: string[];
+  query: string;
+  onQuery: (v: string) => void;
+  category: string;
+  onCategory: (v: string) => void;
+  addButton: ReactNode;
+  onEdit: (t: GlossaryTerm) => void;
+  onDelete: (t: GlossaryTerm) => void;
+}) {
+  const list = useMemo(() => filterTerms(terms, category === ALL ? null : category, query), [terms, category, query]);
   return (
     <Panel>
-      <div className="mb-3 grid gap-3 sm:grid-cols-[1fr_16rem]">
+      <div className="mb-3 grid gap-3 sm:grid-cols-[1fr_16rem_auto] sm:items-end">
         <label htmlFor="gl-search" className="flex flex-col gap-1 text-xs text-ink-2">
           Keresés (név, latin megfelelő, szinonima – ékezettel vagy anélkül)
           <span className="relative">
@@ -205,13 +307,14 @@ function TermsView({ terms }: { terms: GlossaryTerm[] }) {
               id="gl-search"
               type="search"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => onQuery(e.target.value)}
               placeholder="Keresés…"
               className="w-full rounded-xl border border-line bg-surface py-2 pl-9 pr-3 text-sm text-ink"
             />
           </span>
         </label>
-        <CategorySelect id="gl-category" categories={categories} value={cat} onChange={setCategory} />
+        <CategorySelect id="gl-category" categories={categories} value={category} onChange={onCategory} />
+        {addButton}
       </div>
       <p className="mb-2 text-xs text-ink-2" aria-live="polite">
         {list.length} / {terms.length} fogalom
@@ -222,9 +325,19 @@ function TermsView({ terms }: { terms: GlossaryTerm[] }) {
         <ul className="flex flex-col divide-y divide-line">
           {list.map((t) => (
             <li key={t.id} className="py-3">
-              <div className="flex flex-wrap items-baseline gap-x-2">
-                <h3 className="font-serif text-lg text-ink">{t.name}</h3>
-                {t.latin && <span className="text-sm italic text-ink-2">{t.latin}</span>}
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="flex min-w-0 flex-wrap items-baseline gap-x-2">
+                  <h3 className="font-serif text-lg text-ink">{t.name}</h3>
+                  {t.latin && <span className="text-sm italic text-ink-2">{t.latin}</span>}
+                </div>
+                <div className="flex shrink-0 gap-1">
+                  <Button variant="ghost" onClick={() => onEdit(t)} title={`„${t.name}” szerkesztése`}>
+                    <Pencil size={14} /> Szerkesztés
+                  </Button>
+                  <Button variant="ghost" onClick={() => onDelete(t)} title={`„${t.name}” törlése`}>
+                    <Trash2 size={14} /> Törlés
+                  </Button>
+                </div>
               </div>
               <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-ink">{t.definition}</p>
               {t.aliases && t.aliases.length > 0 && <p className="mt-1 text-xs text-ink-2">Szinonimák: {t.aliases.join(', ')}</p>}
@@ -256,7 +369,7 @@ function CardsView({ terms }: { terms: GlossaryTerm[] }) {
         <CategorySelect id="gl-card-category" categories={categories} value={cat} onChange={setCategory} />
       </div>
       <FlashcardDeck
-        key={`${cat}:${cards.length}`}
+        key={cat}
         cards={cards.map((c) => ({
           id: c.id,
           label: cat === ALL ? 'Fogalomtár' : cat,
@@ -318,7 +431,7 @@ function FormatHelp({ open }: { open: boolean }) {
 }`}</pre>
         <p>
           A teljes fájlt ellenőrizzük mentés előtt: ha bármelyik tétel hibás, semmi nem kerül be. Ismételt importnál a már meglévő azonosítók nem duplikálódnak; ha egy meglévő
-          azonosítóhoz eltérő tartalom érkezik, a meglévő rekord marad meg, és az import jelzi az ütközést. Az „Exportálás JSON-ba” ugyanebben a formátumban menti a teljes
+          azonosítóhoz eltérő tartalom érkezik, a meglévő rekord marad meg, és az import jelzi az ütközést. A felületen felvett fogalmak ugyanebbe a gyűjteménybe kerülnek. Az „Exportálás JSON-ba” ugyanebben a formátumban menti az aktuális, teljes
           fogalomtárat.
         </p>
       </div>
