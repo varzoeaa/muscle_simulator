@@ -152,3 +152,76 @@ describe('Fogalomtár – állapot', () => {
     expect(useGlossaryStore.getState().lastImport).toMatchObject({ kind: 'success', fileName: 'teszt.json' });
   });
 });
+
+describe('Fogalomtár – felületi hozzáadás, szerkesztés, törlés', () => {
+  it('üres fogalomtárban hozzáad: generált, egyedi azonosító, mentés, kártya', async () => {
+    const { saveTermIn } = await import('../stores/glossaryStore');
+    const store = memory();
+    const r = saveTermIn([], { name: '  Bőny ', definition: 'Teszt.', categories: ['K1', 'Új témakör'], aliases: ['', 'Aponeurosis'] }, null, store);
+    expect(r.outcome.kind).toBe('saved');
+    if (r.outcome.kind !== 'saved') return;
+    expect(r.outcome.mode).toBe('add');
+    expect(r.outcome.term).toMatchObject({ name: 'Bőny', categories: ['K1', 'Új témakör'], aliases: ['Aponeurosis'] });
+    expect(r.outcome.term.id).toMatch(/^sajat-/);
+    expect(loadGlossary(store).terms).toEqual(r.terms);
+    expect(cardsFor(r.terms, null)).toHaveLength(1);
+    const second = saveTermIn(r.terms, { name: 'Bőny', definition: 'Másik.', categories: ['K1'] }, null, store);
+    expect(second.outcome.kind === 'saved' && second.outcome.term.id).not.toBe(r.outcome.term.id);
+  });
+
+  it('a hiányzó kötelező mezőket ugyanaz a validáció jelzi, és a fogalomtár nem változik', async () => {
+    const { saveTermIn } = await import('../stores/glossaryStore');
+    const store = memory();
+    const r = saveTermIn([a], { name: ' ', definition: '', categories: [] }, null, store);
+    expect(r.outcome.kind).toBe('invalid');
+    if (r.outcome.kind === 'invalid') expect(r.outcome.errors.map((e) => e.field).sort()).toEqual(['categories', 'definition', 'name']);
+    expect(r.terms).toEqual([a]);
+    expect(store.data.size).toBe(0);
+  });
+
+  it('szerkesztéskor az azonosító és a lista helye megmarad, a kártya frissül; importált fogalom is szerkeszthető', async () => {
+    const { saveTermIn } = await import('../stores/glossaryStore');
+    const store = memory();
+    const imported = importIntoGlossary([], file(a, b), store).terms;
+    const r = saveTermIn(imported, { name: 'Ízület (új név)', definition: 'Szerkesztett.', categories: ['K3'] }, 't-a', store);
+    expect(r.outcome.kind).toBe('saved');
+    expect(r.terms.map((t) => t.id)).toEqual(['t-a', 't-b']);
+    expect(r.terms[0]).toEqual({ id: 't-a', name: 'Ízület (új név)', definition: 'Szerkesztett.', categories: ['K3'] });
+    expect(cardsFor(r.terms, 'K3')[0]).toMatchObject({ termId: 't-a', front: 'Ízület (új név)', definition: 'Szerkesztett.' });
+    expect(loadGlossary(store).terms.find((t) => t.id === 't-a')!.name).toBe('Ízület (új név)');
+    // Ugyanazt a fájlt újraimportálva a helyben szerkesztett fogalom marad meg (ütközés).
+    const re = importIntoGlossary(r.terms, file(a, b), store);
+    expect(re.outcome).toEqual({ kind: 'success', added: [], unchanged: ['t-b'], conflicts: ['t-a'] });
+    expect(re.terms[0]!.definition).toBe('Szerkesztett.');
+  });
+
+  it('törléskor csak a kiválasztott fogalom és a kártyája tűnik el; az export a törölt tétel nélkül, visszaimportálható', async () => {
+    const { deleteTermIn, saveTermIn } = await import('../stores/glossaryStore');
+    const store = memory();
+    let terms = importIntoGlossary([], file(a, b, c), store).terms;
+    const added = saveTermIn(terms, { name: 'Saját', definition: 'Kézi.', categories: ['K2'] }, null, store);
+    terms = added.terms;
+    const del = deleteTermIn(terms, 't-b', store);
+    expect(del.error).toBeNull();
+    expect(del.terms.map((t) => t.id)).toEqual(['t-a', 't-c', added.outcome.kind === 'saved' ? added.outcome.term.id : '']);
+    expect(cardsFor(del.terms, 'K2').map((x) => x.termId)).not.toContain('t-b');
+    expect(categoriesOf(del.terms)).toEqual(['K1', 'K2']);
+    expect(loadGlossary(store).terms).toHaveLength(3);
+    const exported = parseGlossaryJson(exportGlossary(del.terms));
+    expect(exported.ok && exported.terms.map((t) => t.name)).toEqual(['Ízület', 'Saját', 'Szalag']);
+    const elsewhere = importIntoGlossary([], exportGlossary(del.terms), memory());
+    expect(elsewhere.outcome.kind === 'success' && elsewhere.outcome.added).toHaveLength(3);
+  });
+
+  it('mentési hibánál hozzáadás, szerkesztés és törlés után is az előző állapot marad', async () => {
+    const { deleteTermIn, saveTermIn } = await import('../stores/glossaryStore');
+    const broken = memory(true);
+    expect(saveTermIn([a], { name: 'X', definition: 'Y', categories: ['K'] }, null, broken).terms).toEqual([a]);
+    const ed = saveTermIn([a], { name: 'X', definition: 'Y', categories: ['K'] }, 't-a', broken);
+    expect(ed.outcome.kind).toBe('save-failed');
+    expect(ed.terms).toEqual([a]);
+    const del = deleteTermIn([a], 't-a', broken);
+    expect(del.error).toMatch(/betelt/);
+    expect(del.terms).toEqual([a]);
+  });
+});
